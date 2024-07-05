@@ -1,0 +1,27 @@
+Package: rmcmc
+Title: Robust Markov Chain Monte Carlo Methods
+Version: 0.0.0.9000
+Authors@R: c(
+    person(c("Matthew", "M."), "Graham", , "m.graham@ucl.ac.uk",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9104-7960")),
+    person("Samuel", "Livingstone", role = "aut",
+           comment = c(ORCID = "0000-0002-7277-086X")),
+    person("University College London", role = "cph"),
+    person("Engineering and Physical Sciences Research Council", role = "fnd")
+  )
+Description: Functions for simulating Markov chains using the Barker proposal
+    to compute Markov chain Monte Carlo (MCMC) estimates of expectations with
+    respect to a target distribution on a real-valued vector space. The Barker
+    proposal, described in Livingstone and Zanella (2022) 
+    <https://doi.org/10.1111/rssb.12482>, is a gradient-based MCMC algorithm
+    inspired by the Barker accept-reject rule, which combines the robustness of
+    simpler MCMC schemes such as random-walk Metropolis with the efficiency of
+    gradient-based algorithms such as Metropolis adjusted Langevin algorithm.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
