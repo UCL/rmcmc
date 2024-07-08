@@ -4,18 +4,14 @@
 \alias{log_density_ratio_barker}
 \title{Compute logarithm of Barker proposal density ratio.}
 \usage{
-log_density_ratio_barker(x, y, grad_x, grad_y)
+log_density_ratio_barker(state, proposed_state, target_distribution)
 }
 \arguments{
-\item{x}{Current chain state.}
+\item{state}{Current chain state.}
 
-\item{y}{Proposed chain state.}
+\item{proposed_state}{Proposed chain state.}
 
-\item{grad_x}{Gradient of target distribution log density function at current
-chain state.}
-
-\item{grad_y}{Gradient of target distribution log density function at
-proposed chain state.}
+\item{target_distribution}{Target stationary distribution for chain.}
 }
 \value{
 Logarithm of proposal density ratio.
@@ -24,9 +20,13 @@ Logarithm of proposal density ratio.
 Compute logarithm of Barker proposal density ratio.
 }
 \examples{
-x <- c(0., 0.)
-grad_x <- c(-0.1, 0.5)
-y <- c(1., 0.)
-grad_y <- c(0.7, -0.4)
-log_density_ratio_barker(x, y, grad_x, grad_y)
+state <- chain_state(c(0., 0.))
+target_distribution <- list(
+  log_density = function(x) sum(x^2) / 2,
+  grad_log_density = function(x) x
+)
+proposed_state <- sample_barker(state, target_distribution, step_size = 1.)
+log_density_ratio_barker(
+  state, proposed_state, target_distribution
+)
 }
