@@ -35,9 +35,9 @@ sample_barker <- function(
     sample_uniform = stats::runif) {
   grad <- state$grad_log_density(target_distribution)
   dim <- state$dimension()
-  auxiliary <- sample_auxiliary(dim)
+  auxiliary <- step_size * sample_auxiliary(dim)
   signs <- 2 * (sample_uniform(dim) < logistic_sigmoid(grad * auxiliary)) - 1
-  chain_state(state$position() + step_size * signs * auxiliary)
+  chain_state(state$position() + signs * auxiliary)
 }
 
 #' Compute logarithm of Barker proposal density ratio.

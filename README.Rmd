@@ -34,9 +34,30 @@ devtools::install_github("UCL/rmcmc")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to sample from a standard normal distribution,
+and compute average acceptance probability over chain.
 
 ```{r example}
 library(rmcmc)
-## basic example code
+
+target_distribution <- list(
+  log_density = function(x) sum(x^2) / 2,
+  grad_log_density = function(x) x
+)
+proposal <- barker_proposal(target_distribution, step_size = 2.)
+n_sample <- 1000
+dimension <- 2
+set.seed(87628713712L)
+state <- chain_state(rnorm(dimension))
+sum_accept_prob <- 0
+for (s in 2:n_sample) {
+  state_and_statistics <- sample_metropolis_hastings(
+    state, target_distribution, proposal
+  )
+  state <- state_and_statistics$state
+  accept_prob <- state_and_statistics$statistics$accept_prob
+  sum_accept_prob <- sum_accept_prob + accept_prob
+}
+mean_accept_prob <- sum_accept_prob / n_sample
+message(sprintf("Average acceptance probability is %.2f", mean_accept_prob))
 ```
