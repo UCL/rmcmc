@@ -1,7 +1,7 @@
 standard_normal_target_distribution <- function() {
   list(
-    log_density = function(x) sum(x^2) / 2,
-    grad_log_density = function(x) x
+    log_density = function(x) -sum(x^2) / 2,
+    grad_log_density = function(x) -x
   )
 }
 

@@ -37,12 +37,13 @@ chain.
 library(rmcmc)
 
 target_distribution <- list(
-  log_density = function(x) sum(x^2) / 2,
-  grad_log_density = function(x) x
+  log_density = function(x) -sum(x^2) / 2,
+  grad_log_density = function(x) -x
 )
-proposal <- barker_proposal(target_distribution, step_size = 2.)
+proposal <- barker_proposal(target_distribution, step_size = 2.5)
 n_sample <- 1000
 dimension <- 2
+set.seed(876287L)
 state <- chain_state(rnorm(dimension))
 sum_accept_prob <- 0
 for (s in 2:n_sample) {
@@ -55,5 +56,5 @@ for (s in 2:n_sample) {
 }
 mean_accept_prob <- sum_accept_prob / n_sample
 message(sprintf("Average acceptance probability is %.2f", mean_accept_prob))
-#> Average acceptance probability is 0.21
+#> Average acceptance probability is 0.40
 ```
