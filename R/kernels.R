@@ -17,7 +17,7 @@
 #'   log_density = function(x) sum(x^2) / 2,
 #'   grad_log_density = function(x) x
 #' )
-#' proposal <- barker_proposal(target_distribution, step_size = 1.)
+#' proposal <- barker_proposal(target_distribution, scale = 1.)
 #' n_sample <- 1000
 #' states <- vector("list", n_sample)
 #' states[[1]] <- chain_state(rnorm(2))

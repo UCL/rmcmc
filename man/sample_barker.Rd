@@ -7,7 +7,7 @@
 sample_barker(
   state,
   target_distribution,
-  step_size,
+  scale_and_shape,
   sample_auxiliary = stats::rnorm,
   sample_uniform = stats::runif
 )
@@ -16,7 +16,7 @@ sample_barker(
 \item{state}{Current chain state.}
 
 \item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{grad_log_density}corresponding to
+with named entries \code{log_density} and \code{grad_log_density} corresponding to
 respectively functions for evaluating the logarithm of the (potentially
 unnormalized) density of the target distribution and its gradient.
 As an alternative to \code{grad_log_density} an entry
@@ -25,8 +25,15 @@ returning both the value and gradient of the logarithm of the (unnormalized)
 density of the target distribution as a list under the names \code{value} and
 \code{grad} respectively.}
 
-\item{step_size}{Step size parameter of proposal distribution. A scalar value
-determining scale of steps proposed.}
+\item{scale_and_shape}{Scalar, vector or matrix which scales and shapes
+proposal distribution. If a scalar (in which case the value should be
+non-negative) the auxiliary vector will be isotropically scaled by the
+value. If a vector (in which case the value should be equal in length to the
+dimension of the space and all entries non-negative) each dimension of the
+auxiliary vector will be scaled separately. If a matrix (in which case the
+value should be a square matrix with size equal to the dimension of the
+space) then by pre-multiplying the auxiliary vector arbitrary linear
+transformations can be performed.}
 
 \item{sample_auxiliary}{Function which generates a random vector from
 auxiliary variable distribution.}
@@ -46,5 +53,5 @@ target_distribution <- list(
   log_density = function(x) sum(x^2) / 2,
   grad_log_density = function(x) x
 )
-sample_barker(state, target_distribution, step_size = 1.)
+sample_barker(state, target_distribution, scale_and_shape = 1.)
 }
