@@ -6,14 +6,15 @@
 \usage{
 barker_proposal(
   target_distribution,
-  step_size,
+  scale = NULL,
+  shape = NULL,
   sample_auxiliary = stats::rnorm,
   sample_uniform = stats::runif
 )
 }
 \arguments{
 \item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{grad_log_density}corresponding to
+with named entries \code{log_density} and \code{grad_log_density} corresponding to
 respectively functions for evaluating the logarithm of the (potentially
 unnormalized) density of the target distribution and its gradient.
 As an alternative to \code{grad_log_density} an entry
@@ -22,8 +23,12 @@ returning both the value and gradient of the logarithm of the (unnormalized)
 density of the target distribution as a list under the names \code{value} and
 \code{grad} respectively.}
 
-\item{step_size}{Step size parameter of proposal distribution. A scalar value
-determining scale of steps proposed.}
+\item{scale}{Scale parameter of proposal distribution. A non-negative scalar
+value determining scale of steps proposed.}
+
+\item{shape}{Shape parameter of proposal distribution. Either a vector
+corresponding to a diagonal shape matrix with per-dimension scaling
+factors, or a matrix allowing arbitrary linear transformations.}
 
 \item{sample_auxiliary}{Function which generates a random vector from
 auxiliary variable distribution.}
@@ -36,19 +41,23 @@ List with entries \code{sample}, a function to generate sample from
 proposal distribution given current chain state, \code{log_density_ratio}, a
 function to compute log density ratio for proposal for a given pair of
 current and proposed chain states and \code{update}, a function to update
-step size parameter of proposal.
+parameters of proposal.
 }
 \description{
-Create a new Barker proposal object.
+\code{barker_proposal} returns a list with function to sample from the proposal,
+evaluate the log density ratio for a state pair for the proposal and update
+the proposal parameters. The proposal has two parameters \code{scale} and \code{shape}.
+At least one of \code{scale} and \code{shape} must be set before sampling from the
+proposal or evaluating the log density ratio.
 }
 \examples{
 target_distribution <- list(
   log_density = function(x) sum(x^2) / 2,
   grad_log_density = function(x) x
 )
-proposal <- barker_proposal(target_distribution, step_size = 1.)
+proposal <- barker_proposal(target_distribution, scale = 1.)
 state <- chain_state(c(0., 0.))
 proposed_state <- proposal$sample(state)
 log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
-proposal$update(step_size = 0.5)
+proposal$update(scale = 0.5)
 }
