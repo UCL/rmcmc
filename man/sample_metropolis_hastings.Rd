@@ -14,35 +14,44 @@ sample_metropolis_hastings(
 \arguments{
 \item{state}{Current chain state.}
 
-\item{target_distribution}{Target distribution for chain.}
+\item{target_distribution}{Target stationary distribution for chain. A list
+with named entries \code{log_density} and \code{grad_log_density} corresponding to
+respectively functions for evaluating the logarithm of the (potentially
+unnormalized) density of the target distribution and its gradient.
+As an alternative to \code{grad_log_density} an entry
+\code{value_and_grad_log_density} may instead be provided which is a function
+returning both the value and gradient of the logarithm of the (unnormalized)
+density of the target distribution as a list under the names \code{value} and
+\code{grad} respectively.}
 
-\item{proposal}{Proposal distribution.}
+\item{proposal}{Proposal distribution object. Must define entries \code{sample}, a
+function to generate sample from proposal distribution given current chain
+state and \code{log_density_ratio}, a function to compute log density ratio for
+proposal for a given pair of current and proposed chain states.}
 
 \item{sample_uniform}{Function which generates a random vector from standard
 uniform distribution given an integer size.}
 }
 \value{
-List with named entries \code{state} corresponding to new chain state and
-\code{statistics}, a list with named entries for statistics of transition, here
+List with named entries
+\itemize{
+\item \code{state}: corresponding to new chain state,
+\item \code{statistics}: a list with named entries for statistics of transition, here
 this consisting of a named entry \code{accept_prob} for the Metropolis
 acceptance probability.
+}
 }
 \description{
 Sample from Metropolis-Hastings kernel.
 }
 \examples{
 target_distribution <- list(
-  log_density = function(x) sum(x^2) / 2,
-  grad_log_density = function(x) x
+  log_density = function(x) -sum(x^2) / 2,
+  grad_log_density = function(x) -x
 )
 proposal <- barker_proposal(target_distribution, scale = 1.)
-n_sample <- 1000
-states <- vector("list", n_sample)
-states[[1]] <- chain_state(rnorm(2))
-for (s in 2:n_sample) {
-  state_and_statistics <- sample_metropolis_hastings(
-    states[[s - 1]], target_distribution, proposal
-  )
-  states[[s]] <- state_and_statistics$state
-}
+state <- chain_state(rnorm(2))
+new_state_and_statistics <- sample_metropolis_hastings(
+  state, target_distribution, proposal
+)
 }

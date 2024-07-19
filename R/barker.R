@@ -1,15 +1,7 @@
 #' Sample new state from Barker proposal.
 #'
+#' @inheritParams sample_metropolis_hastings
 #' @param state Current chain state.
-#' @param target_distribution Target stationary distribution for chain. A list
-#'  with named entries `log_density` and `grad_log_density` corresponding to
-#'  respectively functions for evaluating the logarithm of the (potentially
-#'  unnormalized) density of the target distribution and its gradient.
-#'  As an alternative to `grad_log_density` an entry
-#'  `value_and_grad_log_density` may instead be provided which is a function
-#'  returning both the value and gradient of the logarithm of the (unnormalized)
-#'  density of the target distribution as a list under the names `value` and
-#'  `grad` respectively.
 #' @param scale_and_shape Scalar, vector or matrix which scales and shapes
 #'  proposal distribution. If a scalar (in which case the value should be
 #'  non-negative) the auxiliary vector will be isotropically scaled by the
@@ -25,6 +17,7 @@
 #'   uniform distribution given an integer size.
 #'
 #' @return Proposed new chain state.
+#'
 #' @export
 #'
 #' @examples
@@ -125,12 +118,13 @@ get_shape_matrix <- function(scale, shape) {
 #'    corresponding to a diagonal shape matrix with per-dimension scaling
 #'    factors, or a matrix allowing arbitrary linear transformations.
 #'
-#' @return List with entries `sample`, a function to generate sample from
-#'   proposal distribution given current chain state, `log_density_ratio`, a
-#'   function to compute log density ratio for proposal for a given pair of
-#'   current and proposed chain states, `update`, a function to update
-#'   parameters of proposal, and `parameters` a function to return list of
-#'   current parameter values.
+#' @return Proposal object. A list with entries
+#' * `sample`: a function to generate sample from proposal distribution given
+#'   current chain state,
+#' * `log_density_ratio`: a  function to compute log density ratio for proposal
+#'   for a given pair of current and proposed chain states,
+#' * `update`: a function to update parameters of proposal,
+#' * `parameters`: a function to return list of current parameter values.
 #' @export
 #'
 #' @examples

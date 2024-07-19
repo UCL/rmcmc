@@ -7,11 +7,14 @@
 #'   chain.
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
-#' @return List of functions with entries `initialize`, a function for
-#'   initializing adapter state at beginning of chain, `update` a function for
-#'   updating adapter state and proposal parameters on each chain iteration,
-#'   and `finalize` a function for performing any final updates to adapter
-#'   state and proposal parameters on completion of chain sampling.
+#' @return List of functions with entries
+#' * `initialize`, a function for initializing adapter state at beginning of
+#'   chain,
+#' * `update` a function for updating adapter state and proposal parameters on
+#'   each chain iteration,
+#' * `finalize` a function for performing any final updates to adapter state and
+#'   proposal parameters on completion of chain sampling (may be `NULL` if
+#'   unused).
 #'
 #' @export
 #'
@@ -49,6 +52,7 @@ scale_adapter <- function(
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
 #' @inherit scale_adapter return
+#'
 #' @export
 variance_adapter <- function(proposal, kappa = 0.6) {
   mean_estimate <- NULL

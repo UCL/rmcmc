@@ -18,11 +18,16 @@ chain.}
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
 }
 \value{
-List of functions with entries \code{initialize}, a function for
-initializing adapter state at beginning of chain, \code{update} a function for
-updating adapter state and proposal parameters on each chain iteration,
-and \code{finalize} a function for performing any final updates to adapter
-state and proposal parameters on completion of chain sampling.
+List of functions with entries
+\itemize{
+\item \code{initialize}, a function for initializing adapter state at beginning of
+chain,
+\item \code{update} a function for updating adapter state and proposal parameters on
+each chain iteration,
+\item \code{finalize} a function for performing any final updates to adapter state and
+proposal parameters on completion of chain sampling (may be \code{NULL} if
+unused).
+}
 }
 \description{
 Create object to adapt proposal scale to coerce average acceptance rate.
