@@ -1,0 +1,20 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/404.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/LICENSE-text.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/LICENSE.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/authors.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/index.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/barker_proposal.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/chain_state.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/index.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/log1p_exp.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/log_density_ratio_barker.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/logistic_sigmoid.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/min_1_exp.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_barker.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_chain.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_metropolis_hastings.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/scale_adapter.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/variance_adapter.html</loc></url>
+</urlset>
+
