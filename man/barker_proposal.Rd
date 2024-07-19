@@ -40,8 +40,9 @@ uniform distribution given an integer size.}
 List with entries \code{sample}, a function to generate sample from
 proposal distribution given current chain state, \code{log_density_ratio}, a
 function to compute log density ratio for proposal for a given pair of
-current and proposed chain states and \code{update}, a function to update
-parameters of proposal.
+current and proposed chain states, \code{update}, a function to update
+parameters of proposal, and \code{parameters} a function to return list of
+current parameter values.
 }
 \description{
 \code{barker_proposal} returns a list with function to sample from the proposal,
