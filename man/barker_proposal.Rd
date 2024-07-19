@@ -37,12 +37,15 @@ auxiliary variable distribution.}
 uniform distribution given an integer size.}
 }
 \value{
-List with entries \code{sample}, a function to generate sample from
-proposal distribution given current chain state, \code{log_density_ratio}, a
-function to compute log density ratio for proposal for a given pair of
-current and proposed chain states, \code{update}, a function to update
-parameters of proposal, and \code{parameters} a function to return list of
-current parameter values.
+Proposal object. A list with entries
+\itemize{
+\item \code{sample}: a function to generate sample from proposal distribution given
+current chain state,
+\item \code{log_density_ratio}: a  function to compute log density ratio for proposal
+for a given pair of current and proposed chain states,
+\item \code{update}: a function to update parameters of proposal,
+\item \code{parameters}: a function to return list of current parameter values.
+}
 }
 \description{
 \code{barker_proposal} returns a list with function to sample from the proposal,

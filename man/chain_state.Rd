@@ -12,7 +12,25 @@ chain_state(position, momentum = NULL)
 \item{momentum}{Momentum component of chain state. Optional.}
 }
 \value{
-New chain state object.
+New chain state object. A list with entries
+\itemize{
+\item \code{position}: A zero-argument function to evaluate position vector.
+\item \code{momentum}: A zero-argument function to evaluate momentum vector.
+\item \code{dimension}: A zero-argument function evaluate dimension of position and
+momentum vectors.
+\item \code{update}: A function accepting arguments \code{position} and \code{momentum} for
+updating the value of one or both of these state components.
+\item \code{copy}: A function for creating a copy of the state object including any
+cached values.
+\item \code{log_density}: A function accepting argument \code{target_distribution} for
+evaluating the log density of the target distribution at the current
+state, with caching of the value to avoid recomputation on subsequent
+calls.
+\item \code{grad_log_density}: A function accepting argument \code{target_distribution} for
+evaluating the gradient of the log density of the target distribution at
+the current state, with caching of the value to avoid recomputation on
+subsequent calls.
+}
 }
 \description{
 The chain state object provides cached access to target distribution

@@ -39,7 +39,7 @@ online estimates of the target distribution variances.
 library(rmcmc)
 
 set.seed(876287L)
-dimension <- 2
+dimension <- 3
 scales <- exp(2 * rnorm(dimension))
 target_distribution <- list(
   log_density = function(x) -sum((x / scales)^2) / 2,
@@ -50,24 +50,18 @@ adapters <- list(
   scale_adapter(proposal, initial_scale = 1., target_accept_prob = 0.4),
   variance_adapter(proposal)
 )
-n_sample <- 1000
-state <- chain_state(rnorm(dimension))
-for (adapter in adapters) {
-  adapter$initialize(state)
-}
-sum_accept_prob <- 0
-for (s in 2:n_sample) {
-  state_and_statistics <- sample_metropolis_hastings(
-    state, target_distribution, proposal
-  )
-  for (adapter in adapters) {
-    adapter$update(s, state_and_statistics)
-  }
-  state <- state_and_statistics$state
-  accept_prob <- state_and_statistics$statistics$accept_prob
-  sum_accept_prob <- sum_accept_prob + accept_prob
-}
-mean_accept_prob <- sum_accept_prob / n_sample
+n_warm_up_iteration <- 1000
+n_main_iteration <- 1000
+initial_state <- chain_state(rnorm(dimension))
+results <- sample_chain(
+  target_distribution = target_distribution,
+  proposal = proposal,
+  initial_state = initial_state,
+  n_warm_up_iteration = n_warm_up_iteration,
+  n_main_iteration = n_main_iteration,
+  adapters = adapters
+)
+mean_accept_prob <- mean(results$statistics$accept_prob)
 adapted_shape <- proposal$parameters()$shape
 cat(
   sprintf("Average acceptance probability is %.2f", mean_accept_prob),
@@ -75,7 +69,7 @@ cat(
   sprintf("Adapter scale est.: %s", toString(adapted_shape)),
   sep = "\n"
 )
-#> Average acceptance probability is 0.39
-#> True target scales: 2.26617033226883, 1.89818769776724
-#> Adapter scale est.: 2.21142958110019, 1.68681689502187
+#> Average acceptance probability is 0.46
+#> True target scales: 2.26617033226883, 1.89818769776724, 0.0767505506297473
+#> Adapter scale est.: 1.77277384748788, 1.71554065105575, 0.0804144979270686
 ```
