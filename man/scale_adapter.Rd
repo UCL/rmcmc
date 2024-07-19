@@ -34,5 +34,7 @@ target_distribution <- list(
 )
 proposal <- barker_proposal(target_distribution)
 adapter <- scale_adapter(
-  proposal, initial_scale = 1., target_accept_prob = 0.4)
+  proposal,
+  initial_scale = 1., target_accept_prob = 0.4
+)
 }
