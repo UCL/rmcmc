@@ -44,7 +44,8 @@ sample_barker <- function(
   dim <- state$dimension()
   auxiliary <- sample_auxiliary(dim)
   p_signs <- logistic_sigmoid(
-    Matrix::drop(Matrix::t(scale_and_shape) %*% grad) * auxiliary)
+    Matrix::drop(Matrix::t(scale_and_shape) %*% grad) * auxiliary
+  )
   signs <- 2 * (sample_uniform(dim) < p_signs) - 1
   momentum <- signs * auxiliary
   position <- state$position() + Matrix::drop(scale_and_shape %*% momentum)
@@ -127,8 +128,9 @@ get_shape_matrix <- function(scale, shape) {
 #' @return List with entries `sample`, a function to generate sample from
 #'   proposal distribution given current chain state, `log_density_ratio`, a
 #'   function to compute log density ratio for proposal for a given pair of
-#'   current and proposed chain states and `update`, a function to update
-#'   parameters of proposal.
+#'   current and proposed chain states, `update`, a function to update
+#'   parameters of proposal, and `parameters` a function to return list of
+#'   current parameter values.
 #' @export
 #'
 #' @examples
@@ -165,6 +167,7 @@ barker_proposal <- function(
       if (!is.null(shape)) {
         shape <<- shape
       }
-    }
+    },
+    parameters = function() list(scale = scale, shape = shape)
   )
 }
