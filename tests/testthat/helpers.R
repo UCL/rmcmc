@@ -13,12 +13,12 @@ count_calls <- function(f) {
     call_count <<- call_count + 1
     f(...)
   }
-  list(wrapped_f=wrapped_f, get_call_count=function() call_count)
+  list(wrapped_f = wrapped_f, get_call_count = function() call_count)
 }
 
 check_chain_state <- function(state) {
   expect_type(state, "list")
-  expected_names = c(
+  expected_names <- c(
     "position",
     "momentum",
     "log_density",
@@ -41,7 +41,7 @@ check_chain_state <- function(state) {
 expect_all_different <- function(object, different) {
   act <- quasi_label(rlang::enquo(object), arg = "object")
   dif <- quasi_label(rlang::enquo(different), arg = "different")
-  act$n_matching_indices = sum(act$val == dif$val)
+  act$n_matching_indices <- sum(act$val == dif$val)
   expect(
     act$n_matching_indices == 0,
     sprintf(

@@ -44,14 +44,4 @@ acceptance probability.
 \description{
 Sample from Metropolis-Hastings kernel.
 }
-\examples{
-target_distribution <- list(
-  log_density = function(x) -sum(x^2) / 2,
-  grad_log_density = function(x) -x
-)
-proposal <- barker_proposal(target_distribution, scale = 1.)
-state <- chain_state(rnorm(2))
-new_state_and_statistics <- sample_metropolis_hastings(
-  state, target_distribution, proposal
-)
-}
+\keyword{internal}

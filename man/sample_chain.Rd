@@ -72,7 +72,7 @@ target_distribution <- list(
 )
 proposal <- barker_proposal(target_distribution, scale = 1.)
 n_warm_up_iteration <- 1000
-n_main_iteration <- 100
+n_main_iteration <- 1000
 initial_state <- chain_state(rnorm(2))
 results <- sample_chain(
   target_distribution,
