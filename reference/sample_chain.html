@@ -129,7 +129,7 @@ chain iteration, with statistics along columns and iterations along rows.</p></l
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="va">target_distribution</span>, scale <span class="op">=</span> <span class="fl">1.</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">n_warm_up_iteration</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span></span>
-<span class="r-in"><span><span class="va">n_main_iteration</span> <span class="op">&lt;-</span> <span class="fl">100</span></span></span>
+<span class="r-in"><span><span class="va">n_main_iteration</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span></span>
 <span class="r-in"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="chain_state.html">chain_state</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">sample_chain</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">target_distribution</span>,</span></span>
