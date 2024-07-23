@@ -49,7 +49,7 @@ new_chain_state <- function(
   }
   grad_log_density <- function(target_distribution) {
     if (is.null(cached_grad_log_density)) {
-      if ("value_and_grad_log_density" %in% target_distribution) {
+      if ("value_and_grad_log_density" %in% names(target_distribution)) {
         value_and_grad <- target_distribution$value_and_grad_log_density(position)
         cached_log_density <<- value_and_grad$value
         cached_grad_log_density <<- value_and_grad$grad
