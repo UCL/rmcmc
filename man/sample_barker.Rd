@@ -47,11 +47,4 @@ Proposed new chain state.
 \description{
 Sample new state from Barker proposal.
 }
-\examples{
-state <- chain_state(c(0., 0.))
-target_distribution <- list(
-  log_density = function(x) sum(x^2) / 2,
-  grad_log_density = function(x) x
-)
-sample_barker(state, target_distribution, scale_and_shape = 1.)
-}
+\keyword{internal}

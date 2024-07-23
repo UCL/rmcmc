@@ -18,15 +18,7 @@
 #'
 #' @return Proposed new chain state.
 #'
-#' @export
-#'
-#' @examples
-#' state <- chain_state(c(0., 0.))
-#' target_distribution <- list(
-#'   log_density = function(x) sum(x^2) / 2,
-#'   grad_log_density = function(x) x
-#' )
-#' sample_barker(state, target_distribution, scale_and_shape = 1.)
+#' @keywords internal
 sample_barker <- function(
     state,
     target_distribution,
@@ -51,19 +43,8 @@ sample_barker <- function(
 #' @param proposed_state Proposed chain state.
 #'
 #' @return Logarithm of proposal density ratio.
-#' @export
 #'
-#' @examples
-#' state <- chain_state(c(0., 0.))
-#' target_distribution <- list(
-#'   log_density = function(x) sum(x^2) / 2,
-#'   grad_log_density = function(x) x
-#' )
-#' scale_and_shape <- 1.
-#' proposed_state <- sample_barker(state, target_distribution, scale_and_shape)
-#' log_density_ratio_barker(
-#'   state, proposed_state, target_distribution, scale_and_shape
-#' )
+#' @keywords internal
 log_density_ratio_barker <- function(
     state,
     proposed_state,
