@@ -25,7 +25,7 @@ sample_barker <- function(
     scale_and_shape,
     sample_auxiliary = stats::rnorm,
     sample_uniform = stats::runif) {
-  grad <- state$grad_log_density(target_distribution)
+  grad <- state$gradient_log_density(target_distribution)
   dim <- state$dimension()
   auxiliary <- sample_auxiliary(dim)
   p_signs <- logistic_sigmoid(
@@ -55,13 +55,13 @@ log_density_ratio_barker <- function(
       state$momentum()
       * (
           Matrix::drop(Matrix::t(scale_and_shape))
-          * state$grad_log_density(target_distribution)
+          * state$gradient_log_density(target_distribution)
         )
     ) - log1p_exp(
       proposed_state$momentum()
       * (
           Matrix::drop(Matrix::t(scale_and_shape))
-          * proposed_state$grad_log_density(target_distribution)
+          * proposed_state$gradient_log_density(target_distribution)
         )
     )
   )
@@ -110,12 +110,12 @@ get_shape_matrix <- function(scale, shape) {
 #'
 #' @examples
 #' target_distribution <- list(
-#'   log_density = function(x) sum(x^2) / 2,
-#'   grad_log_density = function(x) x
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   gradient_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution, scale = 1.)
 #' state <- chain_state(c(0., 0.))
-#' proposed_state <- proposal$sample(state)
+#' withr::with_seed(876287L, proposed_state <- proposal$sample(state))
 #' log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
 #' proposal$update(scale = 0.5)
 barker_proposal <- function(

@@ -1,7 +1,7 @@
 standard_normal_target_distribution <- function() {
   list(
     log_density = function(x) -sum(x^2) / 2,
-    grad_log_density = function(x) -x
+    gradient_log_density = function(x) -x
   )
 }
 
@@ -16,13 +16,21 @@ count_calls <- function(f) {
   list(wrapped_f = wrapped_f, get_call_count = function() call_count)
 }
 
+numerical_gradient <- function(f, h = 1e-8) {
+  function(x) {
+    apply(
+      diag(length(x)), 1, function(e) (f(x + h * e) - f(x - h * e)) / (2 * h)
+    )
+  }
+}
+
 check_chain_state <- function(state) {
   expect_type(state, "list")
   expected_names <- c(
     "position",
     "momentum",
     "log_density",
-    "grad_log_density",
+    "gradient_log_density",
     "dimension",
     "update",
     "copy"

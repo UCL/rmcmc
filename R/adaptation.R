@@ -54,6 +54,13 @@ scale_adapter <- function(
 #' @inherit scale_adapter return
 #'
 #' @export
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   grad_log_density = function(x) -x
+#' )
+#' proposal <- barker_proposal(target_distribution)
+#' adapter <- variance_adapter(proposal)
 variance_adapter <- function(proposal, kappa = 0.6) {
   mean_estimate <- NULL
   variance_estimate <- NULL

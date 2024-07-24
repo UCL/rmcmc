@@ -2,6 +2,9 @@
 
 export(barker_proposal)
 export(chain_state)
+export(example_gaussian_stan_model)
 export(sample_chain)
 export(scale_adapter)
+export(target_distribution_from_stan_model)
+export(trace_function_from_stan_model)
 export(variance_adapter)

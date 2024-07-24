@@ -15,14 +15,14 @@ sample_metropolis_hastings(
 \item{state}{Current chain state.}
 
 \item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{grad_log_density} corresponding to
+with named entries \code{log_density} and \code{gradient_log_density} corresponding to
 respectively functions for evaluating the logarithm of the (potentially
 unnormalized) density of the target distribution and its gradient.
-As an alternative to \code{grad_log_density} an entry
-\code{value_and_grad_log_density} may instead be provided which is a function
+As an alternative to \code{gradient_log_density} an entry
+\code{value_and_gradient_log_density} may instead be provided which is a function
 returning both the value and gradient of the logarithm of the (unnormalized)
 density of the target distribution as a list under the names \code{value} and
-\code{grad} respectively.}
+\code{gradient} respectively.}
 
 \item{proposal}{Proposal distribution object. Must define entries \code{sample}, a
 function to generate sample from proposal distribution given current chain

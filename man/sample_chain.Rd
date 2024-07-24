@@ -12,20 +12,19 @@ sample_chain(
   n_main_iteration,
   adapters = NULL,
   trace_function = NULL,
-  seed = NULL,
   show_progress_bar = TRUE
 )
 }
 \arguments{
 \item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{grad_log_density} corresponding to
+with named entries \code{log_density} and \code{gradient_log_density} corresponding to
 respectively functions for evaluating the logarithm of the (potentially
 unnormalized) density of the target distribution and its gradient.
-As an alternative to \code{grad_log_density} an entry
-\code{value_and_grad_log_density} may instead be provided which is a function
+As an alternative to \code{gradient_log_density} an entry
+\code{value_and_gradient_log_density} may instead be provided which is a function
 returning both the value and gradient of the logarithm of the (unnormalized)
 density of the target distribution as a list under the names \code{value} and
-\code{grad} respectively.}
+\code{gradient} respectively.}
 
 \item{proposal}{Proposal distribution object. Must define entries \code{sample}, a
 function to generate sample from proposal distribution given current chain
@@ -44,8 +43,6 @@ run.}
 
 \item{trace_function}{Function which given current chain state outputs list
 of variables to trace on each main (non-adaptive) chain iteration.}
-
-\item{seed}{Integer value to seed pseudo-random number generator with.}
 
 \item{show_progress_bar}{Whether to show progress bars during sampling.
 Requires \code{progress} package to be installed to have an effect.}
@@ -68,17 +65,19 @@ stage.
 \examples{
 target_distribution <- list(
   log_density = function(x) -sum(x^2) / 2,
-  grad_log_density = function(x) -x
+  gradient_log_density = function(x) -x
 )
 proposal <- barker_proposal(target_distribution, scale = 1.)
 n_warm_up_iteration <- 1000
 n_main_iteration <- 1000
-initial_state <- chain_state(rnorm(2))
-results <- sample_chain(
-  target_distribution,
-  proposal,
-  initial_state,
-  n_warm_up_iteration,
-  n_main_iteration
-)
+withr::with_seed(876287L, {
+  initial_state <- chain_state(stats::rnorm(2))
+  results <- sample_chain(
+    target_distribution,
+    proposal,
+    initial_state,
+    n_warm_up_iteration,
+    n_main_iteration
+  )
+})
 }

@@ -13,7 +13,6 @@
 #' @param adapters List of adapters to tune proposal parameters during warm-up.
 #' @param trace_function Function which given current chain state outputs list
 #'   of variables to trace on each main (non-adaptive) chain iteration.
-#' @param seed Integer value to seed pseudo-random number generator with.
 #' @param show_progress_bar Whether to show progress bars during sampling.
 #'   Requires `progress` package to be installed to have an effect.
 #'
@@ -28,19 +27,21 @@
 #' @examples
 #' target_distribution <- list(
 #'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
+#'   gradient_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution, scale = 1.)
 #' n_warm_up_iteration <- 1000
 #' n_main_iteration <- 1000
-#' initial_state <- chain_state(rnorm(2))
-#' results <- sample_chain(
-#'   target_distribution,
-#'   proposal,
-#'   initial_state,
-#'   n_warm_up_iteration,
-#'   n_main_iteration
-#' )
+#' withr::with_seed(876287L, {
+#'   initial_state <- chain_state(stats::rnorm(2))
+#'   results <- sample_chain(
+#'     target_distribution,
+#'     proposal,
+#'     initial_state,
+#'     n_warm_up_iteration,
+#'     n_main_iteration
+#'   )
+#' })
 sample_chain <- function(
     target_distribution,
     proposal,
@@ -49,9 +50,7 @@ sample_chain <- function(
     n_main_iteration,
     adapters = NULL,
     trace_function = NULL,
-    seed = NULL,
     show_progress_bar = TRUE) {
-  if (!is.null(seed)) set.seed(seed)
   progress_available <- requireNamespace("progress", quietly = TRUE)
   state <- initial_state
   if (is.null(trace_function)) {

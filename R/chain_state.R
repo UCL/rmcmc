@@ -19,19 +19,19 @@
 #'   evaluating the log density of the target distribution at the current
 #'   state, with caching of the value to avoid recomputation on subsequent
 #'   calls.
-#' * `grad_log_density`: A function accepting argument `target_distribution` for
-#'   evaluating the gradient of the log density of the target distribution at
-#'   the current state, with caching of the value to avoid recomputation on
+#' * `gradient_log_density`: A function accepting argument `target_distribution`
+#'   for evaluating the gradient of the log density of the target distribution
+#'   at the current state, with caching of the value to avoid recomputation on
 #'   subsequent calls.
 #' @export
 #'
 #' @examples
 #' state <- chain_state(c(0.1, -0.5))
 #' target_distribution <- list(
-#'   log_density = function(x) sum(x^2) / 2,
-#'   grad_log_density = function(x) x
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   gradient_log_density = function(x) -x
 #' )
-#' state$grad_log_density(target_distribution)
+#' state$gradient_log_density(target_distribution)
 chain_state <- function(position, momentum = NULL) {
   new_chain_state(position, momentum)
 }
@@ -40,30 +40,30 @@ new_chain_state <- function(
     position,
     momentum = NULL,
     cached_log_density = NULL,
-    cached_grad_log_density = NULL) {
+    cached_gradient_log_density = NULL) {
   log_density <- function(target_distribution) {
     if (is.null(cached_log_density)) {
       cached_log_density <<- target_distribution$log_density(position)
     }
     cached_log_density
   }
-  grad_log_density <- function(target_distribution) {
-    if (is.null(cached_grad_log_density)) {
-      if ("value_and_grad_log_density" %in% names(target_distribution)) {
-        value_and_grad <- target_distribution$value_and_grad_log_density(position)
-        cached_log_density <<- value_and_grad$value
-        cached_grad_log_density <<- value_and_grad$grad
+  gradient_log_density <- function(target_distribution) {
+    if (is.null(cached_gradient_log_density)) {
+      if ("value_and_gradient_log_density" %in% names(target_distribution)) {
+        value_and_gradient <- target_distribution$value_and_gradient_log_density(position)
+        cached_log_density <<- value_and_gradient$value
+        cached_gradient_log_density <<- value_and_gradient$gradient
       } else {
-        cached_grad_log_density <<- target_distribution$grad_log_density(position)
+        cached_gradient_log_density <<- target_distribution$gradient_log_density(position)
       }
     }
-    cached_grad_log_density
+    cached_gradient_log_density
   }
   update <- function(position = NULL, momentum = NULL) {
     if (!is.null(position)) {
       position <<- position
       cached_log_density <<- NULL
-      cached_grad_log_density <<- NULL
+      cached_gradient_log_density <<- NULL
     }
     if (!is.null(momentum)) {
       momentum <<- momentum
@@ -76,10 +76,10 @@ new_chain_state <- function(
     update = update,
     copy = function() {
       new_chain_state(
-        position, momentum, cached_log_density, cached_grad_log_density
+        position, momentum, cached_log_density, cached_gradient_log_density
       )
     },
     log_density = log_density,
-    grad_log_density = grad_log_density
+    gradient_log_density = gradient_log_density
   )
 }

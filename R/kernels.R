@@ -2,14 +2,14 @@
 #'
 #' @param state Current chain state.
 #' @param target_distribution Target stationary distribution for chain. A list
-#'  with named entries `log_density` and `grad_log_density` corresponding to
+#'  with named entries `log_density` and `gradient_log_density` corresponding to
 #'  respectively functions for evaluating the logarithm of the (potentially
 #'  unnormalized) density of the target distribution and its gradient.
-#'  As an alternative to `grad_log_density` an entry
-#'  `value_and_grad_log_density` may instead be provided which is a function
+#'  As an alternative to `gradient_log_density` an entry
+#'  `value_and_gradient_log_density` may instead be provided which is a function
 #'  returning both the value and gradient of the logarithm of the (unnormalized)
 #'  density of the target distribution as a list under the names `value` and
-#'  `grad` respectively.
+#'  `gradient` respectively.
 #' @param proposal Proposal distribution object. Must define entries `sample`, a
 #'   function to generate sample from proposal distribution given current chain
 #'   state and `log_density_ratio`, a function to compute log density ratio for
