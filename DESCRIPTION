@@ -34,4 +34,4 @@ Imports:
     rlang,
     withr
 Remotes:  
-    roualdes/bridgestan/r
+    roualdes/bridgestan/R
