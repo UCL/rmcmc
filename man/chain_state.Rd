@@ -26,9 +26,9 @@ cached values.
 evaluating the log density of the target distribution at the current
 state, with caching of the value to avoid recomputation on subsequent
 calls.
-\item \code{grad_log_density}: A function accepting argument \code{target_distribution} for
-evaluating the gradient of the log density of the target distribution at
-the current state, with caching of the value to avoid recomputation on
+\item \code{gradient_log_density}: A function accepting argument \code{target_distribution}
+for evaluating the gradient of the log density of the target distribution
+at the current state, with caching of the value to avoid recomputation on
 subsequent calls.
 }
 }
@@ -39,8 +39,8 @@ log density and its gradient.
 \examples{
 state <- chain_state(c(0.1, -0.5))
 target_distribution <- list(
-  log_density = function(x) sum(x^2) / 2,
-  grad_log_density = function(x) x
+  log_density = function(x) -sum(x^2) / 2,
+  gradient_log_density = function(x) -x
 )
-state$grad_log_density(target_distribution)
+state$gradient_log_density(target_distribution)
 }

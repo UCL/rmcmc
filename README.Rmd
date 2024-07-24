@@ -46,7 +46,7 @@ dimension <- 3
 scales <- exp(2 * rnorm(dimension))
 target_distribution <- list(
   log_density = function(x) -sum((x / scales)^2) / 2,
-  grad_log_density = function(x) -x / scales^2
+  gradient_log_density = function(x) -x / scales^2
 )
 proposal <- barker_proposal(target_distribution)
 adapters <- list(

@@ -29,3 +29,11 @@ unused).
 Create object to adapt proposal with per dimension scales based on estimates
 of target distribution variances.
 }
+\examples{
+target_distribution <- list(
+  log_density = function(x) -sum(x^2) / 2,
+  grad_log_density = function(x) -x
+)
+proposal <- barker_proposal(target_distribution)
+adapter <- variance_adapter(proposal)
+}
