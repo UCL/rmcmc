@@ -6,12 +6,15 @@
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/index.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/barker_proposal.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/chain_state.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/example_gaussian_stan_model.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/index.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/log_density_ratio_barker.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_barker.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_chain.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_metropolis_hastings.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/scale_adapter.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/target_distribution_from_stan_model.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/trace_function_from_stan_model.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/variance_adapter.html</loc></url>
 </urlset>
 

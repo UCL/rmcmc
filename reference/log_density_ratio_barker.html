@@ -60,14 +60,14 @@
 
 <dt id="arg-target-distribution">target_distribution<a class="anchor" aria-label="anchor" href="#arg-target-distribution"></a></dt>
 <dd><p>Target stationary distribution for chain. A list
-with named entries <code>log_density</code> and <code>grad_log_density</code> corresponding to
+with named entries <code>log_density</code> and <code>gradient_log_density</code> corresponding to
 respectively functions for evaluating the logarithm of the (potentially
 unnormalized) density of the target distribution and its gradient.
-As an alternative to <code>grad_log_density</code> an entry
-<code>value_and_grad_log_density</code> may instead be provided which is a function
+As an alternative to <code>gradient_log_density</code> an entry
+<code>value_and_gradient_log_density</code> may instead be provided which is a function
 returning both the value and gradient of the logarithm of the (unnormalized)
 density of the target distribution as a list under the names <code>value</code> and
-<code>grad</code> respectively.</p></dd>
+<code>gradient</code> respectively.</p></dd>
 
 
 <dt id="arg-scale-and-shape">scale_and_shape<a class="anchor" aria-label="anchor" href="#arg-scale-and-shape"></a></dt>

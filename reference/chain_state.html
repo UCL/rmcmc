@@ -70,9 +70,9 @@ cached values.</p></li>
 evaluating the log density of the target distribution at the current
 state, with caching of the value to avoid recomputation on subsequent
 calls.</p></li>
-<li><p><code>grad_log_density</code>: A function accepting argument <code>target_distribution</code> for
-evaluating the gradient of the log density of the target distribution at
-the current state, with caching of the value to avoid recomputation on
+<li><p><code>gradient_log_density</code>: A function accepting argument <code>target_distribution</code>
+for evaluating the gradient of the log density of the target distribution
+at the current state, with caching of the value to avoid recomputation on
 subsequent calls.</p></li>
 </ul></div>
 
@@ -80,11 +80,11 @@ subsequent calls.</p></li>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">state</span> <span class="op">&lt;-</span> <span class="fu">chain_state</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">target_distribution</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>  grad_log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span></span></span>
+<span class="r-in"><span>  log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span></span>
+<span class="r-in"><span>  gradient_log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="va">x</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">state</span><span class="op">$</span><span class="fu">grad_log_density</span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.1 -0.5</span>
+<span class="r-in"><span><span class="va">state</span><span class="op">$</span><span class="fu">gradient_log_density</span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.1  0.5</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
