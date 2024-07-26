@@ -10,8 +10,7 @@ cached_example_gaussian_stan_model <- (
       }
       model
     }
-  }
-)()
+  })()
 
 test_that("Creating example Gaussian Stan model works", {
   model <- cached_example_gaussian_stan_model()
