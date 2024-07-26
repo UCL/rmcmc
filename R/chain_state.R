@@ -75,7 +75,9 @@ new_chain_state <- function(
     dimension = function() length(position),
     update = update,
     copy = function() {
-      new_chain_state(
+      forceAndCall(
+        4,
+        new_chain_state,
         position, momentum, cached_log_density, cached_gradient_log_density
       )
     },
