@@ -3,6 +3,7 @@
 export(barker_proposal)
 export(chain_state)
 export(example_gaussian_stan_model)
+export(random_walk_proposal)
 export(sample_chain)
 export(scale_adapter)
 export(target_distribution_from_stan_model)
