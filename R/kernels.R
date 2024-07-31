@@ -19,6 +19,7 @@
 #'
 #' @return List with named entries
 #' * `state`: corresponding to new chain state,
+#' * `proposed_state`: corresponding to proposed chain state,
 #' * `statistics`: a list with named entries for statistics of transition, here
 #'   this consisting of a named entry `accept_prob` for the Metropolis
 #'   acceptance probability.
@@ -41,5 +42,8 @@ sample_metropolis_hastings <- function(
   } else {
     new_state <- state
   }
-  list(state = new_state, statistics = list(accept_prob = accept_prob))
+  list(
+    state = new_state,
+    proposed_state = proposed_state,
+    statistics = list(accept_prob = accept_prob))
 }
