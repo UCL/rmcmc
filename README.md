@@ -64,13 +64,6 @@ results <- sample_chain(
   n_main_iteration = n_main_iteration,
   adapters = adapters
 )
-#> Warning in Matrix::t(scale_and_shape) * state$gradient_log_density(target_distribution): Recycling array of length 1 in array-vector arithmetic is deprecated.
-#>   Use c() or as.vector() instead.
-#> Warning in Matrix::t(scale_and_shape) * proposed_state$gradient_log_density(target_distribution): Recycling array of length 1 in array-vector arithmetic is deprecated.
-#>   Use c() or as.vector() instead.
-```
-
-``` r
 mean_accept_prob <- mean(results$statistics$accept_prob)
 adapted_shape <- proposal$parameters()$shape
 cat(

@@ -53,12 +53,12 @@ log_density_ratio_barker <- function(
   sum(
     log1p_exp(
       state$momentum() * Matrix::drop(
-        Matrix::t(scale_and_shape) *
+        Matrix::t(scale_and_shape) %*%
           state$gradient_log_density(target_distribution)
       )
     ) - log1p_exp(
       proposed_state$momentum() * Matrix::drop(
-        Matrix::t(scale_and_shape) *
+        Matrix::t(scale_and_shape) %*%
           proposed_state$gradient_log_density(target_distribution)
       )
     )
