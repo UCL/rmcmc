@@ -1,0 +1,8 @@
+linters: linters_with_defaults(
+    line_length_linter = line_length_linter(88L),
+    object_length_linter = object_length_linter(length=50L)
+  )
+encoding: "UTF-8"
+exclusions: list(
+    "tests/testthat" = list(object_usage_linter = Inf)
+  )
