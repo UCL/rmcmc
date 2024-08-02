@@ -13,7 +13,7 @@ repos:
         -    rlang
         -    withr
     -   id: use-tidy-description
-    # disable lintr hook pending resolution of 
+    # disable lintr hook pending resolution of
     # https://github.com/lorenzwalthert/precommit/issues/440
     # -   id: lintr
     -   id: readme-rmd-rendered
@@ -32,11 +32,6 @@ repos:
         files: '^\.Rbuildignore$'
     -   id: end-of-file-fixer
         exclude: '\.Rd'
--   repo: https://github.com/pre-commit-ci/pre-commit-ci-config
-    rev: v1.6.1
-    hooks:
-    # Only required when https://pre-commit.ci is used for config validation
-    -   id: check-pre-commit-ci-config
 -   repo: local
     hooks:
     -   id: forbid-to-commit
@@ -45,7 +40,3 @@ repos:
         language: fail
         files: '\.(Rhistory|RData|Rds|rds)$'
         # `exclude: <regex>` to allow committing specific files
-
-ci:
-    autoupdate_schedule: monthly
-    skip: [pkgdown]
