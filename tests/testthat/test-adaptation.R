@@ -120,3 +120,55 @@ for (dimension in c(1L, 2L, 5L)) {
     }
   }
 }
+
+for (dimension in c(1L, 2L, 3L)) {
+    for (target_accept_prob in c(0.234, 0.4)) {
+      test_that(
+        sprintf(
+          paste0(
+            "Robust shape adapter works in dimension %i with ",
+            "target_accept_prob %.2f "
+          ),
+          dimension, target_accept_prob
+        ),
+        {
+          withr::local_seed(default_seed())
+          covariance <- random_covariance_matrix(dimension)
+          chol_covariance <- t(chol(covariance))
+          target_distribution <- multivariate_normal_target_distribution(
+            mean=0, covariance=covariance
+          )
+          proposal <- random_walk_proposal(target_distribution)
+          adapter <- robust_shape_adapter(
+            proposal = proposal,
+            initial_scale = 1.,
+            kappa = 2 / 3,
+            target_accept_prob = target_accept_prob
+          )
+          check_adapter(adapter)
+          state <- chain_state(position = rnorm(dimension))
+          adapter$initialize(state)
+          mean_accept_prob <- 0.
+          for (sample_index in 1:10000) {
+            state_and_statistics <- sample_metropolis_hastings(
+              state, target_distribution, proposal)
+            adapter$update(sample_index, state_and_statistics)
+            state <- state_and_statistics$state
+            mean_accept_prob <- mean_accept_prob + (
+              state_and_statistics$statistics$accept_prob - mean_accept_prob
+            ) / sample_index
+          }
+          expect_equal(mean_accept_prob, target_accept_prob, tolerance = 0.1)
+          # Proposal shape parameter should be adapted to close to Cholesky
+          # factor of covariance of target distribution modulo a scaling
+          # constant over long run
+          in_lower_triangle = lower.tri(chol_covariance, TRUE)
+          ratios <- (
+            proposal$parameters()$shape[in_lower_triangle]
+            / chol_covariance[in_lower_triangle]
+          )
+          expect_lt(diff(range(ratios)) / median(ratios), 0.1)
+        }
+      )
+    }
+}

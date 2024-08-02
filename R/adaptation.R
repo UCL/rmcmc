@@ -83,3 +83,48 @@ variance_adapter <- function(proposal, kappa = 0.6) {
   }
   list(initialize = initialize, update = update, finalize = NULL)
 }
+
+#' Create object to adapt proposal shape (and scale) using robust adaptive
+#' Metropolis algorithm of Vihola (2012).
+#'
+#' Requires `ramcmc` package to be installed.
+#'
+#' @references Vihola, M. (2012). Robust adaptive Metropolis algorithm with
+#'     coerced acceptance rate. _Statistics and Computing_, 22, 997-1008.
+#'     <https://doi.iorg/10.1007/s11222-011-9269-5>
+#'
+#' @inheritParams scale_adapter
+#'
+#' @inherit scale_adapter return
+#'
+#' @export
+#'
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   grad_log_density = function(x) -x
+#' )
+#' proposal <- barker_proposal(target_distribution)
+#' adapter <- robust_shape_adapter(
+#'   proposal,
+#'   initial_scale = 1.,
+#'   target_accept_prob = 0.4
+#' )
+robust_shape_adapter <- function(
+    proposal, initial_scale, target_accept_prob = 0.4, kappa = 0.6) {
+  rlang::check_installed("ramcmc", reason = "to use this function")
+  shape <- NULL
+  initialize <- function(initial_state) {
+    shape <<- initial_scale * diag(initial_state$dimension())
+    proposal$update(shape = shape)
+  }
+  update <- function(sample_index, state_and_statistics) {
+    momentum <- state_and_statistics$proposed_state$momentum()
+    accept_prob <- state_and_statistics$statistics$accept_prob
+    shape <<- ramcmc::adapt_S(
+      shape, momentum, accept_prob, sample_index - 1, target_accept_prob, kappa
+    )
+    proposal$update(shape = shape)
+  }
+  list(initialize = initialize, update = update, finalize = NULL)
+}
