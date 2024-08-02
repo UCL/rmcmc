@@ -67,30 +67,13 @@ log_density_ratio_barker <- function(
   )
 }
 
-is_non_scalar_vector <- function(obj) {
-  is.null(dim(obj)) && length(obj) > 1
-}
-
-get_shape_matrix <- function(scale, shape) {
-  shape <- if (is_non_scalar_vector(shape)) Matrix::Diagonal(x = shape) else shape
-  if (is.null(scale) && is.null(shape)) {
-    stop("One of scale and shape parameters must be set")
-  } else if (is.null(scale)) {
-    return(shape)
-  } else if (is.null(shape)) {
-    return(scale)
-  } else {
-    return(shape * scale)
-  }
-}
-
 #' Create a new Barker proposal object.
 #'
-#' `barker_proposal` returns a list with function to sample from the proposal,
-#' evaluate the log density ratio for a state pair for the proposal and update
-#' the proposal parameters. The proposal has two parameters `scale` and `shape`.
-#' At least one of `scale` and `shape` must be set before sampling from the
-#' proposal or evaluating the log density ratio.
+#' Returns a list with function to sample from the proposal, evaluate the log
+#' density ratio for a state pair for the proposal and update the proposal
+#' parameters. The proposal has two parameters `scale` and `shape`. At least one
+#' of `scale` and `shape` must be set before sampling from the proposal or
+#' evaluating the log density ratio.
 #'
 #' @inheritParams sample_barker
 #' @param scale Scale parameter of proposal distribution. A non-negative scalar
@@ -106,6 +89,7 @@ get_shape_matrix <- function(scale, shape) {
 #'   for a given pair of current and proposed chain states,
 #' * `update`: a function to update parameters of proposal,
 #' * `parameters`: a function to return list of current parameter values.
+#'
 #' @export
 #'
 #' @examples
@@ -124,25 +108,18 @@ barker_proposal <- function(
     shape = NULL,
     sample_auxiliary = stats::rnorm,
     sample_uniform = stats::runif) {
-  list(
-    sample = function(state) {
+  scale_and_shape_proposal(
+    sample = function(state, scale_and_shape) {
       sample_barker(
-        state, target_distribution, get_shape_matrix(scale, shape), sample_auxiliary, sample_uniform
+        state, target_distribution, scale_and_shape, sample_auxiliary, sample_uniform
       )
     },
-    log_density_ratio = function(state, proposed_state) {
+    log_density_ratio = function(state, proposed_state, scale_and_shape) {
       log_density_ratio_barker(
-        state, proposed_state, target_distribution, get_shape_matrix(scale, shape)
+        state, proposed_state, target_distribution, scale_and_shape
       )
     },
-    update = function(scale = NULL, shape = NULL) {
-      if (!is.null(scale)) {
-        scale <<- scale
-      }
-      if (!is.null(shape)) {
-        shape <<- shape
-      }
-    },
-    parameters = function() list(scale = scale, shape = shape)
+    scale = scale,
+    shape = shape
   )
 }
