@@ -36,6 +36,7 @@ uniform distribution given an integer size.}
 List with named entries
 \itemize{
 \item \code{state}: corresponding to new chain state,
+\item \code{proposed_state}: corresponding to proposed chain state,
 \item \code{statistics}: a list with named entries for statistics of transition, here
 this consisting of a named entry \code{accept_prob} for the Metropolis
 acceptance probability.
