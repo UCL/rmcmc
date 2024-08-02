@@ -57,20 +57,20 @@ sample_chain <- function(
     trace_function <- default_trace_function(target_distribution)
   }
   state_and_statistics <- warm_up_chain_loop(
-    n_iteration=n_warm_up_iteration,
-    state=initial_state,
-    target_distribution=target_distribution,
-    proposal=proposal,
-    adapters=adapters,
-    use_progress_bar=use_progress_bar
+    n_iteration = n_warm_up_iteration,
+    state = initial_state,
+    target_distribution = target_distribution,
+    proposal = proposal,
+    adapters = adapters,
+    use_progress_bar = use_progress_bar
   )
   main_chain_loop(
-    n_iteration=n_main_iteration,
-    state_and_statistics=state_and_statistics,
-    target_distribution=target_distribution,
-    proposal=proposal,
-    trace_function=trace_function,
-    use_progress_bar=use_progress_bar
+    n_iteration = n_main_iteration,
+    state_and_statistics = state_and_statistics,
+    target_distribution = target_distribution,
+    proposal = proposal,
+    trace_function = trace_function,
+    use_progress_bar = use_progress_bar
   )
 }
 
