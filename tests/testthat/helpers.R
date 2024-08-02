@@ -70,11 +70,15 @@ random_covariance_matrix <- function(dimension) {
 multivariate_normal_target_distribution <- function(mean, covariance) {
   chol_covariance <- t(chol(covariance))
   list(
-    log_density = function(x) -sum(
-      forwardsolve(chol_covariance, x - mean)^2
-    ) / 2,
-    gradient_log_density = function(x) -backsolve(
-      t(chol_covariance), forwardsolve(chol_covariance, x - mean)
+    log_density = function(x) {
+      -sum(
+        forwardsolve(chol_covariance, x - mean)^2
+      ) / 2
+    },
+    gradient_log_density = function(x) {
+      -backsolve(
+        t(chol_covariance), forwardsolve(chol_covariance, x - mean)
       )
+    }
   )
 }
