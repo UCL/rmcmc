@@ -25,9 +25,11 @@ scale_and_shape_proposal <- function(sample, log_density_ratio, scale, shape) {
   shape <- shape
   list(
     sample = function(state) sample(state, get_shape_matrix(scale, shape)),
-    log_density_ratio = function(state, proposed_state) log_density_ratio(
-      state, proposed_state, get_shape_matrix(scale, shape)
-    ),
+    log_density_ratio = function(state, proposed_state) {
+      log_density_ratio(
+        state, proposed_state, get_shape_matrix(scale, shape)
+      )
+    },
     update = function(scale = NULL, shape = NULL) {
       if (!is.null(scale)) {
         scale <<- scale
