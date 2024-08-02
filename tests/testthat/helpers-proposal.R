@@ -20,7 +20,7 @@ test_that_no_change_when_proposal_sampling_with_zero_scale <- function(
     get_proposal_given_scale_and_shape,
     proposal_name,
     dimensions) {
-  for (dimensions in dimensions) {
+  for (dimension in dimensions) {
     test_that(
       sprintf(
         "%s sampling with scale = 0 doesn't change state (dimension %i)",
@@ -178,7 +178,7 @@ test_that_proposal_log_density_ratio_valid <- function(
     proposal_name,
     dimensions,
     scales) {
-  for (dim in dimensions) {
+  for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
         sprintf(
