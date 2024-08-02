@@ -8,6 +8,7 @@
 [![R-CMD-check](https://github.com/UCL/rmcmc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml)
 [![lint](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml)
+[![pre-commit](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml)
 <!-- badges: end -->
 
 `rmcmc` is an R package for simulating Markov chains using the Barker
