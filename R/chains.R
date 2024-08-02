@@ -53,34 +53,24 @@ sample_chain <- function(
     show_progress_bar = TRUE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
-  state <- initial_state
   if (is.null(trace_function)) {
     trace_function <- default_trace_function(target_distribution)
   }
-  progress_bar <- get_progress_bar(use_progress_bar, n_warm_up_iteration, "Warm-up")
   state_and_statistics <- warm_up_chain_loop(
-    n_warm_up_iteration, state, target_distribution, proposal, adapters, progress_bar
+    n_iteration=n_warm_up_iteration,
+    state=initial_state,
+    target_distribution=target_distribution,
+    proposal=proposal,
+    adapters=adapters,
+    use_progress_bar=use_progress_bar
   )
-  state <- state_and_statistics$state
-  statistic_values <- unlist(state_and_statistics$statistics)
-  trace_values <- unlist(trace_function(state))
-  traces <- initialize_traces(trace_values, n_main_iteration)
-  statistics <- initialize_statistics(statistic_values, n_main_iteration)
-  progress_bar <- get_progress_bar(use_progress_bar, n_main_iteration, "Main")
-  state_and_statistics <- main_chain_loop(
-    n_main_iteration,
-    state,
-    target_distribution,
-    proposal,
-    trace_function,
-    traces,
-    statistics,
-    progress_bar
-  )
-  list(
-    final_state = state_and_statistics$state,
-    traces = traces,
-    statistics = statistics
+  main_chain_loop(
+    n_iteration=n_main_iteration,
+    state_and_statistics=state_and_statistics,
+    target_distribution=target_distribution,
+    proposal=proposal,
+    trace_function=trace_function,
+    use_progress_bar=use_progress_bar
   )
 }
 
@@ -127,7 +117,15 @@ initialize_statistics <- function(statistic_values, n_iteration) {
 }
 
 warm_up_chain_loop <- function(
-    n_iteration, state, target_distribution, proposal, adapters, progress_bar) {
+    n_iteration,
+    state,
+    target_distribution,
+    proposal,
+    adapters,
+    use_progress_bar) {
+  progress_bar <- get_progress_bar(
+    use_progress_bar, n_iteration, "Warm-up"
+  )
   for (adapter in adapters) {
     adapter$initialize(state)
   }
@@ -149,13 +147,17 @@ warm_up_chain_loop <- function(
 
 main_chain_loop <- function(
     n_iteration,
-    state,
+    state_and_statistics,
     target_distribution,
     proposal,
     trace_function,
-    traces,
-    statistics,
-    progress_bar) {
+    use_progress_bar) {
+  state <- state_and_statistics$state
+  statistic_values <- unlist(state_and_statistics$statistics)
+  trace_values <- unlist(trace_function(state))
+  traces <- initialize_traces(trace_values, n_iteration)
+  statistics <- initialize_statistics(statistic_values, n_iteration)
+  progress_bar <- get_progress_bar(use_progress_bar, n_iteration, "Main")
   for (s in 1:n_iteration) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
@@ -164,7 +166,11 @@ main_chain_loop <- function(
     trace_values <- unlist(trace_function(state))
     traces[s, ] <- trace_values
     statistics[s, ] <- unlist(state_and_statistics$statistics)
-    if (!is.null(progress_bar)) progress_bar$tick()
+    if (use_progress_bar) progress_bar$tick()
   }
-  state_and_statistics
+  list(
+    final_state = state_and_statistics$state,
+    traces = traces,
+    statistics = statistics
+  )
 }
