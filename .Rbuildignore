@@ -1,9 +1,10 @@
-^rmcmc\.Rproj$
-^\.Rproj\.user$
+^.lintr$
 ^LICENSE\.md$
 ^README\.Rmd$
+^\.Rproj\.user$
 ^\.github$
+^\.pre-commit-config\.yaml$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^.lintr$
+^rmcmc\.Rproj$
