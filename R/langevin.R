@@ -55,7 +55,8 @@ log_density_ratio_langevin <- function(
 #'
 #' @examples
 #' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   gradient_log_density = function(x) -x
 #' )
 #' proposal <- langevin_proposal(target_distribution, scale = 1.)
 #' state <- chain_state(c(0., 0.))
