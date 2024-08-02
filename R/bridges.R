@@ -5,9 +5,9 @@
 #' @return A list with entries
 #' * `log_density`: A function to evaluate log density function for target
 #'   distribution given current position vector.
-#' * `value_and_gradient_log_density`: A function to evaluate value and gradient of
-#'   log density function for target distribution given current position vector,
-#'   returning as a list with entries `value` and `gradient`.
+#' * `value_and_gradient_log_density`: A function to evaluate value and gradient
+#'   of log density function for target distribution given current position
+#'   vector, returning as a list with entries `value` and `gradient`.
 #'
 #' @export
 #'
@@ -73,7 +73,7 @@ trace_function_from_stan_model <- function(
 #' Construct an example BridgeStan `StanModel` object for a Gaussian model.
 #'
 #' Requires BridgeStan package to be installed. Generative model is assumed to
-#  be of the form `y ~ normal(mu, sigma)` for unknown `mu` and `sigma`.
+#' be of the form `y ~ normal(mu, sigma)` for unknown `mu` and `sigma`.
 #'
 #' @param n_data Number of independent data points `y` to generate and condition
 #'   model against.

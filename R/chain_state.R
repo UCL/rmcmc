@@ -50,11 +50,15 @@ new_chain_state <- function(
   gradient_log_density <- function(target_distribution) {
     if (is.null(cached_gradient_log_density)) {
       if ("value_and_gradient_log_density" %in% names(target_distribution)) {
-        value_and_gradient <- target_distribution$value_and_gradient_log_density(position)
+        value_and_gradient <- (
+          target_distribution$value_and_gradient_log_density(position)
+        )
         cached_log_density <<- value_and_gradient$value
         cached_gradient_log_density <<- value_and_gradient$gradient
       } else {
-        cached_gradient_log_density <<- target_distribution$gradient_log_density(position)
+        cached_gradient_log_density <<- (
+          target_distribution$gradient_log_density(position)
+        )
       }
     }
     cached_gradient_log_density

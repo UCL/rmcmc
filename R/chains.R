@@ -52,28 +52,86 @@ sample_chain <- function(
     trace_function = NULL,
     show_progress_bar = TRUE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
+  use_progress_bar <- progress_available && show_progress_bar
   state <- initial_state
   if (is.null(trace_function)) {
-    trace_function <- function(state) {
-      list(
-        position = state$position(),
-        target_log_density = state$log_density(target_distribution)
-      )
-    }
+    trace_function <- default_trace_function(target_distribution)
   }
+  progress_bar <- get_progress_bar(use_progress_bar, n_warm_up_iteration, "Warm-up")
+  state_and_statistics <- warm_up_chain_loop(
+    n_warm_up_iteration, state, target_distribution, proposal, adapters, progress_bar
+  )
+  state <- state_and_statistics$state
+  statistic_values <- unlist(state_and_statistics$statistics)
+  trace_values <- unlist(trace_function(state))
+  traces <- initialize_traces(trace_values, n_main_iteration)
+  statistics <- initialize_statistics(statistic_values, n_main_iteration)
+  progress_bar <- get_progress_bar(use_progress_bar, n_main_iteration, "Main")
+  state_and_statistics <- main_chain_loop(
+    n_main_iteration,
+    state,
+    target_distribution,
+    proposal,
+    trace_function,
+    traces,
+    statistics,
+    progress_bar
+  )
+  list(
+    final_state = state_and_statistics$state,
+    traces = traces,
+    statistics = statistics
+  )
+}
+
+default_trace_function <- function(target_distribution) {
+  function(state) {
+    list(
+      position = state$position(),
+      target_log_density = state$log_density(target_distribution)
+    )
+  }
+}
+
+get_progress_bar <- function(use_progress_bar, n_iteration, label) {
+  progress_bar_format <- (
+    "%s :percent |:bar| :current/:total [:elapsed<:eta] :tick_rate it/s"
+  )
+  if (use_progress_bar) {
+    return(
+      progress::progress_bar$new(
+        format = sprintf(progress_bar_format, label),
+        total = n_iteration,
+        clear = FALSE
+      )
+    )
+  } else {
+    return(NULL)
+  }
+}
+
+initialize_traces <- function(trace_values, n_iteration) {
+  traces <- data.frame(
+    matrix(ncol = length(trace_values), nrow = n_iteration)
+  )
+  colnames(traces) <- names(trace_values)
+  traces
+}
+
+initialize_statistics <- function(statistic_values, n_iteration) {
+  statistics <- data.frame(
+    matrix(ncol = length(statistic_values), nrow = n_iteration)
+  )
+  colnames(statistics) <- names(statistic_values)
+  statistics
+}
+
+warm_up_chain_loop <- function(
+    n_iteration, state, target_distribution, proposal, adapters, progress_bar) {
   for (adapter in adapters) {
     adapter$initialize(state)
   }
-  progress_bar_format <- (
-    "%s :percent |:bar| :current/:total [:elapsed<:eta] :tick_rate it/s")
-  if (progress_available && show_progress_bar) {
-    progress_bar <- progress::progress_bar$new(
-      format = sprintf(progress_bar_format, "Warm-up"),
-      total = n_warm_up_iteration,
-      clear = FALSE
-    )
-  }
-  for (s in 1:n_warm_up_iteration) {
+  for (s in 1:n_iteration) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
@@ -81,25 +139,24 @@ sample_chain <- function(
       adapter$update(s + 1, state_and_statistics)
     }
     state <- state_and_statistics$state
-    if (progress_available && show_progress_bar) progress_bar$tick()
+    if (!is.null(progress_bar)) progress_bar$tick()
   }
   for (adapter in adapters) {
     if (!is.null(adapter$finalize)) adapter$finalize()
   }
-  trace_values <- unlist(trace_function(state))
-  traces <- data.frame(matrix(ncol = length(trace_values), nrow = n_main_iteration))
-  colnames(traces) <- names(trace_values)
-  statistic_values <- unlist(state_and_statistics$statistics)
-  statistics <- data.frame(matrix(ncol = length(statistic_values), nrow = n_main_iteration))
-  colnames(statistics) <- names(statistic_values)
-  if (progress_available && show_progress_bar) {
-    progress_bar <- progress::progress_bar$new(
-      format = sprintf(progress_bar_format, "Main"),
-      total = n_main_iteration,
-      clear = FALSE
-    )
-  }
-  for (s in 1:n_main_iteration) {
+  state_and_statistics
+}
+
+main_chain_loop <- function(
+    n_iteration,
+    state,
+    target_distribution,
+    proposal,
+    trace_function,
+    traces,
+    statistics,
+    progress_bar) {
+  for (s in 1:n_iteration) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
@@ -107,11 +164,7 @@ sample_chain <- function(
     trace_values <- unlist(trace_function(state))
     traces[s, ] <- trace_values
     statistics[s, ] <- unlist(state_and_statistics$statistics)
-    if (progress_available && show_progress_bar) progress_bar$tick()
+    if (!is.null(progress_bar)) progress_bar$tick()
   }
-  list(
-    final_state = state,
-    traces = traces,
-    statistics = statistics
-  )
+  state_and_statistics
 }

@@ -64,13 +64,8 @@ scale_adapter <- function(
 variance_adapter <- function(proposal, kappa = 0.6) {
   mean_estimate <- NULL
   variance_estimate <- NULL
-  variance_update <- function(position) {
-    diff <- position - mean_estimate
-    diff^2
-  }
   initialize <- function(initial_state) {
     mean_estimate <<- initial_state$position()
-    diff <- initial_state$position() - mean_estimate
     variance_estimate <<- rep(1., initial_state$dimension())
   }
   update <- function(sample_index, state_and_statistics) {
@@ -78,7 +73,8 @@ variance_adapter <- function(proposal, kappa = 0.6) {
     position <- state_and_statistics$state$position()
     mean_estimate <<- mean_estimate + gamma * (position - mean_estimate)
     variance_estimate <<- variance_estimate + gamma * (
-      (position - mean_estimate)^2 - variance_estimate)
+      (position - mean_estimate)^2 - variance_estimate
+    )
     proposal$update(shape = sqrt(variance_estimate))
   }
   list(initialize = initialize, update = update, finalize = NULL)
