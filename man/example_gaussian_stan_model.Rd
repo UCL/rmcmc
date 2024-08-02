@@ -17,6 +17,7 @@ BridgeStan StanModel object.
 }
 \description{
 Requires BridgeStan package to be installed. Generative model is assumed to
+be of the form \code{y ~ normal(mu, sigma)} for unknown \code{mu} and \code{sigma}.
 }
 \examples{
 \dontshow{if (requireNamespace("bridgestan", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

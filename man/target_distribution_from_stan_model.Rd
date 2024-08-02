@@ -14,9 +14,9 @@ A list with entries
 \itemize{
 \item \code{log_density}: A function to evaluate log density function for target
 distribution given current position vector.
-\item \code{value_and_gradient_log_density}: A function to evaluate value and gradient of
-log density function for target distribution given current position vector,
-returning as a list with entries \code{value} and \code{gradient}.
+\item \code{value_and_gradient_log_density}: A function to evaluate value and gradient
+of log density function for target distribution given current position
+vector, returning as a list with entries \code{value} and \code{gradient}.
 }
 }
 \description{
