@@ -17,7 +17,8 @@ for (dimension in c(1L, 2L, 3L)) {
       sprintf(
         "Langevin involution is an involution (dimension %i, scale %.1f)",
         dimension, scale
-      ), {
+      ),
+      {
         target_distribution <- standard_normal_target_distribution()
         withr::with_seed(seed = default_seed(), {
           state <- chain_state(

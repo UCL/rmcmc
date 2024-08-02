@@ -32,9 +32,9 @@ sample_metropolis_hastings <- function(
     sample_uniform = stats::runif) {
   proposed_state <- proposal$sample(state)
   log_accept_ratio <- (
-    proposed_state$log_density(target_distribution)
-    - state$log_density(target_distribution)
-    + proposal$log_density_ratio(state, proposed_state)
+    proposed_state$log_density(target_distribution) -
+      state$log_density(target_distribution) +
+      proposal$log_density_ratio(state, proposed_state)
   )
   accept_prob <- if (is.nan(log_accept_ratio)) 0 else min_1_exp(log_accept_ratio)
   if (sample_uniform(1) < accept_prob) {
