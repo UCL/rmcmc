@@ -8,6 +8,7 @@
 [![R-CMD-check](https://github.com/UCL/rmcmc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml)
 [![lint](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml)
+[![pre-commit](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml)
 <!-- badges: end -->
 
 `rmcmc` is an R package for simulating Markov chains using the Barker
@@ -63,6 +64,13 @@ results <- sample_chain(
   n_main_iteration = n_main_iteration,
   adapters = adapters
 )
+#> Warning in Matrix::t(scale_and_shape) * state$gradient_log_density(target_distribution): Recycling array of length 1 in array-vector arithmetic is deprecated.
+#>   Use c() or as.vector() instead.
+#> Warning in Matrix::t(scale_and_shape) * proposed_state$gradient_log_density(target_distribution): Recycling array of length 1 in array-vector arithmetic is deprecated.
+#>   Use c() or as.vector() instead.
+```
+
+``` r
 mean_accept_prob <- mean(results$statistics$accept_prob)
 adapted_shape <- proposal$parameters()$shape
 cat(
