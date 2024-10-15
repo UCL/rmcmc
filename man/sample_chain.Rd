@@ -12,7 +12,8 @@ sample_chain(
   n_main_iteration,
   adapters = NULL,
   trace_function = NULL,
-  show_progress_bar = TRUE
+  show_progress_bar = TRUE,
+  trace_warm_up = FALSE
 )
 }
 \arguments{
@@ -46,15 +47,25 @@ of variables to trace on each main (non-adaptive) chain iteration.}
 
 \item{show_progress_bar}{Whether to show progress bars during sampling.
 Requires \code{progress} package to be installed to have an effect.}
+
+\item{trace_warm_up}{Whether to record chain traces and transition statistics
+during (adaptive) warm-up iterations in addition to (non-adaptive) main
+chain iterations.}
 }
 \value{
 A list with entries
 \itemize{
 \item \code{final_state}: the final chain state,
-\item \code{traces}: a dataframe contained traced variables for each main chain
-iteration, with variables along columns and iterations along rows.
-\item \code{statistics}: a dataframe containing transition statistics for each main
-chain iteration, with statistics along columns and iterations along rows.
+\item \code{traces}: a matrix contained traced variables for each chain iteration,
+with variables along columns and iterations along rows. If \code{trace_warm_up}
+is \code{FALSE} (the default) then variables will be recorded only for each main
+chain iteration; if \code{TRUE} then variables will be recorded for both warm-up
+and main chain iterations.
+\item \code{statistics}: a matrix containing transition statistics for each chain
+iteration, with statistics along columns and iterations along rows. If
+\code{trace_warm_up} is \code{FALSE} (the default) then statistics will be recorded
+only for each main chain iteration; if \code{TRUE} then statistics will be
+recorded for both warm-up and main chain iterations.
 }
 }
 \description{
