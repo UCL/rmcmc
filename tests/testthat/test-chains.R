@@ -1,0 +1,48 @@
+for (n_warm_up_iteration in c(1, 100)) {
+  for (n_main_iteration in c(1, 100)) {
+    for (trace_warm_up in c(TRUE, FALSE)) {
+      test_that(
+        sprintf(
+          paste0(
+            "Sampling chain with %i warm-up iterations, %i main iterations, ",
+            "and trace_warm_up = %i works"
+          ),
+          n_warm_up_iteration, n_main_iteration, trace_warm_up
+        ),
+        {
+          dimension <- 3
+          target_distribution <- standard_normal_target_distribution()
+          barker_proposal(target_distribution)
+          proposal <- barker_proposal(target_distribution)
+          adapters <- list(
+            scale_adapter(proposal, initial_scale = 1.)
+          )
+          withr::with_seed(default_seed(), {
+            position <- rnorm(dimension)
+          })
+          initial_state <- chain_state(position)
+          results <- sample_chain(
+            target_distribution = target_distribution,
+            proposal = proposal,
+            initial_state = initial_state,
+            n_warm_up_iteration = n_warm_up_iteration,
+            n_main_iteration = n_main_iteration,
+            adapters = adapters,
+            trace_warm_up = trace_warm_up
+          )
+          expected_results_names <- c("final_state", "traces", "statistics")
+          if (trace_warm_up) {
+            expected_results_names <- c(
+              expected_results_names, "warm_up_traces", "warm_up_statistics"
+            )
+          }
+          expect_named(
+            results,
+            expected_results_names,
+            ignore.order = TRUE,
+          )
+        }
+      )
+    }
+  }
+}
