@@ -111,7 +111,7 @@ results <- sample_chain(
 If the `progress` package is installed a progress bar will show the chain progress during sampling. The return value of `sample_chains` is a list containing fields for accessing the final chain state (which can be used to start sampling a new chain), any variables traced during the main chain iterations and any transition statistics recorded.
 
 ```{r}
-mean_accept_prob <- mean(results$statistics$accept_prob)
+mean_accept_prob <- mean(results$statistics[, "accept_prob"])
 adapted_shape <- proposal$parameters()$shape
 cat(
   sprintf("Average acceptance probability is %.2f", mean_accept_prob),
