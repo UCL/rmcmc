@@ -24,8 +24,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests:
     bridgestan (>= 2.5.0),
+    knitr,
     progress,
     ramcmc,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://github.com/UCL/rmcmc, http://github-pages.ucl.ac.uk/rmcmc/
@@ -36,3 +38,4 @@ Imports:
     withr
 Remotes: 
     roualdes/bridgestan/R
+VignetteBuilder: knitr
