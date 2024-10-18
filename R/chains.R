@@ -15,22 +15,25 @@
 #'   of variables to trace on each main (non-adaptive) chain iteration.
 #' @param show_progress_bar Whether to show progress bars during sampling.
 #'   Requires `progress` package to be installed to have an effect.
-#' @param trace_warm_up Whether to record chain traces and transition statistics
-#'   during (adaptive) warm-up iterations in addition to (non-adaptive) main
-#'   chain iterations.
+#' @param trace_warm_up Whether to record chain traces and adaptation /
+#'   transition statistics during (adaptive) warm-up iterations in addition to
+#'   (non-adaptive) main chain iterations.
 #'
 #' @return A list with entries
 #' * `final_state`: the final chain state,
-#' * `traces`: a matrix contained traced variables for each chain iteration,
-#'   with variables along columns and iterations along rows. If `trace_warm_up`
-#'   is `FALSE` (the default) then variables will be recorded only for each main
-#'   chain iteration; if `TRUE` then variables will be recorded for both warm-up
-#'   and main chain iterations.
-#' * `statistics`: a matrix containing transition statistics for each chain
-#'   iteration, with statistics along columns and iterations along rows. If
-#'   `trace_warm_up` is `FALSE` (the default) then statistics will be recorded
-#'   only for each main chain iteration; if `TRUE` then statistics will be
-#'   recorded for both warm-up and main chain iterations.
+#' * `traces`: a matrix with named columns contained traced variables for each
+#'   main chain iteration, with variables along columns and iterations along
+#'   rows.
+#' * `statistics`: a matrix with named columns containing transition statistics
+#'   for each main chain iteration, with statistics along columns and iterations
+#'   along rows.
+#' * `warm_up_traces`: a matrix with named columns contained traced variables
+#'   for each warm-up chain iteration, with variables along columns and
+#'   iterations along rows. Only present if `trace_warm_up = TRUE`.
+#' * `warm_up_statistics`: a matrix with named columns containing adaptation and
+#'   transition statistics for each warm-up chain iteration, with statistics
+#'   along columns and iterations along rows. Only present if
+#'   `trace_warm_up = TRUE`.
 #'
 #' @export
 #'
@@ -94,7 +97,7 @@ sample_chain <- function(
     statistic_names = statistic_names
   )
   if (trace_warm_up) {
-    return(combine_stage_results(main_results, warm_up_results))
+    return(combine_stage_results(warm_up_results, main_results))
   } else {
     return(main_results)
   }
@@ -152,6 +155,9 @@ chain_loop <- function(
   progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
   for (adapter in adapters) {
     adapter$initialize(state)
+    if (record_traces_and_statistics) {
+      statistic_names <- c(statistic_names, names(unlist(adapter$state())))
+    }
   }
   if (record_traces_and_statistics) {
     trace_names <- names(unlist(trace_function(state)))
@@ -167,6 +173,11 @@ chain_loop <- function(
     )
     for (adapter in adapters) {
       adapter$update(s + 1, state_and_statistics)
+      if (record_traces_and_statistics) {
+        state_and_statistics$statistics <- c(
+          state_and_statistics$statistics, adapter$state()
+        )
+      }
     }
     state <- state_and_statistics$state
     if (record_traces_and_statistics) {
@@ -186,9 +197,11 @@ chain_loop <- function(
 }
 
 combine_stage_results <- function(warm_up_results, main_results) {
-  traces <- rbind(warm_up_results$traces, main_results$traces)
-  colnames(traces) <- colnames(main_results$traces)
-  statistics <- rbind(warm_up_results$statistics, main_results$statistics)
-  colnames(statistics) <- colnames(main_results$statistics)
-  list(state = main_results$state, traces = traces, statistics = statistics)
+  list(
+    final_state = main_results$state,
+    traces = main_results$traces,
+    statistics = main_results$statistics,
+    warm_up_traces = warm_up_results$traces,
+    warm_up_statistics = warm_up_results$statistics
+  )
 }
