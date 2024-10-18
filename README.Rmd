@@ -67,7 +67,7 @@ results <- sample_chain(
   n_main_iteration = n_main_iteration,
   adapters = adapters
 )
-mean_accept_prob <- mean(results$statistics$accept_prob)
+mean_accept_prob <- mean(results$statistics[, "accept_prob"])
 adapted_shape <- proposal$parameters()$shape
 cat(
   sprintf("Average acceptance probability is %.2f", mean_accept_prob),

@@ -27,6 +27,8 @@ each chain iteration,
 \item \code{finalize} a function for performing any final updates to adapter state and
 proposal parameters on completion of chain sampling (may be \code{NULL} if
 unused).
+\item \code{state} a zero-argument function for accessing current values of adapter
+state variables.
 }
 }
 \description{
