@@ -173,27 +173,21 @@ chain_loop <- function(
     )
     for (adapter in adapters) {
       adapter$update(s + 1, state_and_statistics)
-      if (record_traces_and_statistics) {
-        state_and_statistics$statistics <- c(
-          state_and_statistics$statistics, adapter$state()
-        )
-      }
     }
     state <- state_and_statistics$state
     if (record_traces_and_statistics) {
       traces[s, ] <- unlist(trace_function(state))
-      statistics[s, ] <- unlist(state_and_statistics$statistics)
+      adapter_states <- lapply(adapters, function(a) a$state())
+      statistics[s, ] <- unlist(
+        c(state_and_statistics$statistics, adapter_states)
+      )
     }
     if (!is.null(progress_bar)) progress_bar$tick()
   }
   for (adapter in adapters) {
     if (!is.null(adapter$finalize)) adapter$finalize()
   }
-  list(
-    final_state = state,
-    traces = traces,
-    statistics = statistics
-  )
+  list(final_state = state, traces = traces, statistics = statistics)
 }
 
 combine_stage_results <- function(warm_up_results, main_results) {
