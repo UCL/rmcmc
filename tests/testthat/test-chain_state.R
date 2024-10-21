@@ -18,25 +18,33 @@ for (dimension in c(1L, 2L)) {
     expect_identical(state$momentum(), momentum)
     expect_identical(state$dimension(), dimension)
   })
-  test_that(
-    sprintf(
-      "Evaluating log density (gradient) with chain state in dimension %i works",
-      dimension
-    ),
-    {
-      withr::with_seed(default_seed(), position <- rnorm(dimension))
-      state <- chain_state(position)
-      target_distribution <- standard_normal_target_distribution()
-      expect_identical(
-        state$log_density(target_distribution),
-        target_distribution$log_density(position)
-      )
-      expect_identical(
-        state$gradient_log_density(target_distribution),
-        target_distribution$gradient_log_density(position)
-      )
-    }
-  )
+  for (use_value_and_gradient in c(TRUE, FALSE)) {
+    test_that(
+      sprintf(
+        paste0(
+          "Evaluating log density (gradient) with chain state and ",
+          "use_value_and_gradient = %i in dimension %i works"
+        ),
+        use_value_and_gradient,
+        dimension
+      ),
+      {
+        withr::with_seed(default_seed(), position <- rnorm(dimension))
+        target_distribution <- standard_normal_target_distribution(
+          use_value_and_gradient
+        )
+        state <- chain_state(position)
+        expect_identical(
+          state$log_density(target_distribution),
+          target_distribution$log_density(position)
+        )
+        expect_identical(
+          state$gradient_log_density(target_distribution),
+          target_distribution$gradient_log_density(position)
+        )
+      }
+    )
+  }
   test_that(sprintf("Copying chain state in dimension %i works", dimension), {
     withr::with_seed(default_seed(), {
       position <- rnorm(dimension)
