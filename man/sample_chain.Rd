@@ -32,7 +32,9 @@ function to generate sample from proposal distribution given current chain
 state and \code{log_density_ratio}, a function to compute log density ratio for
 proposal for a given pair of current and proposed chain states.}
 
-\item{initial_state}{Initial chain state.}
+\item{initial_state}{Initial chain state. Either a vector specifying just
+the position component of the chain state or a list output by \code{chain_state}
+specifying the full chain state.}
 
 \item{n_warm_up_iteration}{Number of warm-up (adaptive) chain iterations to
 run.}
