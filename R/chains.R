@@ -5,7 +5,9 @@
 #' stage.
 #'
 #' @inheritParams sample_metropolis_hastings
-#' @param initial_state Initial chain state.
+#' @param initial_state Initial chain state. Either a vector specifying just
+#'   the position component of the chain state or a list output by `chain_state`
+#'   specifying the full chain state.
 #' @param n_warm_up_iteration Number of warm-up (adaptive) chain iterations to
 #'   run.
 #' @param n_main_iteration Number of main (non-adaptive) chain iterations to
@@ -67,6 +69,13 @@ sample_chain <- function(
     trace_warm_up = FALSE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
+  if (is.vector(initial_state) && is.atomic(initial_state)) {
+    state <- chain_state(initial_state)
+  } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
+    state <- initial_state
+  } else {
+    stop("initial_state must be a vector or list with an entry named position.")
+  }
   if (is.null(trace_function)) {
     trace_function <- default_trace_function(target_distribution)
   }
@@ -74,7 +83,7 @@ sample_chain <- function(
   warm_up_results <- chain_loop(
     stage_name = "Warm-up",
     n_iteration = n_warm_up_iteration,
-    state = initial_state,
+    state = state,
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = adapters,
@@ -167,7 +176,7 @@ chain_loop <- function(
     traces <- NULL
     statistics <- NULL
   }
-  for (s in 1:n_iteration) {
+  for (s in seq_len(n_iteration)) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
