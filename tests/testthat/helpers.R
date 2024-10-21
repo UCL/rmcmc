@@ -62,6 +62,26 @@ expect_all_different <- function(object, different) {
   invisible(act$val)
 }
 
+expect_nrow <- function(object, n) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  act$nrow <- nrow(object)
+  expect(
+    act$nrow == n,
+    sprintf("%s has %i rows not %i.", act$lab, act$nrow, n)
+  )
+  invisible(act$val)
+}
+
+expect_ncol <- function(object, n) {
+  act <- quasi_label(rlang::enquo(object), arg = "object")
+  act$ncol <- ncol(object)
+  expect(
+    act$ncol == n,
+    sprintf("%s has %i columns not %i.", act$lab, act$ncol, n)
+  )
+  invisible(act$val)
+}
+
 random_covariance_matrix <- function(dimension) {
   temp <- matrix(rnorm(dimension^2), dimension, dimension)
   temp %*% t(temp)
