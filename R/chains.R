@@ -155,14 +155,14 @@ chain_loop <- function(
   progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
   for (adapter in adapters) {
     adapter$initialize(state)
-    if (record_traces_and_statistics) {
-      statistic_names <- c(statistic_names, names(unlist(adapter$state())))
-    }
   }
   if (record_traces_and_statistics) {
     trace_names <- names(unlist(trace_function(state)))
     traces <- initialize_traces(trace_names, n_iteration)
-    statistics <- initialize_statistics(statistic_names, n_iteration)
+    adapter_statistics <- names(unlist(lapply(adapters, function(a) a$state())))
+    statistics <- initialize_statistics(
+      c(statistic_names, adapter_statistics), n_iteration
+    )
   } else {
     traces <- NULL
     statistics <- NULL
