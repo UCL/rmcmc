@@ -1,8 +1,16 @@
-standard_normal_target_distribution <- function() {
-  list(
+standard_normal_target_distribution <- function(value_and_gradient = FALSE) {
+  target_distribution <- list(
     log_density = function(x) -sum(x^2) / 2,
     gradient_log_density = function(x) -x
   )
+  if (value_and_gradient) {
+    target_distribution[["value_and_gradient_log_density"]] <- function(x) {
+      list(
+        value = -sum(x^2) / 2, gradient = -x
+      )
+    }
+  }
+  target_distribution
 }
 
 default_seed <- function() 9821415L
