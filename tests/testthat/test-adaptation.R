@@ -1,10 +1,15 @@
 check_adapter <- function(adapter) {
-  expect_named(adapter, c("initialize", "update", "finalize"), ignore.order = TRUE)
+  expect_named(
+    adapter,
+    c("initialize", "update", "finalize", "state"),
+    ignore.order = TRUE
+  )
   expect_type(adapter$initialize, "closure")
   expect_type(adapter$update, "closure")
   if (!is.null(adapter$finalize)) {
     expect_type(adapter$finalize, "closure")
   }
+  expect_type(adapter$state, "closure")
 }
 
 dummy_proposal_with_scale_parameter <- function(scale = NULL) {
@@ -48,6 +53,7 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
             adapter$update(
               s, list(statistics = list(accept_prob = target_accept_prob + 0.1))
             )
+            expect_type(adapter$state(), "list")
             scale <- proposal$parameters()$scale
             expect_gt(scale, old_scale)
             old_scale <- scale

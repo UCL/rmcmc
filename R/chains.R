@@ -15,13 +15,26 @@
 #'   of variables to trace on each main (non-adaptive) chain iteration.
 #' @param show_progress_bar Whether to show progress bars during sampling.
 #'   Requires `progress` package to be installed to have an effect.
+#' @param trace_warm_up Whether to record chain traces and adaptation /
+#'   transition statistics during (adaptive) warm-up iterations in addition to
+#'   (non-adaptive) main chain iterations.
 #'
 #' @return A list with entries
 #' * `final_state`: the final chain state,
-#' * `traces`: a dataframe contained traced variables for each main chain
-#'   iteration, with variables along columns and iterations along rows.
-#' * `statistics`: a dataframe containing transition statistics for each main
-#'   chain iteration, with statistics along columns and iterations along rows.
+#' * `traces`: a matrix with named columns contained traced variables for each
+#'   main chain iteration, with variables along columns and iterations along
+#'   rows.
+#' * `statistics`: a matrix with named columns containing transition statistics
+#'   for each main chain iteration, with statistics along columns and iterations
+#'   along rows.
+#' * `warm_up_traces`: a matrix with named columns contained traced variables
+#'   for each warm-up chain iteration, with variables along columns and
+#'   iterations along rows. Only present if `trace_warm_up = TRUE`.
+#' * `warm_up_statistics`: a matrix with named columns containing adaptation and
+#'   transition statistics for each warm-up chain iteration, with statistics
+#'   along columns and iterations along rows. Only present if
+#'   `trace_warm_up = TRUE`.
+#'
 #' @export
 #'
 #' @examples
@@ -50,28 +63,44 @@ sample_chain <- function(
     n_main_iteration,
     adapters = NULL,
     trace_function = NULL,
-    show_progress_bar = TRUE) {
+    show_progress_bar = TRUE,
+    trace_warm_up = FALSE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
   if (is.null(trace_function)) {
     trace_function <- default_trace_function(target_distribution)
   }
-  state_and_statistics <- warm_up_chain_loop(
+  statistic_names <- list("accept_prob")
+  warm_up_results <- chain_loop(
+    stage_name = "Warm-up",
     n_iteration = n_warm_up_iteration,
     state = initial_state,
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = adapters,
-    use_progress_bar = use_progress_bar
+    use_progress_bar = use_progress_bar,
+    record_traces_and_statistics = trace_warm_up,
+    trace_function = trace_function,
+    statistic_names = statistic_names
   )
-  main_chain_loop(
+  state <- warm_up_results$final_state
+  main_results <- chain_loop(
+    stage_name = "Main",
     n_iteration = n_main_iteration,
-    state_and_statistics = state_and_statistics,
+    state = state,
     target_distribution = target_distribution,
     proposal = proposal,
+    adapters = NULL,
+    use_progress_bar = use_progress_bar,
+    record_traces_and_statistics = TRUE,
     trace_function = trace_function,
-    use_progress_bar = use_progress_bar
+    statistic_names = statistic_names
   )
+  if (trace_warm_up) {
+    return(combine_stage_results(warm_up_results, main_results))
+  } else {
+    return(main_results)
+  }
 }
 
 default_trace_function <- function(target_distribution) {
@@ -100,34 +129,43 @@ get_progress_bar <- function(use_progress_bar, n_iteration, label) {
   }
 }
 
-initialize_traces <- function(trace_values, n_iteration) {
-  traces <- data.frame(
-    matrix(ncol = length(trace_values), nrow = n_iteration)
-  )
-  colnames(traces) <- names(trace_values)
+initialize_traces <- function(trace_names, n_iteration) {
+  traces <- matrix(ncol = length(trace_names), nrow = n_iteration)
+  colnames(traces) <- trace_names
   traces
 }
 
-initialize_statistics <- function(statistic_values, n_iteration) {
-  statistics <- data.frame(
-    matrix(ncol = length(statistic_values), nrow = n_iteration)
-  )
-  colnames(statistics) <- names(statistic_values)
+initialize_statistics <- function(statistic_names, n_iteration) {
+  statistics <- matrix(ncol = length(statistic_names), nrow = n_iteration)
+  colnames(statistics) <- statistic_names
   statistics
 }
 
-warm_up_chain_loop <- function(
+chain_loop <- function(
+    stage_name,
     n_iteration,
     state,
     target_distribution,
     proposal,
     adapters,
-    use_progress_bar) {
-  progress_bar <- get_progress_bar(
-    use_progress_bar, n_iteration, "Warm-up"
-  )
+    use_progress_bar,
+    record_traces_and_statistics,
+    trace_function,
+    statistic_names) {
+  progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
   for (adapter in adapters) {
     adapter$initialize(state)
+  }
+  if (record_traces_and_statistics) {
+    trace_names <- names(unlist(trace_function(state)))
+    traces <- initialize_traces(trace_names, n_iteration)
+    adapter_statistics <- names(unlist(lapply(adapters, function(a) a$state())))
+    statistics <- initialize_statistics(
+      c(statistic_names, adapter_statistics), n_iteration
+    )
+  } else {
+    traces <- NULL
+    statistics <- NULL
   }
   for (s in 1:n_iteration) {
     state_and_statistics <- sample_metropolis_hastings(
@@ -137,40 +175,27 @@ warm_up_chain_loop <- function(
       adapter$update(s + 1, state_and_statistics)
     }
     state <- state_and_statistics$state
+    if (record_traces_and_statistics) {
+      traces[s, ] <- unlist(trace_function(state))
+      adapter_states <- lapply(adapters, function(a) a$state())
+      statistics[s, ] <- unlist(
+        c(state_and_statistics$statistics, adapter_states)
+      )
+    }
     if (!is.null(progress_bar)) progress_bar$tick()
   }
   for (adapter in adapters) {
     if (!is.null(adapter$finalize)) adapter$finalize()
   }
-  state_and_statistics
+  list(final_state = state, traces = traces, statistics = statistics)
 }
 
-main_chain_loop <- function(
-    n_iteration,
-    state_and_statistics,
-    target_distribution,
-    proposal,
-    trace_function,
-    use_progress_bar) {
-  state <- state_and_statistics$state
-  statistic_values <- unlist(state_and_statistics$statistics)
-  trace_values <- unlist(trace_function(state))
-  traces <- initialize_traces(trace_values, n_iteration)
-  statistics <- initialize_statistics(statistic_values, n_iteration)
-  progress_bar <- get_progress_bar(use_progress_bar, n_iteration, "Main")
-  for (s in 1:n_iteration) {
-    state_and_statistics <- sample_metropolis_hastings(
-      state, target_distribution, proposal
-    )
-    state <- state_and_statistics$state
-    trace_values <- unlist(trace_function(state))
-    traces[s, ] <- trace_values
-    statistics[s, ] <- unlist(state_and_statistics$statistics)
-    if (use_progress_bar) progress_bar$tick()
-  }
+combine_stage_results <- function(warm_up_results, main_results) {
   list(
-    final_state = state_and_statistics$state,
-    traces = traces,
-    statistics = statistics
+    final_state = main_results$state,
+    traces = main_results$traces,
+    statistics = main_results$statistics,
+    warm_up_traces = warm_up_results$traces,
+    warm_up_statistics = warm_up_results$statistics
   )
 }

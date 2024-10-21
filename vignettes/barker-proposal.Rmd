@@ -28,13 +28,16 @@ library(rmcmc)
 
 ## Example target distribution
 
-As a simple example of a target distribution, we consider a 5-dimensional Gaussian target with heterogeneous scales such that the standard deviation of the first coordinate is 0.01 and that of other coordinates is 1. 
-The `rmcmc` package expects the target distribution to be specified by a function evaluating the logarithm of the (potentially unnormalized) probability density at a point, and for gradient-based methods such as the Barker proposal, additionally requires specification of a functio evaluating the gradient of this log density function.
+```{r}
+dimension <- 3
+scales <- c(0.01, rep(1, dimension - 1))
+```
+
+As a simple example of a target distribution, we consider a `r dimension`-dimensional Gaussian target with heterogeneous scales such that the standard deviation of the first coordinate is 0.01 and that of other coordinates is 1. 
+The `rmcmc` package expects the target distribution to be specified by a function evaluating the logarithm of the (potentially unnormalized) probability density at a point, and for gradient-based methods such as the Barker proposal, additionally requires specification of a function evaluating the gradient of this log density function.
 The two functions should be wrapped in to a list under the names `log_density` and `gradient_log_density` respectively.
 
 ```{r}
-dimension <- 5
-scales <- c(0.01, rep(1, dimension - 1))
 target_distribution <- list(
   log_density = function(x) -sum((x / scales)^2) / 2,
   gradient_log_density = function(x) -x / scales^2
@@ -94,30 +97,88 @@ Here we generate an initial state with position coordinates sampled from a stand
 initial_state <- chain_state(rnorm(dimension))
 ```
 
-We now have everything needed to sample a Markov chain. To do this we use the `sample_chain` function from `rmcmc`. This requires us to specify the target distribution, proposal distribution, initial chain state, number of adaptive warm-up iterations and non-adaptive main chain iterations and list of adapters to use. 
-Here we sample a chain with 5000 warm-up and 5000 main chain iterations.
+We now have everything needed to sample a Markov chain. To do this we use the `sample_chain` function from `rmcmc`. This requires us to specify the target distribution, proposal distribution, initial chain state, number of adaptive warm-up iterations and non-adaptive main chain iterations and list of adapters to use.
+
+```{r}
+n_warm_up_iteration <- 10000
+n_main_iteration <- 10000
+```
+
+Here we sample a chain with `r n_warm_up_iteration` warm-up 
+and `r n_main_iteration` main chain iterations.
+We set `trace_warm_up` to `TRUE` to record statistics during the adaptive warm-up chain iterations.
 
 ```{r}
 results <- sample_chain(
   target_distribution = target_distribution,
   proposal = proposal,
   initial_state = initial_state,
-  n_warm_up_iteration = 5000,
-  n_main_iteration = 5000,
-  adapters = adapters
+  n_warm_up_iteration = n_warm_up_iteration,
+  n_main_iteration = n_main_iteration,
+  adapters = adapters,
+  trace_warm_up = TRUE
 )
 ```
 
 If the `progress` package is installed a progress bar will show the chain progress during sampling. The return value of `sample_chains` is a list containing fields for accessing the final chain state (which can be used to start sampling a new chain), any variables traced during the main chain iterations and any transition statistics recorded.
 
 ```{r}
-mean_accept_prob <- mean(results$statistics$accept_prob)
+mean_accept_prob <- mean(results$statistics[, "accept_prob"])
 adapted_shape <- proposal$parameters()$shape
 cat(
   sprintf("Average acceptance probability is %.2f", mean_accept_prob),
   sprintf("True target scales: %s", toString(scales)),
   sprintf("Adapter scale est.: %s", toString(adapted_shape)),
   sep = "\n"
+)
+```
+
+## Visualizing adaptation
+
+We can plot how the proposal shape and scale parameters varied during the adaptive warm-up iterations,
+by accessing the statistics recorded in the `warm_up_statistics` field with the `results` object.
+
+First considering the scalar scale parameter $\sigma_t$, 
+which is controlled to achieve a target average acceptance rate,
+we see that the adaptation successfully coerces the average acceptance rate to be
+close to the 0.4 target value and that the scale parameter adaptation has largely stabilized within
+the first 1000 iterations.
+
+```{r fig.width=7, fig.height=4}
+par(mfrow = c(1, 2))
+plot(
+  exp(results$warm_up_statistics[, "log_scale"]),
+  type = "l",
+  xlab = expression(paste("Chain iteration ", t)),
+  ylab = expression(paste("Scale ", sigma[t]))
+)
+plot(
+  cumsum(results$warm_up_statistics[, "accept_prob"]) / 1:n_warm_up_iteration,
+  type = "l",
+  xlab = expression(paste("Chain iteration ", t)),
+  ylab = expression(paste("Average acceptance rate ", alpha[t])),
+  ylim = c(0, 1)
+)
+```
+
+Now consider the adaptation of the diagonal shape matrix $\Sigma_t$,
+based on estimates of the per-coordinate variances, we see that the adaptation
+converges towards the known heterogeneous scales along the different coordinates.
+
+```{r fig.width=7, fig.height=4}
+matplot(
+  sqrt(results$warm_up_statistics[, paste0("variance_estimate", 1:dimension)]),
+  type = "l",
+  xlab = expression(paste("Chain iteration ", t)),
+  ylab = expression(paste("Shape ", diag(Sigma[t]^(1 / 2)))),
+  log = "y"
+)
+legend(
+  "right",
+  paste0("coordinate ", 1:dimension),
+  lty = 1:dimension,
+  col = 1:dimension,
+  bty = "n"
 )
 ```
 

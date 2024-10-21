@@ -15,6 +15,8 @@
 #' * `finalize` a function for performing any final updates to adapter state and
 #'   proposal parameters on completion of chain sampling (may be `NULL` if
 #'   unused).
+#' * `state` a zero-argument function for accessing current values of adapter
+#'   state variables.
 #'
 #' @export
 #'
@@ -41,7 +43,12 @@ scale_adapter <- function(
     log_scale <<- log_scale + gamma * (accept_prob - target_accept_prob)
     proposal$update(scale = exp(log_scale))
   }
-  list(initialize = initialize, update = update, finalize = function() {})
+  list(
+    initialize = initialize,
+    update = update,
+    finalize = function() {},
+    state = function() list(log_scale = log_scale)
+  )
 }
 
 #' Create object to adapt proposal with per dimension scales based on estimates
@@ -77,7 +84,16 @@ variance_adapter <- function(proposal, kappa = 0.6) {
     )
     proposal$update(shape = sqrt(variance_estimate))
   }
-  list(initialize = initialize, update = update, finalize = NULL)
+  list(
+    initialize = initialize,
+    update = update,
+    finalize = NULL,
+    state = function() {
+      list(
+        mean_estimate = mean_estimate, variance_estimate = variance_estimate
+      )
+    }
+  )
 }
 
 #' Create object to adapt proposal shape (and scale) using robust adaptive
@@ -122,5 +138,10 @@ robust_shape_adapter <- function(
     )
     proposal$update(shape = shape)
   }
-  list(initialize = initialize, update = update, finalize = NULL)
+  list(
+    initialize = initialize,
+    update = update,
+    finalize = NULL,
+    state = function() list(shape = shape)
+  )
 }
