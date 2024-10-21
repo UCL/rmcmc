@@ -77,3 +77,19 @@ for (n_warm_up_iteration in c(0, 1, 10)) {
     }
   }
 }
+
+test_that("Sample chains with invalid initial_state raises error", {
+  target_distribution <- standard_normal_target_distribution()
+  barker_proposal(target_distribution)
+  proposal <- barker_proposal(target_distribution)
+  expect_error(
+    sample_chain(
+      target_distribution = target_distribution,
+      proposal = proposal,
+      initial_state = list(),
+      n_warm_up_iteration = 1,
+      n_main_iteration = 1,
+    ),
+    "initial_state"
+  )
+})
