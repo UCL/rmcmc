@@ -47,6 +47,9 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
           )
           check_adapter(adapter)
           adapter$initialize(initial_state = NULL)
+          adapter_state <- adapter$state()
+          expect_named(adapter_state, "log_scale")
+          expect_length(adapter_state$log_scale, 1)
           old_scale <- initial_scale
           # If accept probability higher than target scale should be increased
           for (s in 1:2) {
@@ -104,6 +107,14 @@ for (dimension in c(1L, 2L, 5L)) {
           position <- rnorm(dimension) * target_scales
           state <- chain_state(position = position)
           adapter$initialize(state)
+          adapter_state <- adapter$state()
+          expect_named(
+            adapter_state,
+            c("mean_estimate", "variance_estimate"),
+            ignore.order = TRUE
+          )
+          expect_length(adapter_state$mean_estimate, dimension)
+          expect_length(adapter_state$variance_estimate, dimension)
           # Proposal shape parameter should be adapted to close to target scales
           # over long run
           for (s in 1:3000) {
@@ -154,6 +165,10 @@ for (dimension in c(1L, 2L, 3L)) {
         check_adapter(adapter)
         state <- chain_state(position = rnorm(dimension))
         adapter$initialize(state)
+        adapter_state <- adapter$state()
+        expect_named(adapter_state, "shape")
+        expect_nrow(adapter_state$shape, dimension)
+        expect_ncol(adapter_state$shape, dimension)
         mean_accept_prob <- 0.
         for (sample_index in 1:10000) {
           state_and_statistics <- sample_metropolis_hastings(
