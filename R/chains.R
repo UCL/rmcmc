@@ -176,7 +176,7 @@ chain_loop <- function(
     traces <- NULL
     statistics <- NULL
   }
-  for (s in 1:n_iteration) {
+  for (s in seq_len(n_iteration)) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
