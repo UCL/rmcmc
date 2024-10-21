@@ -95,7 +95,7 @@
 <span>  n_main_iteration <span class="op">=</span> <span class="va">n_main_iteration</span>,</span>
 <span>  adapters <span class="op">=</span> <span class="va">adapters</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">mean_accept_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">statistics</span><span class="op">$</span><span class="va">accept_prob</span><span class="op">)</span></span>
+<span><span class="va">mean_accept_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">statistics</span><span class="op">[</span>, <span class="st">"accept_prob"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">adapted_shape</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">parameters</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">shape</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Average acceptance probability is %.2f"</span>, <span class="va">mean_accept_prob</span><span class="op">)</span>,</span>

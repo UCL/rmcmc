@@ -78,21 +78,22 @@ alternatives such as the Metropolis adjusted Langevin algorithm
 <div class="section level2">
 <h2 id="example-target-distribution">Example target distribution<a class="anchor" aria-label="anchor" href="#example-target-distribution"></a>
 </h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dimension</span> <span class="op">&lt;-</span> <span class="fl">3</span></span>
+<span><span class="va">scales</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">dimension</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>As a simple example of a target distribution, we consider a
-5-dimensional Gaussian target with heterogeneous scales such that the
+3-dimensional Gaussian target with heterogeneous scales such that the
 standard deviation of the first coordinate is 0.01 and that of other
 coordinates is 1. The <code>rmcmc</code> package expects the target
 distribution to be specified by a function evaluating the logarithm of
 the (potentially unnormalized) probability density at a point, and for
 gradient-based methods such as the Barker proposal, additionally
-requires specification of a functio evaluating the gradient of this log
+requires specification of a function evaluating the gradient of this log
 density function. The two functions should be wrapped in to a list under
 the names <code>log_density</code> and <code>gradient_log_density</code>
 respectively.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dimension</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
-<span><span class="va">scales</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">dimension</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">target_distribution</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">target_distribution</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">x</span> <span class="op">/</span> <span class="va">scales</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span>
 <span>  gradient_log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="va">x</span> <span class="op">/</span> <span class="va">scales</span><span class="op">^</span><span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -126,7 +127,7 @@ the target distribution with the other arguments left as their defaults.
 Rather than specifying fixed <code>scale</code> and <code>shape</code>
 tuning parameters, in the next section we illustrate how to set up
 adaptation of these parameters during a warm-up stage to the chains.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -142,7 +143,7 @@ the chain transitions to a target value, and (ii) adapt the shape of the
 proposal distribution with per-coordinate scaling factors based on
 estimates on the coordinate-wise variances under the target
 distribution.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adapters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/scale_adapter.html">scale_adapter</a></span><span class="op">(</span><span class="va">proposal</span>, initial_scale <span class="op">=</span> <span class="fl">1.</span>, target_accept_prob <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/variance_adapter.html">variance_adapter</a></span><span class="op">(</span><span class="va">proposal</span><span class="op">)</span></span>
@@ -165,22 +166,28 @@ re-computation. The <code>chain_state</code> function allows creation of
 a list of the required format, with the first (and only required)
 argument specifying the position. Here we generate an initial state with
 position coordinates sampled from a standard normal distribution.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">initial_state</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chain_state.html">chain_state</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">dimension</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We now have everything needed to sample a Markov chain. To do this we
 use the <code>sample_chain</code> function from <code>rmcmc</code>. This
 requires us to specify the target distribution, proposal distribution,
 initial chain state, number of adaptive warm-up iterations and
-non-adaptive main chain iterations and list of adapters to use. Here we
-sample a chain with 5000 warm-up and 5000 main chain iterations.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+non-adaptive main chain iterations and list of adapters to use.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">n_warm_up_iteration</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span>
+<span><span class="va">n_main_iteration</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span></code></pre></div>
+<p>Here we sample a chain with 10^{4} warm-up and 10^{4} main chain
+iterations. We set <code>trace_warm_up</code> to <code>TRUE</code> to
+record statistics during the adaptive warm-up chain iterations.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_chain.html">sample_chain</a></span><span class="op">(</span></span>
 <span>  target_distribution <span class="op">=</span> <span class="va">target_distribution</span>,</span>
 <span>  proposal <span class="op">=</span> <span class="va">proposal</span>,</span>
 <span>  initial_state <span class="op">=</span> <span class="va">initial_state</span>,</span>
-<span>  n_warm_up_iteration <span class="op">=</span> <span class="fl">5000</span>,</span>
-<span>  n_main_iteration <span class="op">=</span> <span class="fl">5000</span>,</span>
-<span>  adapters <span class="op">=</span> <span class="va">adapters</span></span>
+<span>  n_warm_up_iteration <span class="op">=</span> <span class="va">n_warm_up_iteration</span>,</span>
+<span>  n_main_iteration <span class="op">=</span> <span class="va">n_main_iteration</span>,</span>
+<span>  adapters <span class="op">=</span> <span class="va">adapters</span>,</span>
+<span>  trace_warm_up <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>If the <code>progress</code> package is installed a progress bar will
 show the chain progress during sampling. The return value of
@@ -188,8 +195,8 @@ show the chain progress during sampling. The return value of
 final chain state (which can be used to start sampling a new chain), any
 variables traced during the main chain iterations and any transition
 statistics recorded.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mean_accept_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">statistics</span><span class="op">$</span><span class="va">accept_prob</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mean_accept_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">statistics</span><span class="op">[</span>, <span class="st">"accept_prob"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">adapted_shape</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">parameters</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">shape</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Average acceptance probability is %.2f"</span>, <span class="va">mean_accept_prob</span><span class="op">)</span>,</span>
@@ -197,9 +204,60 @@ statistics recorded.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Adapter scale est.: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/toString.html" class="external-link">toString</a></span><span class="op">(</span><span class="va">adapted_shape</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\n"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Average acceptance probability is 0.39</span></span>
-<span><span class="co">#&gt; True target scales: 0.01, 1, 1, 1, 1</span></span>
-<span><span class="co">#&gt; Adapter scale est.: 0.00911327292692519, 0.822701109616858, 0.94202243826012, 0.959821317237303, 0.82054653914399</span></span></code></pre></div>
+<span><span class="co">#&gt; Average acceptance probability is 0.40</span></span>
+<span><span class="co">#&gt; True target scales: 0.01, 1, 1</span></span>
+<span><span class="co">#&gt; Adapter scale est.: 0.00897727437719285, 0.969944570138433, 0.977759033606351</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="visualizing-adaptation">Visualizing adaptation<a class="anchor" aria-label="anchor" href="#visualizing-adaptation"></a>
+</h2>
+<p>We can plot how the proposal shape and scale parameters varied during
+the adaptive warm-up iterations, by accessing the statistics recorded in
+the <code>warm_up_statistics</code> field with the <code>results</code>
+object.</p>
+<p>First considering the scalar scale parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\sigma_t</annotation></semantics></math>,
+which is controlled to achieve a target average acceptance rate, we see
+that the adaptation successfully coerces the average acceptance rate to
+be close to the 0.4 target value and that the scale parameter adaptation
+has largely stabilized within the first 1000 iterations.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">warm_up_statistics</span><span class="op">[</span>, <span class="st">"log_scale"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Chain iteration "</span>, <span class="va">t</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Scale "</span>, <span class="va">sigma</span><span class="op">[</span><span class="va">t</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">warm_up_statistics</span><span class="op">[</span>, <span class="st">"accept_prob"</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1</span><span class="op">:</span><span class="va">n_warm_up_iteration</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Chain iteration "</span>, <span class="va">t</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Average acceptance rate "</span>, <span class="va">alpha</span><span class="op">[</span><span class="va">t</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="barker-proposal_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<p>Now consider the adaptation of the diagonal shape matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\Sigma_t</annotation></semantics></math>,
+based on estimates of the per-coordinate variances, we see that the
+adaptation converges towards the known heterogeneous scales along the
+different coordinates.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matplot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">warm_up_statistics</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"variance_estimate"</span>, <span class="fl">1</span><span class="op">:</span><span class="va">dimension</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Chain iteration "</span>, <span class="va">t</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Shape "</span>, <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="va">Sigma</span><span class="op">[</span><span class="va">t</span><span class="op">]</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  log <span class="op">=</span> <span class="st">"y"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span></span>
+<span>  <span class="st">"right"</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"coordinate "</span>, <span class="fl">1</span><span class="op">:</span><span class="va">dimension</span><span class="op">)</span>,</span>
+<span>  lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">dimension</span>,</span>
+<span>  col <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">dimension</span>,</span>
+<span>  bty <span class="op">=</span> <span class="st">"n"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p><img src="barker-proposal_files/figure-html/unnamed-chunk-11-1.png" width="672"></p>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

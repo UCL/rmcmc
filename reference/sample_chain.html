@@ -56,7 +56,8 @@ stage.</p>
 <span>  <span class="va">n_main_iteration</span>,</span>
 <span>  adapters <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  trace_function <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  show_progress_bar <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  show_progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  trace_warm_up <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -110,14 +111,29 @@ of variables to trace on each main (non-adaptive) chain iteration.</p></dd>
 <dd><p>Whether to show progress bars during sampling.
 Requires <code>progress</code> package to be installed to have an effect.</p></dd>
 
+
+<dt id="arg-trace-warm-up">trace_warm_up<a class="anchor" aria-label="anchor" href="#arg-trace-warm-up"></a></dt>
+<dd><p>Whether to record chain traces and adaptation /
+transition statistics during (adaptive) warm-up iterations in addition to
+(non-adaptive) main chain iterations.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A list with entries</p><ul><li><p><code>final_state</code>: the final chain state,</p></li>
-<li><p><code>traces</code>: a dataframe contained traced variables for each main chain
-iteration, with variables along columns and iterations along rows.</p></li>
-<li><p><code>statistics</code>: a dataframe containing transition statistics for each main
-chain iteration, with statistics along columns and iterations along rows.</p></li>
+<li><p><code>traces</code>: a matrix with named columns contained traced variables for each
+main chain iteration, with variables along columns and iterations along
+rows.</p></li>
+<li><p><code>statistics</code>: a matrix with named columns containing transition statistics
+for each main chain iteration, with statistics along columns and iterations
+along rows.</p></li>
+<li><p><code>warm_up_traces</code>: a matrix with named columns contained traced variables
+for each warm-up chain iteration, with variables along columns and
+iterations along rows. Only present if <code>trace_warm_up = TRUE</code>.</p></li>
+<li><p><code>warm_up_statistics</code>: a matrix with named columns containing adaptation and
+transition statistics for each warm-up chain iteration, with statistics
+along columns and iterations along rows. Only present if
+<code>trace_warm_up = TRUE</code>.</p></li>
 </ul></div>
 
     <div class="section level2">
