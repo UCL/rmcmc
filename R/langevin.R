@@ -44,7 +44,7 @@ log_density_ratio_langevin <- function(
     proposed_state,
     target_distribution,
     scale_and_shape) {
-  sum(proposed_state$momentum()^2 - state$momentum()^2) / 2
+  sum(state$momentum()^2 - proposed_state$momentum()^2) / 2
 }
 
 #' Create a new Langevin proposal object.
