@@ -72,7 +72,7 @@ sample_chain <- function(
   if (is.vector(initial_state) && is.atomic(initial_state)) {
     state <- chain_state(initial_state)
   } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
-    state <- initial_state
+    state <- initial_state$copy()
   } else {
     stop("initial_state must be a vector or list with an entry named position.")
   }
