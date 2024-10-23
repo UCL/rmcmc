@@ -2,9 +2,10 @@
 #'
 #' @param proposal Proposal object to adapt. Must define an `update` function
 #'   which accepts a parameter `scale` for setting scale parameter of proposal.
-#' @param initial_scale Initial value to use for scale parameter.
+#' @param initial_scale Initial value to use for scale parameter. If not set
+#'   explicitly a proposal and dimension dependent default will be used.
 #' @param target_accept_prob Target value for average accept probability for
-#'   chain.
+#'   chain. If not set a proposal dependent default will be used.
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
 #' @return List of functions with entries
@@ -31,9 +32,15 @@
 #'   initial_scale = 1., target_accept_prob = 0.4
 #' )
 scale_adapter <- function(
-    proposal, initial_scale, target_accept_prob = 0.4, kappa = 0.6) {
+    proposal, initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
   log_scale <- NULL
+  if (is.null(target_accept_prob)) {
+    target_accept_prob <- proposal$default_target_accept_prob()
+  }
   initialize <- function(initial_state) {
+    if (is.null(initial_scale)) {
+      initial_scale <- proposal$default_initial_scale(initial_state$dimension())
+    }
     log_scale <<- log(initial_scale)
     proposal$update(scale = initial_scale)
   }

@@ -28,7 +28,9 @@ for (dimension in c(1, 2)) {
       chain_state(position = state$position() + offset)
     }
     log_density_ratio <- function(state, proposed_state, scale_and_shape) 0
-    proposal <- scale_and_shape_proposal(sample, log_density_ratio, NULL, NULL)
+    proposal <- scale_and_shape_proposal(
+      sample, log_density_ratio, NULL, NULL, NULL, function(d) NULL
+    )
     state <- chain_state(position = rnorm(dimension))
     expect_error(proposal$sample(state), "must be set")
     expect_identical(proposal$parameters(), list(scale = NULL, shape = NULL))
@@ -40,5 +42,7 @@ for (dimension in c(1, 2)) {
     check_chain_state(proposed_state)
     expect_all_different(state$position(), proposed_state$position())
     expect_identical(proposal$log_density(state, proposed_state), 0)
+    expect_identical(proposal$default_target_accept_prob(), NULL)
+    expect_identical(proposal$default_initial_scale(dimension), NULL)
   })
 }

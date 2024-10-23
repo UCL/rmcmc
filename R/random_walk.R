@@ -42,6 +42,8 @@ random_walk_proposal <- function(
     },
     log_density_ratio = function(state, proposed_state, scale_and_shape) 0,
     scale = scale,
-    shape = shape
+    shape = shape,
+    default_target_accept_prob = 0.234,
+    default_initial_scale = function(dimension) 2.38 / (dimension)^(1 / 2)
   )
 }

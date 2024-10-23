@@ -15,7 +15,9 @@ check_adapter <- function(adapter) {
 dummy_proposal_with_scale_parameter <- function(scale = NULL) {
   list(
     update = function(scale) scale <<- scale,
-    parameters = function() list(scale = scale)
+    parameters = function() list(scale = scale),
+    default_target_accept_prob = function() 0.234,
+    default_initial_scale = function(dimension) 1 / sqrt(dimension)
   )
 }
 
@@ -46,7 +48,7 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
             kappa = kappa
           )
           check_adapter(adapter)
-          adapter$initialize(initial_state = NULL)
+          adapter$initialize(initial_state = chain_state(0))
           adapter_state <- adapter$state()
           expect_named(adapter_state, "log_scale")
           expect_length(adapter_state$log_scale, 1)
@@ -86,6 +88,12 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
     }
   }
 }
+
+test_that("Scale adapter with only proposal specified works", {
+  proposal <- dummy_proposal_with_scale_parameter()
+  adapter <- scale_adapter(proposal)
+  check_adapter(adapter)
+})
 
 for (dimension in c(1L, 2L, 5L)) {
   for (kappa in c(0.5, 0.6, 0.8)) {

@@ -87,6 +87,10 @@ log_density_ratio_barker <- function(
 #'   for a given pair of current and proposed chain states,
 #' * `update`: a function to update parameters of proposal,
 #' * `parameters`: a function to return list of current parameter values.
+#' * `default_target_accept_prob`: a function returning the default target
+#'   acceptance rate to use for any scale adaptation.
+#' * `default_initial_scale`: a function which given a dimension gives a default
+#'   value to use for the initial proposal scale parameter.
 #'
 #' @export
 #'
@@ -118,6 +122,8 @@ barker_proposal <- function(
       )
     },
     scale = scale,
-    shape = shape
+    shape = shape,
+    default_target_accept_prob = 0.4,
+    default_initial_scale = function(dimension) 2.38 / (dimension)^(1 / 3)
   )
 }
