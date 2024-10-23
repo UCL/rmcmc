@@ -24,7 +24,8 @@ dummy_proposal_with_scale_parameter <- function(scale = NULL) {
 dummy_proposal_with_shape_parameter <- function(shape = NULL) {
   list(
     update = function(shape) shape <<- shape,
-    parameters = function() list(shape = shape)
+    parameters = function() list(shape = shape),
+    default_initial_scale = function(dimension) 1 / sqrt(dimension)
   )
 }
 
@@ -40,23 +41,22 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
           target_accept_prob, initial_scale, kappa
         ),
         {
-          proposal <- dummy_proposal_with_scale_parameter()
           adapter <- scale_adapter(
-            proposal = proposal,
             initial_scale = initial_scale,
             target_accept_prob = target_accept_prob,
             kappa = kappa
           )
           check_adapter(adapter)
-          adapter$initialize(initial_state = chain_state(rep(0, dimension)))
+          proposal <- dummy_proposal_with_scale_parameter()
+          adapter$initialize(proposal, chain_state(rep(0, dimension)))
           adapter_state <- adapter$state()
           expect_named(adapter_state, "log_scale")
           expect_length(adapter_state$log_scale, 1)
           old_scale <- initial_scale
           # If accept probability higher than target scale should be increased
-          for (s in 1:2) {
+          for (sample_index in 1:2) {
             adapter$update(
-              s, list(statistics = list(accept_prob = target_accept_prob + 0.1))
+              proposal, sample_index, list(statistics = list(accept_prob = target_accept_prob + 0.1))
             )
             expect_type(adapter$state(), "list")
             scale <- proposal$parameters()$scale
@@ -64,9 +64,9 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
             old_scale <- scale
           }
           # If accept probability lower than target scale should be decreased
-          for (s in 3:4) {
+          for (sample_index in 3:4) {
             adapter$update(
-              s, list(statistics = list(accept_prob = target_accept_prob - 0.1))
+              proposal, sample_index, list(statistics = list(accept_prob = target_accept_prob - 0.1))
             )
             scale <- proposal$parameters()$scale
             expect_lt(scale, old_scale)
@@ -75,10 +75,10 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
           # For a smooth decreasing relation between accept probability and
           # scale should adapt over long run to give close to target accept
           # probability
-          for (s in 5:2000) {
+          for (sample_index in 5:2000) {
             accept_prob <- exp(-scale)
             adapter$update(
-              s, list(statistics = list(accept_prob = accept_prob))
+              proposal, sample_index, list(statistics = list(accept_prob = accept_prob))
             )
             scale <- proposal$parameters()$scale
           }
@@ -96,10 +96,10 @@ for (dimension in c(1L, 2L, 5L)) {
       dimension
     ),
     {
-      proposal <- dummy_proposal_with_scale_parameter()
-      adapter <- scale_adapter(proposal)
+      adapter <- scale_adapter()
       check_adapter(adapter)
-      adapter$initialize(initial_state = chain_state(rep(0, dimension)))
+      proposal <- dummy_proposal_with_scale_parameter()
+      adapter$initialize(proposal, chain_state(rep(0, dimension)))
       adapter_state <- adapter$state()
       expect_named(adapter_state, "log_scale")
       expect_length(adapter_state$log_scale, 1)
@@ -121,13 +121,13 @@ for (dimension in c(1L, 2L, 5L)) {
         ),
         {
           proposal <- dummy_proposal_with_shape_parameter()
-          adapter <- variance_adapter(proposal = proposal, kappa = kappa)
+          adapter <- variance_adapter(kappa = kappa)
           check_adapter(adapter)
           withr::local_seed(default_seed())
           target_scales <- exp(2 * rnorm(dimension))
           position <- rnorm(dimension) * target_scales
           state <- chain_state(position = position)
-          adapter$initialize(state)
+          adapter$initialize(proposal, state)
           adapter_state <- adapter$state()
           expect_named(
             adapter_state,
@@ -146,7 +146,7 @@ for (dimension in c(1L, 2L, 5L)) {
                 + sqrt(1 - correlation^2) * target_scales * rnorm(dimension)
             )
             state$update(position = position)
-            adapter$update(s, list(state = state))
+            adapter$update(proposal, s, list(state = state))
           }
           expect_equal(
             proposal$parameters()$shape,
@@ -178,14 +178,13 @@ for (dimension in c(1L, 2L, 3L)) {
         )
         proposal <- random_walk_proposal(target_distribution)
         adapter <- robust_shape_adapter(
-          proposal = proposal,
           initial_scale = 1.,
           kappa = 2 / 3,
           target_accept_prob = target_accept_prob
         )
         check_adapter(adapter)
         state <- chain_state(position = rnorm(dimension))
-        adapter$initialize(state)
+        adapter$initialize(proposal, state)
         adapter_state <- adapter$state()
         expect_named(adapter_state, "shape")
         expect_nrow(adapter_state$shape, dimension)
@@ -195,7 +194,7 @@ for (dimension in c(1L, 2L, 3L)) {
           state_and_statistics <- sample_metropolis_hastings(
             state, target_distribution, proposal
           )
-          adapter$update(sample_index, state_and_statistics)
+          adapter$update(proposal, sample_index, state_and_statistics)
           state <- state_and_statistics$state
           mean_accept_prob <- mean_accept_prob + (
             state_and_statistics$statistics$accept_prob - mean_accept_prob
@@ -214,4 +213,24 @@ for (dimension in c(1L, 2L, 3L)) {
       }
     )
   }
+}
+
+for (dimension in c(1L, 2L, 5L)) {
+  test_that(
+    sprintf(
+      "Robust shape adapter with only proposal specified works in dimension %i",
+      dimension
+    ),
+    {
+      adapter <- robust_shape_adapter()
+      check_adapter(adapter)
+      proposal <- dummy_proposal_with_shape_parameter()
+      adapter$initialize(proposal, chain_state(rep(0, dimension)))
+      adapter_state <- adapter$state()
+      expect_named(adapter_state, "shape")
+      expect_nrow(adapter_state$shape, dimension)
+      expect_ncol(adapter_state$shape, dimension)
+      expect_equal(adapter_state$shape, diag(dimension) / sqrt(dimension))
+    }
+  )
 }

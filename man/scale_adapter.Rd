@@ -4,17 +4,9 @@
 \alias{scale_adapter}
 \title{Create object to adapt proposal scale to coerce average acceptance rate.}
 \usage{
-scale_adapter(
-  proposal,
-  initial_scale = NULL,
-  target_accept_prob = NULL,
-  kappa = 0.6
-)
+scale_adapter(initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6)
 }
 \arguments{
-\item{proposal}{Proposal object to adapt. Must define an \code{update} function
-which accepts a parameter \code{scale} for setting scale parameter of proposal.}
-
 \item{initial_scale}{Initial value to use for scale parameter. If not set
 explicitly a proposal and dimension dependent default will be used.}
 
@@ -22,12 +14,15 @@ explicitly a proposal and dimension dependent default will be used.}
 chain. If not set a proposal dependent default will be used.}
 
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
+
+\item{proposal}{Proposal object to adapt. Must define an \code{update} function
+which accepts a parameter \code{scale} for setting scale parameter of proposal.}
 }
 \value{
 List of functions with entries
 \itemize{
-\item \code{initialize}, a function for initializing adapter state at beginning of
-chain,
+\item \code{initialize}, a function for initializing adapter state and proposal
+parameters at beginning of chain,
 \item \code{update} a function for updating adapter state and proposal parameters on
 each chain iteration,
 \item \code{finalize} a function for performing any final updates to adapter state and
@@ -46,8 +41,6 @@ target_distribution <- list(
   grad_log_density = function(x) -x
 )
 proposal <- barker_proposal(target_distribution)
-adapter <- scale_adapter(
-  proposal,
-  initial_scale = 1., target_accept_prob = 0.4
-)
+adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
+adapter$initialize(proposal, chain_state(c(0, 0)))
 }
