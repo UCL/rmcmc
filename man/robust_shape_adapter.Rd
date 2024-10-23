@@ -16,10 +16,11 @@ robust_shape_adapter(
 \item{proposal}{Proposal object to adapt. Must define an \code{update} function
 which accepts a parameter \code{scale} for setting scale parameter of proposal.}
 
-\item{initial_scale}{Initial value to use for scale parameter.}
+\item{initial_scale}{Initial value to use for scale parameter. If not set
+explicitly a proposal and dimension dependent default will be used.}
 
 \item{target_accept_prob}{Target value for average accept probability for
-chain.}
+chain. If not set a proposal dependent default will be used.}
 
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
 }

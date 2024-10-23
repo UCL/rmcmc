@@ -34,6 +34,10 @@ current chain state,
 for a given pair of current and proposed chain states,
 \item \code{update}: a function to update parameters of proposal,
 \item \code{parameters}: a function to return list of current parameter values.
+\item \code{default_target_accept_prob}: a function returning the default target
+acceptance rate to use for any scale adaptation.
+\item \code{default_initial_scale}: a function which given a dimension gives a default
+value to use for the initial proposal scale parameter.
 }
 }
 \description{

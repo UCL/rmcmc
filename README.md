@@ -44,26 +44,19 @@ library(rmcmc)
 
 set.seed(876287L)
 dimension <- 3
-scales <- exp(2 * rnorm(dimension))
+scales <- exp(rnorm(dimension))
 target_distribution <- list(
   log_density = function(x) -sum((x / scales)^2) / 2,
   gradient_log_density = function(x) -x / scales^2
 )
 proposal <- barker_proposal(target_distribution)
-adapters <- list(
-  scale_adapter(proposal, initial_scale = 1., target_accept_prob = 0.4),
-  variance_adapter(proposal)
-)
-n_warm_up_iteration <- 1000
-n_main_iteration <- 1000
-initial_state <- chain_state(rnorm(dimension))
 results <- sample_chain(
   target_distribution = target_distribution,
   proposal = proposal,
-  initial_state = initial_state,
-  n_warm_up_iteration = n_warm_up_iteration,
-  n_main_iteration = n_main_iteration,
-  adapters = adapters
+  initial_state = rnorm(dimension),
+  n_warm_up_iteration = 1000,
+  n_main_iteration = 1000,
+  adapters = list(scale_adapter(proposal), variance_adapter(proposal))
 )
 mean_accept_prob <- mean(results$statistics[, "accept_prob"])
 adapted_shape <- proposal$parameters()$shape
@@ -73,7 +66,7 @@ cat(
   sprintf("Adapter scale est.: %s", toString(adapted_shape)),
   sep = "\n"
 )
-#> Average acceptance probability is 0.46
-#> True target scales: 2.26617033226883, 1.89818769776724, 0.0767505506297473
-#> Adapter scale est.: 1.77277384748788, 1.71554065105575, 0.0804144979270686
+#> Average acceptance probability is 0.40
+#> True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645
+#> Adapter scale est.: 1.35010920408606, 1.5140138215658, 0.248974800274054
 ```
