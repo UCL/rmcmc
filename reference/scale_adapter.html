@@ -42,7 +42,12 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">scale_adapter</span><span class="op">(</span><span class="va">proposal</span>, <span class="va">initial_scale</span>, target_accept_prob <span class="op">=</span> <span class="fl">0.4</span>, kappa <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">scale_adapter</span><span class="op">(</span></span>
+<span>  <span class="va">proposal</span>,</span>
+<span>  initial_scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  target_accept_prob <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  kappa <span class="op">=</span> <span class="fl">0.6</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -55,12 +60,13 @@ which accepts a parameter <code>scale</code> for setting scale parameter of prop
 
 
 <dt id="arg-initial-scale">initial_scale<a class="anchor" aria-label="anchor" href="#arg-initial-scale"></a></dt>
-<dd><p>Initial value to use for scale parameter.</p></dd>
+<dd><p>Initial value to use for scale parameter. If not set
+explicitly a proposal and dimension dependent default will be used.</p></dd>
 
 
 <dt id="arg-target-accept-prob">target_accept_prob<a class="anchor" aria-label="anchor" href="#arg-target-accept-prob"></a></dt>
 <dd><p>Target value for average accept probability for
-chain.</p></dd>
+chain. If not set a proposal dependent default will be used.</p></dd>
 
 
 <dt id="arg-kappa">kappa<a class="anchor" aria-label="anchor" href="#arg-kappa"></a></dt>

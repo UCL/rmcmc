@@ -108,6 +108,10 @@ current chain state,</p></li>
 for a given pair of current and proposed chain states,</p></li>
 <li><p><code>update</code>: a function to update parameters of proposal,</p></li>
 <li><p><code>parameters</code>: a function to return list of current parameter values.</p></li>
+<li><p><code>default_target_accept_prob</code>: a function returning the default target
+acceptance rate to use for any scale adaptation.</p></li>
+<li><p><code>default_initial_scale</code>: a function which given a dimension gives a default
+value to use for the initial proposal scale parameter.</p></li>
 </ul></div>
 
     <div class="section level2">
