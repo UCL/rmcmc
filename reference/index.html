@@ -59,6 +59,12 @@
         <dd>Construct a new chain state.</dd>
       </dl><dl><dt>
 
+          <code><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter()</a></code>
+
+        </dt>
+        <dd>Create object to adapt proposal scale to coerce average acceptance rate using dual averaging scheme of Nesterov (2009) and Hoffman and Gelman (2014).</dd>
+      </dl><dl><dt>
+
           <code><a href="example_gaussian_stan_model.html">example_gaussian_stan_model()</a></code>
 
         </dt>
@@ -95,10 +101,10 @@
         <dd>Sample a Markov chain</dd>
       </dl><dl><dt>
 
-          <code><a href="scale_adapter.html">scale_adapter()</a></code>
+          <code><a href="simple_scale_adapter.html">simple_scale_adapter()</a></code>
 
         </dt>
-        <dd>Create object to adapt proposal scale to coerce average acceptance rate.</dd>
+        <dd>Create object to adapt proposal scale to coerce average acceptance rate using a Robbins and Monro (1951) scheme.</dd>
       </dl><dl><dt>
 
           <code><a href="target_distribution_from_stan_model.html">target_distribution_from_stan_model()</a></code>
@@ -113,7 +119,7 @@
         <dd>Construct trace function from a BridgeStan <code>StanModel</code> object.</dd>
       </dl><dl><dt>
 
-          <code><a href="variance_adapter.html">variance_adapter()</a></code>
+          <code><a href="variance_shape_adapter.html">variance_shape_adapter()</a></code>
 
         </dt>
         <dd>Create object to adapt proposal with per dimension scales based on estimates of target distribution variances.</dd>
