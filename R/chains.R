@@ -181,7 +181,7 @@ chain_loop <- function(
       state, target_distribution, proposal
     )
     for (adapter in adapters) {
-      adapter$update(proposal, chain_iteration + 1, state_and_statistics)
+      adapter$update(proposal, chain_iteration, state_and_statistics)
     }
     state <- state_and_statistics$state
     if (record_traces_and_statistics) {

@@ -73,11 +73,11 @@ Below we instantiate a list of adapters to
 
 ```{r}
 adapters <- list(
-  scale_adapter(
+  simple_scale_adapter(
     initial_scale = 2.38^2 / dimension^(1 / 3),
     target_accept_prob = 0.4
   ),
-  variance_adapter()
+  variance_shape_adapter()
 )
 ```
 
@@ -199,7 +199,7 @@ cat(
 
 To sample a chain using a Langevin proposal, we can simple use `langevin_proposal` in place of `baker_proposal`.
 
-Here we create a new set of adapters using the default arguments to `scale_adapter` which will set the target acceptance rate to the Langevin proposal specific value of 0.574 following the results in @roberts2001optimal.
+Here we create a new set of adapters using the default arguments to `simple_scale_adapter` which will set the target acceptance rate to the Langevin proposal specific value of 0.574 following the results in @roberts2001optimal.
 
 ```{r}
 mala_results <- sample_chain(
@@ -208,7 +208,7 @@ mala_results <- sample_chain(
   initial_state = initial_state,
   n_warm_up_iteration = n_warm_up_iteration,
   n_main_iteration = n_main_iteration,
-  adapters = list(scale_adapter(), variance_adapter()),
+  adapters = list(simple_scale_adapter(), variance_shape_adapter()),
   trace_warm_up = TRUE
 )
 ```
