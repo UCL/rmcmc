@@ -75,8 +75,8 @@ based on estimates on the coordinate-wise variances under the target distributio
 
 ```{r}
 adapters <- list(
-  scale_adapter(proposal, initial_scale = 1., target_accept_prob = 0.4),
-  variance_adapter(proposal)
+  scale_adapter(initial_scale = 1., target_accept_prob = 0.4),
+  variance_adapter()
 )
 ```
 

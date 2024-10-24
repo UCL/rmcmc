@@ -23,9 +23,7 @@ for (n_warm_up_iteration in c(0, 1, 10)) {
                 target_distribution <- standard_normal_target_distribution()
                 barker_proposal(target_distribution)
                 proposal <- barker_proposal(target_distribution)
-                adapters <- list(
-                  scale_adapter(proposal, initial_scale = 1.)
-                )
+                adapters <- list(scale_adapter(initial_scale = 1.))
                 withr::with_seed(default_seed(), {
                   position <- rnorm(dimension)
                 })

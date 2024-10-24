@@ -72,7 +72,7 @@ sample_chain <- function(
   if (is.vector(initial_state) && is.atomic(initial_state)) {
     state <- chain_state(initial_state)
   } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
-    state <- initial_state
+    state <- initial_state$copy()
   } else {
     stop("initial_state must be a vector or list with an entry named position.")
   }
@@ -163,7 +163,7 @@ chain_loop <- function(
     statistic_names) {
   progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
   for (adapter in adapters) {
-    adapter$initialize(state)
+    adapter$initialize(proposal, state)
   }
   if (record_traces_and_statistics) {
     trace_names <- names(unlist(trace_function(state)))
@@ -176,25 +176,25 @@ chain_loop <- function(
     traces <- NULL
     statistics <- NULL
   }
-  for (s in seq_len(n_iteration)) {
+  for (chain_iteration in seq_len(n_iteration)) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
     for (adapter in adapters) {
-      adapter$update(s + 1, state_and_statistics)
+      adapter$update(proposal, chain_iteration + 1, state_and_statistics)
     }
     state <- state_and_statistics$state
     if (record_traces_and_statistics) {
-      traces[s, ] <- unlist(trace_function(state))
+      traces[chain_iteration, ] <- unlist(trace_function(state))
       adapter_states <- lapply(adapters, function(a) a$state())
-      statistics[s, ] <- unlist(
+      statistics[chain_iteration, ] <- unlist(
         c(state_and_statistics$statistics, adapter_states)
       )
     }
     if (!is.null(progress_bar)) progress_bar$tick()
   }
   for (adapter in adapters) {
-    if (!is.null(adapter$finalize)) adapter$finalize()
+    if (!is.null(adapter$finalize)) adapter$finalize(proposal)
   }
   list(final_state = state, traces = traces, statistics = statistics)
 }

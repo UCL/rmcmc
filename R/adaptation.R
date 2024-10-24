@@ -1,7 +1,5 @@
 #' Create object to adapt proposal scale to coerce average acceptance rate.
 #'
-#' @param proposal Proposal object to adapt. Must define an `update` function
-#'   which accepts a parameter `scale` for setting scale parameter of proposal.
 #' @param initial_scale Initial value to use for scale parameter. If not set
 #'   explicitly a proposal and dimension dependent default will be used.
 #' @param target_accept_prob Target value for average accept probability for
@@ -9,8 +7,8 @@
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
 #' @return List of functions with entries
-#' * `initialize`, a function for initializing adapter state at beginning of
-#'   chain,
+#' * `initialize`, a function for initializing adapter state and proposal
+#'   parameters at beginning of chain,
 #' * `update` a function for updating adapter state and proposal parameters on
 #'   each chain iteration,
 #' * `finalize` a function for performing any final updates to adapter state and
@@ -27,24 +25,22 @@
 #'   grad_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution)
-#' adapter <- scale_adapter(
-#'   proposal,
-#'   initial_scale = 1., target_accept_prob = 0.4
-#' )
+#' adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
+#' adapter$initialize(proposal, chain_state(c(0, 0)))
 scale_adapter <- function(
-    proposal, initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
+    initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
   log_scale <- NULL
-  if (is.null(target_accept_prob)) {
-    target_accept_prob <- proposal$default_target_accept_prob()
-  }
-  initialize <- function(initial_state) {
+  initialize <- function(proposal, initial_state) {
     if (is.null(initial_scale)) {
       initial_scale <- proposal$default_initial_scale(initial_state$dimension())
     }
     log_scale <<- log(initial_scale)
     proposal$update(scale = initial_scale)
   }
-  update <- function(sample_index, state_and_statistics) {
+  update <- function(proposal, sample_index, state_and_statistics) {
+    if (is.null(target_accept_prob)) {
+      target_accept_prob <- proposal$default_target_accept_prob()
+    }
     gamma <- sample_index^(-kappa)
     accept_prob <- state_and_statistics$statistics$accept_prob
     log_scale <<- log_scale + gamma * (accept_prob - target_accept_prob)
@@ -53,7 +49,7 @@ scale_adapter <- function(
   list(
     initialize = initialize,
     update = update,
-    finalize = function() {},
+    finalize = NULL,
     state = function() list(log_scale = log_scale)
   )
 }
@@ -61,8 +57,6 @@ scale_adapter <- function(
 #' Create object to adapt proposal with per dimension scales based on estimates
 #' of target distribution variances.
 #'
-#' @param proposal Proposal object to adapt. Must define an `update` function
-#'   which accepts a parameter `shape` for setting shape parameter of proposal.
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
 #' @inherit scale_adapter return
@@ -74,15 +68,16 @@ scale_adapter <- function(
 #'   grad_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution)
-#' adapter <- variance_adapter(proposal)
-variance_adapter <- function(proposal, kappa = 0.6) {
+#' adapter <- variance_adapter()
+#' adapter$initialize(proposal, chain_state(c(0, 0)))
+variance_adapter <- function(kappa = 0.6) {
   mean_estimate <- NULL
   variance_estimate <- NULL
-  initialize <- function(initial_state) {
+  initialize <- function(proposal, initial_state) {
     mean_estimate <<- initial_state$position()
     variance_estimate <<- rep(1., initial_state$dimension())
   }
-  update <- function(sample_index, state_and_statistics) {
+  update <- function(proposal, sample_index, state_and_statistics) {
     gamma <- sample_index^(-kappa)
     position <- state_and_statistics$state$position()
     mean_estimate <<- mean_estimate + gamma * (position - mean_estimate)
@@ -124,20 +119,23 @@ variance_adapter <- function(proposal, kappa = 0.6) {
 #'   grad_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution)
-#' adapter <- robust_shape_adapter(
-#'   proposal,
-#'   initial_scale = 1.,
-#'   target_accept_prob = 0.4
-#' )
+#' adapter <- robust_shape_adapter(initial_scale = 1., target_accept_prob = 0.4)
+#' adapter$initialize(proposal, chain_state(c(0, 0)))
 robust_shape_adapter <- function(
-    proposal, initial_scale, target_accept_prob = 0.4, kappa = 0.6) {
+    initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
   rlang::check_installed("ramcmc", reason = "to use this function")
   shape <- NULL
-  initialize <- function(initial_state) {
+  initialize <- function(proposal, initial_state) {
+    if (is.null(initial_scale)) {
+      initial_scale <- proposal$default_initial_scale(initial_state$dimension())
+    }
     shape <<- initial_scale * diag(initial_state$dimension())
     proposal$update(shape = shape)
   }
-  update <- function(sample_index, state_and_statistics) {
+  update <- function(proposal, sample_index, state_and_statistics) {
+    if (is.null(target_accept_prob)) {
+      target_accept_prob <- proposal$default_target_accept_prob()
+    }
     momentum <- state_and_statistics$proposed_state$momentum()
     accept_prob <- state_and_statistics$statistics$accept_prob
     shape <<- ramcmc::adapt_S(
