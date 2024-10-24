@@ -50,6 +50,8 @@ target_distribution <- list(
 
 - `barker_proposal`: The robust gradient-based Barker proposal proposed by @livingstone2022barker.
 - `langevin_proposal`: A gradient-based proposal based on a discretization of Langevin dynamics.
+- `hamiltonian_proposal`: A gradient-based proposal based on a discretization of Hamiltonian dynamics, simulated for a fixed number of integrator steps. 
+  With a single integrator step equivalent to `langevin_proposal`.
 - `random_walk_proposal`: A Gaussian random-walk proposal.
 
 Each function requires the first argument to specify the target distribution the proposal is to be constructed for. 

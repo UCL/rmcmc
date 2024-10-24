@@ -3,6 +3,7 @@
 export(barker_proposal)
 export(chain_state)
 export(example_gaussian_stan_model)
+export(hamiltonian_proposal)
 export(langevin_proposal)
 export(random_walk_proposal)
 export(robust_shape_adapter)
