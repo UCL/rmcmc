@@ -30,19 +30,62 @@ dummy_proposal_with_shape_parameter <- function(shape = NULL) {
   )
 }
 
+check_scale_adapter_coerces_to_target_accept_prob <- function(
+    adapter, proposal, target_accept_prob, initial_scale) {
+  # For a smooth decreasing relation between accept probability and
+  # scale should adapt over long run to give close to target accept
+  # probability
+  scale <- initial_scale
+  for (sample_index in 1:2000) {
+    accept_prob <- exp(-scale)
+    adapter$update(
+      proposal,
+      sample_index,
+      list(statistics = list(accept_prob = accept_prob))
+    )
+    scale <- proposal$parameters()$scale
+  }
+  if (!is.null(adapter$finalize)) {
+    adapter$finalize(proposal)
+    scale <- proposal$parameters()$scale
+  }
+  expect_equal(scale, -log(target_accept_prob), tolerance = 1e-2)
+}
+
+check_scale_adapter_with_default_args_works <- function(
+    adapter, dimension, check_adapter_state) {
+  check_adapter(adapter)
+  proposal <- dummy_proposal_with_scale_parameter()
+  adapter$initialize(proposal, chain_state(rep(0, dimension)))
+  adapter_state <- adapter$state()
+  check_adapter_state(adapter_state)
+  expected_log_scale <- log(proposal$default_initial_scale(dimension))
+  expect_equal(adapter_state$log_scale, expected_log_scale)
+  adapter$update(
+    proposal, 1, list(statistics = list(accept_prob = 1.))
+  )
+  adapter_state <- adapter$state()
+  expect_gte(adapter_state$log_scale, expected_log_scale)
+}
+
+check_simple_scale_adapter_state <- function(adapter_state) {
+  expect_named(adapter_state, c("log_scale"))
+  expect_length(adapter_state$log_scale, 1)
+}
+
 for (target_accept_prob in c(0.2, 0.4, 0.6)) {
   for (initial_scale in c(0.5, 1., 2.)) {
     for (kappa in c(0.5, 0.6, 0.8)) {
       test_that(
         sprintf(
           paste0(
-            "Scale adapter works with target_accept_prob %.1f ",
+            "Simple scale adapter works with target_accept_prob %.1f ",
             "initial_scale %.1f kappa %.1f"
           ),
           target_accept_prob, initial_scale, kappa
         ),
         {
-          adapter <- scale_adapter(
+          adapter <- simple_scale_adapter(
             initial_scale = initial_scale,
             target_accept_prob = target_accept_prob,
             kappa = kappa
@@ -51,13 +94,14 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
           proposal <- dummy_proposal_with_scale_parameter()
           adapter$initialize(proposal, chain_state(rep(0, dimension)))
           adapter_state <- adapter$state()
-          expect_named(adapter_state, "log_scale")
-          expect_length(adapter_state$log_scale, 1)
+          check_simple_scale_adapter_state(adapter_state)
           old_scale <- initial_scale
           # If accept probability higher than target scale should be increased
           for (sample_index in 1:2) {
             adapter$update(
-              proposal, sample_index, list(statistics = list(accept_prob = target_accept_prob + 0.1))
+              proposal,
+              sample_index,
+              list(statistics = list(accept_prob = target_accept_prob + 0.1))
             )
             expect_type(adapter$state(), "list")
             scale <- proposal$parameters()$scale
@@ -65,25 +109,21 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
             old_scale <- scale
           }
           # If accept probability lower than target scale should be decreased
-          for (sample_index in 3:4) {
+          adapter$initialize(proposal, chain_state(rep(0, dimension)))
+          old_scale <- initial_scale
+          for (sample_index in 1:2) {
             adapter$update(
-              proposal, sample_index, list(statistics = list(accept_prob = target_accept_prob - 0.1))
+              proposal,
+              sample_index,
+              list(statistics = list(accept_prob = target_accept_prob - 0.1))
             )
             scale <- proposal$parameters()$scale
             expect_lt(scale, old_scale)
             old_scale <- scale
           }
-          # For a smooth decreasing relation between accept probability and
-          # scale should adapt over long run to give close to target accept
-          # probability
-          for (sample_index in 5:2000) {
-            accept_prob <- exp(-scale)
-            adapter$update(
-              proposal, sample_index, list(statistics = list(accept_prob = accept_prob))
-            )
-            scale <- proposal$parameters()$scale
-          }
-          expect_equal(scale, -log(target_accept_prob), tolerance = 1e-2)
+          check_scale_adapter_coerces_to_target_accept_prob(
+            adapter, proposal, target_accept_prob, initial_scale
+          )
         }
       )
     }
@@ -93,23 +133,72 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
 for (dimension in c(1L, 2L, 5L)) {
   test_that(
     sprintf(
-      "Scale adapter with only proposal specified works in dimension %i",
+      "Simple scale adapter with default args works in dimension %i", dimension
+    ),
+    {
+      check_scale_adapter_with_default_args_works(
+        simple_scale_adapter(), dimension, check_simple_scale_adapter_state
+      )
+    }
+  )
+}
+
+check_dual_averaging_scale_adapter_state <- function(adapter_state) {
+  expect_named(
+    adapter_state,
+    c("log_scale", "smoothed_log_scale", "accept_prob_error")
+  )
+  expect_length(adapter_state$log_scale, 1)
+  expect_length(adapter_state$smoothed_log_scale, 1)
+  expect_length(adapter_state$accept_prob_error, 1)
+}
+
+for (target_accept_prob in c(0.2, 0.4, 0.6)) {
+  for (initial_scale in c(0.5, 1., 2.)) {
+    for (kappa in c(0.6, 0.8)) {
+      for (gamma in c(0.01, 0.05)) {
+        test_that(
+          sprintf(
+            paste0(
+              "Dual averaging scale adapter works with target_accept_prob %.1f ",
+              "initial_scale %.1f kappa %.1f gamma %.2f"
+            ),
+            target_accept_prob, initial_scale, kappa, gamma
+          ),
+          {
+            adapter <- dual_averaging_scale_adapter(
+              initial_scale = initial_scale,
+              target_accept_prob = target_accept_prob,
+              kappa = kappa,
+              gamma = gamma
+            )
+            check_adapter(adapter)
+            proposal <- dummy_proposal_with_scale_parameter()
+            adapter$initialize(proposal, chain_state(rep(0, dimension)))
+            adapter_state <- adapter$state()
+            check_dual_averaging_scale_adapter_state(adapter_state)
+            check_scale_adapter_coerces_to_target_accept_prob(
+              adapter, proposal, target_accept_prob, initial_scale
+            )
+          }
+        )
+      }
+    }
+  }
+}
+
+for (dimension in c(1L, 2L, 5L)) {
+  test_that(
+    sprintf(
+      "Dual averaging scale adapter with default args works in dimension %i",
       dimension
     ),
     {
-      adapter <- scale_adapter()
-      check_adapter(adapter)
-      proposal <- dummy_proposal_with_scale_parameter()
-      adapter$initialize(proposal, chain_state(rep(0, dimension)))
-      adapter_state <- adapter$state()
-      expect_named(adapter_state, "log_scale")
-      expect_length(adapter_state$log_scale, 1)
-      expect_equal(adapter_state$log_scale, -log(dimension) / 2)
-      adapter$update(
-        proposal, 1, list(statistics = list(accept_prob = 1.))
+      check_scale_adapter_with_default_args_works(
+        dual_averaging_scale_adapter(),
+        dimension,
+        check_dual_averaging_scale_adapter_state
       )
-      adapter_state <- adapter$state()
-      expect_gte(adapter_state$log_scale, -log(dimension) / 2)
     }
   )
 }
@@ -184,8 +273,7 @@ for (dimension in c(1L, 2L, 3L)) {
         )
         proposal <- random_walk_proposal(target_distribution)
         adapter <- robust_shape_adapter(
-          initial_scale = 1.,
-          kappa = 2 / 3,
+          kappa = 0.6,
           target_accept_prob = target_accept_prob
         )
         check_adapter(adapter)
@@ -224,8 +312,7 @@ for (dimension in c(1L, 2L, 3L)) {
 for (dimension in c(1L, 2L, 5L)) {
   test_that(
     sprintf(
-      "Robust shape adapter with only proposal specified works in dimension %i",
-      dimension
+      "Robust shape adapter default args works in dimension %i", dimension
     ),
     {
       adapter <- robust_shape_adapter()
@@ -240,7 +327,7 @@ for (dimension in c(1L, 2L, 5L)) {
       expect_equal(initial_shape, diag(dimension) / sqrt(dimension))
       adapter$update(
         proposal,
-        2,
+        1,
         list(
           proposed_state = chain_state(
             position = NULL, momentum = rep(1, dimension)
