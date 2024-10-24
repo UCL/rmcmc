@@ -289,7 +289,6 @@ based on estimates of the per-coordinate variances.
 
 ```{r}
 visualize_shape_adaptation <- function(warm_up_statistics, dimensions, label) {
-  clipped_dimension <- min(3, dimension)
   matplot(
     sqrt(warm_up_statistics[, paste0("variance_estimate", dimensions)]),
     type = "l",
