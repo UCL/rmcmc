@@ -112,8 +112,9 @@ dual_averaging_scale_adapter <- function(
     accept_prob <- state_and_statistics$statistics$accept_prob
     offset_sample_index <- sample_index + iteration_offset
     accept_prob_error <<- (
-      (1 - 1 / offset_sample_index) * accept_prob_error
-        + (target_accept_prob - accept_prob) / offset_sample_index
+      (1 - 1 / offset_sample_index) * accept_prob_error + (
+        target_accept_prob - accept_prob
+      ) / offset_sample_index
     )
     log_scale <<- mu - sqrt(sample_index) * accept_prob_error / gamma
     beta <- sample_index^(-kappa)
