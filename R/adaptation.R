@@ -152,9 +152,9 @@ dual_averaging_scale_adapter <- function(
 #'   grad_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution)
-#' adapter <- variance_adapter()
+#' adapter <- variance_shape_adapter()
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
-variance_adapter <- function(kappa = 0.6) {
+variance_shape_adapter <- function(kappa = 0.6) {
   mean_estimate <- NULL
   variance_estimate <- NULL
   initialize <- function(proposal, initial_state) {

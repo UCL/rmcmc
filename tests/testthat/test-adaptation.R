@@ -216,7 +216,7 @@ for (dimension in c(1L, 2L, 5L)) {
         ),
         {
           proposal <- dummy_proposal_with_shape_parameter()
-          adapter <- variance_adapter(kappa = kappa)
+          adapter <- variance_shape_adapter(kappa = kappa)
           check_adapter(adapter)
           withr::local_seed(default_seed())
           target_scales <- exp(2 * rnorm(dimension))
