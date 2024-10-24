@@ -2,6 +2,7 @@
 title: "Robust gradient-based MCMC with the Barker proposal"
 output: rmarkdown::html_vignette
 bibliography: references.bib
+link-citations: true
 vignette: >
   %\VignetteIndexEntry{Robust gradient-based MCMC with the Barker proposal}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,10 +18,9 @@ knitr::opts_chunk$set(
 
 The `rmcmc` package provides a general-purpose implementation of the Barker proposal [@barker1965monte], 
 a gradient-based Markov chain Monte Carlo (MCMC) algorithm inspired by the Barker accept-reject rule,
-proposed by @livingstone2022barker. This vignette demonstrates how to use the package to sample Markov chains
-from a target distribution of interest, and illustrates the robustness to tuning that is a key advantage of 
-the Barker proposal compared to alternatives such as the Metropolis adjusted Langevin algorithm (MALA).
-
+proposed by @livingstone2022barker. 
+This vignette demonstrates how to use the package to sample Markov chains from a target distribution of interest, 
+and illustrates the robustness to tuning that is a key advantage of the Barker proposal compared to alternatives such as the Metropolis adjusted Langevin algorithm (MALA).
 
 ```{r setup}
 library(rmcmc)
@@ -29,7 +29,7 @@ library(rmcmc)
 ## Example target distribution
 
 ```{r}
-dimension <- 3
+dimension <- 10
 scales <- c(0.01, rep(1, dimension - 1))
 ```
 
@@ -49,7 +49,7 @@ target_distribution <- list(
 `rmcmc` provides implementations of several different proposal distributions which can be used within a Metropolis--Hastings based MCMC method:
 
 - `barker_proposal`: The robust gradient-based Barker proposal proposed by @livingstone2022barker.
-- `langevin_proposal`: A gradient-based proposal based on a discretization of a Langevin dynamics.
+- `langevin_proposal`: A gradient-based proposal based on a discretization of Langevin dynamics.
 - `random_walk_proposal`: A Gaussian random-walk proposal.
 
 Each function requires the first argument to specify the target distribution the proposal is to be constructed for. 
@@ -64,21 +64,25 @@ proposal <- barker_proposal(target_distribution)
 ## Setting up adaptation of tuning parameters
 
 `rmcmc` has support for adaptively tuning parameters of the proposal distribution.
-This is mediated by 'adapter' objects which define method for update the parameters of
-a proposal based on the chain state and statistics recorded during a chain iteration.
+This is mediated by 'adapter' objects which define method for update the parameters of a proposal based on the chain state and statistics recorded during a chain iteration.
 Below we instantiate a list of adapters to 
-(i) adapt the scalar scale of the proposal distribution to coerce the average acceptance
-probability of the chain transitions to a target value, and
-(ii) adapt the shape of the proposal distribution with per-coordinate scaling factors
-based on estimates on the coordinate-wise variances under the target distribution.
-
+(i) adapt the scalar scale of the proposal distribution to coerce the average acceptance probability of the chain transitions to a target value, and
+(ii) adapt the shape of the proposal distribution with per-coordinate scaling factors based on estimates on the coordinate-wise variances under the target distribution.
 
 ```{r}
 adapters <- list(
-  scale_adapter(initial_scale = 1., target_accept_prob = 0.4),
+  scale_adapter(
+    initial_scale = 2.38^2 / dimension^(1 / 3),
+    target_accept_prob = 0.4
+  ),
   variance_adapter()
 )
 ```
+
+Here we set the initial scale to $2.38^2/(\text{dimension})^{\frac{1}{3}}$ following the results for MALA in @roberts2001optimal,
+and set the target acceptance probability to 0.4 following the guideline in @livingstone2022barker.
+This is equivalent to the default behaviour when not specifying the `initial_scale` and `target_accept_prob` arguments, in which case proposal and dimension dependent values following the guidelines in @roberts2001optimal and @livingstone2022barker will be used. 
+Both adapters have an optional `kappa` argument which can be used to set the decay rate exponent for the adaptation learning rate. We leave this as the default value of 0.6 (following the recommendation in @livingstone2022barker) in both cases.
 
 The adapter updates will be applied only during an initial set of 'warm-up' chain iterations,
 with the proposal parameters remaining fixed to their final adapted values during a subsequent
@@ -91,13 +95,17 @@ The `rmcmc` package encapsulates the chain state in a list which tracks the curr
 and cached values of the log density and its gradient once computed once at the current position to avoid re-computation.
 The `chain_state` function allows creation of a list of the required format, 
 with the first (and only required) argument specifying the position.
-Here we generate an initial state with position coordinates sampled from a standard normal distribution.
+Alternatively we can directly pass a vector specifying just the position component of the state to the `initial_state` argument of `sample_chain`.
+Here we generate an initial state with position coordinates sampled from a independent normal distributions with standard deviation 10, following the example in @livingstone2022barker.
+For reproducibility we also fix the random seed.
 
 ```{r}
-initial_state <- chain_state(rnorm(dimension))
+set.seed(791285301L)
+initial_state <- chain_state(10 * rnorm(dimension))
 ```
 
-We now have everything needed to sample a Markov chain. To do this we use the `sample_chain` function from `rmcmc`. This requires us to specify the target distribution, proposal distribution, initial chain state, number of adaptive warm-up iterations and non-adaptive main chain iterations and list of adapters to use.
+We now have everything needed to sample a Markov chain. To do this we use the `sample_chain` function from `rmcmc`. 
+This requires us to specify the target distribution, proposal distribution, initial chain state, number of adaptive warm-up iterations and non-adaptive main chain iterations and list of adapters to use.
 
 ```{r}
 n_warm_up_iteration <- 10000
@@ -109,7 +117,7 @@ and `r n_main_iteration` main chain iterations.
 We set `trace_warm_up` to `TRUE` to record statistics during the adaptive warm-up chain iterations.
 
 ```{r}
-results <- sample_chain(
+barker_results <- sample_chain(
   target_distribution = target_distribution,
   proposal = proposal,
   initial_state = initial_state,
@@ -120,66 +128,242 @@ results <- sample_chain(
 )
 ```
 
-If the `progress` package is installed a progress bar will show the chain progress during sampling. The return value of `sample_chains` is a list containing fields for accessing the final chain state (which can be used to start sampling a new chain), any variables traced during the main chain iterations and any transition statistics recorded.
+If the `progress` package is installed a progress bar will show the chain progress during sampling. 
+The return value of `sample_chains` is a list containing fields for accessing the final chain state (which can be used to start sampling a new chain), any variables traced during the main chain iterations and any additional statistics recorded during the main chain iterations. 
+If the `trace_warm_up` argument to `sample_chains` is set to `TRUE` as above, then the list returned by `sample_chains` will also contain entries `warm_up_traces` and `warm_up_statistics` corresponding to respectively the variable traces and additional statistics recorded during the warm-up iterations.
+
+One of the additional statistics recorded is the acceptance probability for each chain iteration under the name `accept_prob`. 
+We can therefore compute the mean acceptance probability of the main chain iterations as follows:
 
 ```{r}
-mean_accept_prob <- mean(results$statistics[, "accept_prob"])
-adapted_shape <- proposal$parameters()$shape
+mean_accept_prob <- mean(barker_results$statistics[, "accept_prob"])
+cat(sprintf("Average acceptance probability is %.2f", mean_accept_prob))
+```
+
+This is close to the target acceptance rate of 0.4 indicating the scale adaptation worked as expected.
+
+We can also inspect the shape parameter of the proposal to check the variance based shape adaptation succeeded.
+The below snippet extracts the (first few dimensions of the) adapted shape from the `proposal` object and compares to the known true scales (per-coordinate standard deviations) of the target distribution.
+
+```{r}
+clipped_dimension <- min(5, dimension)
+final_shape <- proposal$parameters()$shape
 cat(
-  sprintf("Average acceptance probability is %.2f", mean_accept_prob),
-  sprintf("True target scales: %s", toString(scales)),
-  sprintf("Adapter scale est.: %s", toString(adapted_shape)),
+  sprintf("Adapter scale est.: %s", toString(final_shape[1:clipped_dimension])),
+  sprintf("True target scales: %s", toString(scales[1:clipped_dimension])),
   sep = "\n"
 )
 ```
+Again adaptation appears to have been successful with the adapted shape close to the true target scales.
 
-## Visualizing adaptation
+## Summarizing results using `posterior` package
+
+The output from `sample_chains` can also be easily used with external packages for analyzing MCMC outputs.
+For example the [`posterior` package](https://mc-stan.org/posterior/index.html) provides implementations of various inference diagnostic and functions for manipulating, subsetting and summarizing MCMC outputs.
+
+```{r}
+library(posterior)
+```
+
+The `traces` entry in the returned (list) output from `sample_chain` is a matrix with row corresponding to the chain iterations and (named) columns the traced variables. This matrix can be directly coerced to the `draws` data format the `posterior` package internally uses to represent chain outputs, and so can be passed directly to the [`summarize_draws` function](https://mc-stan.org/posterior/reference/draws_summary.html) to output a `tibble` data frame containing a set of summary statistics and diagnostic measures for each variable.
+
+```{r}
+summarize_draws(barker_results$traces)
+```
+
+We can also first explicit convert the `traces` matrix to a `posterior` draws object using the `as_draws_matrix` function.
+This can be passed to the `summary` generic function to get an equivalent output
+
+
+```{r}
+draws <- as_draws_matrix(barker_results$traces)
+summary(draws)
+```
+
+The draws object can also be manipulated and subsetted with various functions provided by `posterior`. 
+For example the [`extract_variable` function](https://mc-stan.org/posterior/reference/extract_variable.html) can be used to extract the draws for a specific named variable.
+The output from this function can then be passed to the various diagnostic functions, for example to compute the effective sample size of the mean of the `target_log_density` variable we could do the following
+
+```{r}
+cat(
+  sprintf(
+    "Effective sample size of mean(target_log_density) is %.0f",
+    ess_mean(extract_variable(draws, "target_log_density"))
+  )
+)
+```
+
+## Sampling using a Langevin proposal
+
+To sample a chain using a Langevin proposal, we can simple use `langevin_proposal` in place of `baker_proposal`.
+
+Here we create a new set of adapters using the default arguments to `scale_adapter` which will set the target acceptance rate to the Langevin proposal specific value of 0.574 following the results in @roberts2001optimal.
+
+```{r}
+mala_results <- sample_chain(
+  target_distribution = target_distribution,
+  proposal = langevin_proposal(target_distribution),
+  initial_state = initial_state,
+  n_warm_up_iteration = n_warm_up_iteration,
+  n_main_iteration = n_main_iteration,
+  adapters = list(scale_adapter(), variance_adapter()),
+  trace_warm_up = TRUE
+)
+```
+
+We can again check the average acceptance rate of the main chain iterations is close to the specified target value:
+
+```{r}
+cat(
+  sprintf(
+    "Average acceptance probability is %.2f",
+    mean(mala_results$statistics[, "accept_prob"])
+  )
+)
+```
+
+and use the `ess_mean` function from the `posterior` package to compute the effective sample size of the mean of the `target_log_density` variable
+
+```{r}
+cat(
+  sprintf(
+    "Effective sample size of mean(target_log_density) is %.0f",
+    ess_mean(
+      extract_variable(
+        as_draws_matrix(mala_results$traces), "target_log_density"
+      )
+    )
+  )
+)
+```
+
+## Comparing adaptation using Barker and Langevin proposal
 
 We can plot how the proposal shape and scale parameters varied during the adaptive warm-up iterations,
-by accessing the statistics recorded in the `warm_up_statistics` field with the `results` object.
+by accessing the statistics recorded in the `warm_up_statistics` entry in the list returned by `sample_chain`.
+
+```{r}
+visualize_scale_adaptation <- function(warm_up_statistics, label) {
+  n_warm_up_iteration <- nrow(warm_up_statistics)
+  par(mfrow = c(1, 2))
+  plot(
+    exp(warm_up_statistics[, "log_scale"]),
+    type = "l",
+    xlab = expression(paste("Chain iteration ", t)),
+    ylab = expression(paste("Scale ", sigma[t]))
+  )
+  plot(
+    cumsum(warm_up_statistics[, "accept_prob"]) / 1:n_warm_up_iteration,
+    type = "l",
+    xlab = expression(paste("Chain iteration ", t)),
+    ylab = expression(paste("Average acceptance rate ", alpha[t])),
+    ylim = c(0, 1)
+  )
+  mtext(
+    sprintf("Scale adaptation for %s", label),
+    side = 3, line = -2, outer = TRUE
+  )
+}
+```
 
 First considering the scalar scale parameter $\sigma_t$, 
 which is controlled to achieve a target average acceptance rate,
-we see that the adaptation successfully coerces the average acceptance rate to be
+we see that for Barker proposal the adaptation successfully coerces the average acceptance rate to be
 close to the 0.4 target value and that the scale parameter adaptation has largely stabilized within
 the first 1000 iterations.
 
 ```{r fig.width=7, fig.height=4}
-par(mfrow = c(1, 2))
-plot(
-  exp(results$warm_up_statistics[, "log_scale"]),
-  type = "l",
-  xlab = expression(paste("Chain iteration ", t)),
-  ylab = expression(paste("Scale ", sigma[t]))
-)
-plot(
-  cumsum(results$warm_up_statistics[, "accept_prob"]) / 1:n_warm_up_iteration,
-  type = "l",
-  xlab = expression(paste("Chain iteration ", t)),
-  ylab = expression(paste("Average acceptance rate ", alpha[t])),
-  ylim = c(0, 1)
-)
+visualize_scale_adaptation(barker_results$warm_up_statistics, "Barker proposal")
 ```
 
-Now consider the adaptation of the diagonal shape matrix $\Sigma_t$,
-based on estimates of the per-coordinate variances, we see that the adaptation
-converges towards the known heterogeneous scales along the different coordinates.
+For the Langevin proposal on the other hand, 
+while the  acceptance rate does eventually converge to its target value of 0.57,
+the convergence is slower and there is more evidence of unstable oscillatory behaviour in the adapted scale.
 
 ```{r fig.width=7, fig.height=4}
-matplot(
-  sqrt(results$warm_up_statistics[, paste0("variance_estimate", 1:dimension)]),
-  type = "l",
-  xlab = expression(paste("Chain iteration ", t)),
-  ylab = expression(paste("Shape ", diag(Sigma[t]^(1 / 2)))),
-  log = "y"
-)
-legend(
-  "right",
-  paste0("coordinate ", 1:dimension),
-  lty = 1:dimension,
-  col = 1:dimension,
-  bty = "n"
+visualize_scale_adaptation(mala_results$warm_up_statistics, "Langevin proposal")
+```
+
+Now we consider the adaptation of the diagonal shape matrix $\Sigma_t$,
+based on estimates of the per-coordinate variances.
+
+```{r}
+visualize_shape_adaptation <- function(warm_up_statistics, dimensions, label) {
+  matplot(
+    sqrt(warm_up_statistics[, paste0("variance_estimate", dimensions)]),
+    type = "l",
+    xlab = expression(paste("Chain iteration ", t)),
+    ylab = expression(paste("Shape ", diag(Sigma[t]^(1 / 2)))),
+    log = "y"
+  )
+  legend(
+    "right",
+    paste0("coordinate ", dimensions),
+    lty = dimensions,
+    col = dimensions,
+    bty = "n"
+  )
+  mtext(
+    sprintf("Shape adaptation for %s", label),
+    side = 3, line = -2, outer = TRUE
+  )
+}
+```
+
+We see that the for the Barker proposal the adaptation quickly converges towards the known heterogeneous scales along the different coordinates.
+
+```{r fig.width=7, fig.height=4}
+visualize_shape_adaptation(
+  barker_results$warm_up_statistics, 1:clipped_dimension, "Barker proposal"
 )
 ```
+
+For the Langevin proposal, the shape adaptation is again slower.
+
+```{r fig.width=7, fig.height=4}
+visualize_shape_adaptation(
+  mala_results$warm_up_statistics, 1:clipped_dimension, "Langevin proposal"
+)
+```
+
+We can also visualize the chain position components during the warm-up iterations using the `warm_up_traces` entry.
+
+```{r}
+visualize_traces <- function(traces, dimensions, label) {
+  matplot(
+    traces[, paste0("position", dimensions)],
+    type = "l",
+    xlab = expression(paste("Chain iteration ", t)),
+    ylab = expression(paste("Position ", X[t])),
+  )
+  legend(
+    "topright",
+    paste0("coordinate ", dimensions),
+    lty = dimensions,
+    col = dimensions,
+    bty = "n"
+  )
+  mtext(sprintf("Traces for %s", label), side = 3, line = -2, outer = TRUE)
+}
+```
+
+For the Barker proposal we can see the chain quickly appears to converge to a stationary regime
+
+```{r fig.width=7, fig.height=4}
+visualize_traces(
+  barker_results$warm_up_traces, 1:clipped_dimension, "Barker proposal"
+)
+```
+
+The Langevin proposal does also appear to converge to a stationary regime but again convergence is slower
+
+```{r fig.width=7, fig.height=4}
+visualize_traces(
+  mala_results$warm_up_traces, 1:clipped_dimension, "Langevin proposal"
+)
+```
+
+Overall we see that while the Langevin proposal is able to achieve a higher sampling efficiency when tuned with appropriate parameters, 
+its performance is more sensitive to the tuning parameter values resulting in less stable and robust adaptive tuning.
 
 ## References

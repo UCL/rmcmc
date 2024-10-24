@@ -25,6 +25,7 @@ RoxygenNote: 7.3.2
 Suggests:
     bridgestan (>= 2.5.0),
     knitr,
+    posterior,
     progress,
     ramcmc,
     rmarkdown,
