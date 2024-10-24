@@ -253,3 +253,24 @@ for (dimension in c(1L, 2L, 5L)) {
     }
   )
 }
+
+test_that("sample_chain works with dummy adapter with required interface", {
+  dummy_adapter <- list(
+    initialize = function(proposal, initial_state) {},
+    update = function(proposal, sample_index, state_and_statistics) {},
+    finalize = function(proposal) {},
+    state = function() list()
+  )
+  target_distribution <- standard_normal_target_distribution()
+  proposal <- barker_proposal(target_distribution, scale = 1)
+  expect_no_error(
+    sample_chain(
+      target_distribution = target_distribution,
+      proposal = proposal,
+      initial_state = chain_state(0),
+      n_warm_up_iteration = 1,
+      n_main_iteration = 0,
+      adapters = list(dummy_adapter)
+    )
+  )
+})
