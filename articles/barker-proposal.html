@@ -145,8 +145,8 @@ estimates on the coordinate-wise variances under the target
 distribution.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adapters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="../reference/scale_adapter.html">scale_adapter</a></span><span class="op">(</span><span class="va">proposal</span>, initial_scale <span class="op">=</span> <span class="fl">1.</span>, target_accept_prob <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="../reference/variance_adapter.html">variance_adapter</a></span><span class="op">(</span><span class="va">proposal</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/scale_adapter.html">scale_adapter</a></span><span class="op">(</span>initial_scale <span class="op">=</span> <span class="fl">1.</span>, target_accept_prob <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/variance_adapter.html">variance_adapter</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The adapter updates will be applied only during an initial set of
 ‘warm-up’ chain iterations, with the proposal parameters remaining fixed
