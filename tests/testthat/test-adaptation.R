@@ -25,6 +25,7 @@ dummy_proposal_with_shape_parameter <- function(shape = NULL) {
   list(
     update = function(shape) shape <<- shape,
     parameters = function() list(shape = shape),
+    default_target_accept_prob = function() 0.234,
     default_initial_scale = function(dimension) 1 / sqrt(dimension)
   )
 }
@@ -104,6 +105,11 @@ for (dimension in c(1L, 2L, 5L)) {
       expect_named(adapter_state, "log_scale")
       expect_length(adapter_state$log_scale, 1)
       expect_equal(adapter_state$log_scale, -log(dimension) / 2)
+      adapter$update(
+        proposal, 1, list(statistics = list(accept_prob = 1.))
+      )
+      adapter_state <- adapter$state()
+      expect_gte(adapter_state$log_scale, -log(dimension) / 2)
     }
   )
 }
@@ -228,9 +234,22 @@ for (dimension in c(1L, 2L, 5L)) {
       adapter$initialize(proposal, chain_state(rep(0, dimension)))
       adapter_state <- adapter$state()
       expect_named(adapter_state, "shape")
-      expect_nrow(adapter_state$shape, dimension)
-      expect_ncol(adapter_state$shape, dimension)
-      expect_equal(adapter_state$shape, diag(dimension) / sqrt(dimension))
+      initial_shape <- adapter_state$shape
+      expect_nrow(initial_shape, dimension)
+      expect_ncol(initial_shape, dimension)
+      expect_equal(initial_shape, diag(dimension) / sqrt(dimension))
+      adapter$update(
+        proposal,
+        2,
+        list(
+          proposed_state = chain_state(
+            position = NULL, momentum = rep(1, dimension)
+          ),
+          statistics = list(accept_prob = 1.)
+        )
+      )
+      adapter_state <- adapter$state()
+      expect_gt(norm(initial_shape - adapter_state$shape), 0)
     }
   )
 }
