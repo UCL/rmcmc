@@ -14,9 +14,6 @@ explicitly a proposal and dimension dependent default will be used.}
 chain. If not set a proposal dependent default will be used.}
 
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
-
-\item{proposal}{Proposal object to adapt. Must define an \code{update} function
-which accepts a parameter \code{scale} for setting scale parameter of proposal.}
 }
 \value{
 List of functions with entries

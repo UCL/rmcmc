@@ -1,7 +1,5 @@
 #' Create object to adapt proposal scale to coerce average acceptance rate.
 #'
-#' @param proposal Proposal object to adapt. Must define an `update` function
-#'   which accepts a parameter `scale` for setting scale parameter of proposal.
 #' @param initial_scale Initial value to use for scale parameter. If not set
 #'   explicitly a proposal and dimension dependent default will be used.
 #' @param target_accept_prob Target value for average accept probability for
@@ -59,8 +57,6 @@ scale_adapter <- function(
 #' Create object to adapt proposal with per dimension scales based on estimates
 #' of target distribution variances.
 #'
-#' @param proposal Proposal object to adapt. Must define an `update` function
-#'   which accepts a parameter `shape` for setting shape parameter of proposal.
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
 #' @inherit scale_adapter return

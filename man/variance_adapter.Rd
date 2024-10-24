@@ -9,9 +9,6 @@ variance_adapter(kappa = 0.6)
 }
 \arguments{
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
-
-\item{proposal}{Proposal object to adapt. Must define an \code{update} function
-which accepts a parameter \code{shape} for setting shape parameter of proposal.}
 }
 \value{
 List of functions with entries
