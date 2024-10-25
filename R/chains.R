@@ -162,6 +162,9 @@ chain_loop <- function(
     trace_function,
     statistic_names) {
   progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
+  # Only show 10% increments in progress bar to avoid progress bar updates being
+  # a bottleneck when chain iteration rate is high
+  tick_amount <- max(n_iteration %/% 10, 1)
   for (adapter in adapters) {
     adapter$initialize(proposal, state)
   }
@@ -191,8 +194,13 @@ chain_loop <- function(
         c(state_and_statistics$statistics, adapter_states)
       )
     }
-    if (!is.null(progress_bar)) progress_bar$tick()
+    if (!is.null(progress_bar) && (chain_iteration %% tick_amount == 0)) {
+      progress_bar$tick(tick_amount)
+    }
   }
+  # Ensure progress bar shows completed in cases tick_amount not a factor of
+  # n_iteration
+  if (!is.null(progress_bar) && !progress_bar$finished) progress_bar$update(1)
   for (adapter in adapters) {
     if (!is.null(adapter$finalize)) adapter$finalize(proposal)
   }
