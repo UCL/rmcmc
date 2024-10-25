@@ -7,7 +7,7 @@ get_shape_matrix <- function(scale, shape) {
     stop("Scale should be a non-negative scalar")
   }
   if (!is.null(shape) && is_non_scalar_vector(shape)) {
-    shape <- Matrix::Diagonal(x = shape)
+    shape <- diag(shape)
   }
   if (is.null(scale) && is.null(shape)) {
     stop("One of scale and shape parameters must be set")
