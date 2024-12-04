@@ -255,6 +255,51 @@ for (dimension in c(1L, 2L, 5L)) {
 }
 
 for (dimension in c(1L, 2L, 3L)) {
+  for (kappa in c(0.6, 1.)) {
+    test_that(
+      sprintf(
+        "Covariance shape adapter works in dimension %i with kappa %.1f",
+        dimension, kappa
+      ),
+      {
+        withr::local_seed(default_seed())
+        covariance <- random_covariance_matrix(dimension)
+        chol_covariance <- t(chol(covariance))
+        target_distribution <- multivariate_normal_target_distribution(
+          mean = 0, covariance = covariance
+        )
+        proposal <- random_walk_proposal(
+          target_distribution,
+          scale = 2.4 / sqrt(dimension)
+        )
+        adapter <- covariance_shape_adapter(kappa = kappa)
+        check_adapter(adapter)
+        state <- chain_state(position = rnorm(dimension))
+        adapter$initialize(proposal, state)
+        adapter_state <- adapter$state()
+        expect_named(
+          adapter_state, c("mean_estimate", "chol_covariance_estimate")
+        )
+        expect_length(adapter_state$mean_estimate, dimension)
+        expect_nrow(adapter_state$chol_covariance_estimate, dimension)
+        expect_ncol(adapter_state$chol_covariance_estimate, dimension)
+        for (sample_index in 1:10000) {
+          state_and_statistics <- sample_metropolis_hastings(
+            state, target_distribution, proposal
+          )
+          adapter$update(proposal, sample_index, state_and_statistics)
+          state <- state_and_statistics$state
+        }
+        expect_equal(
+          proposal$parameters()$shape, chol_covariance,
+          tolerance = 0.1
+        )
+      }
+    )
+  }
+}
+
+for (dimension in c(1L, 2L, 3L)) {
   for (target_accept_prob in c(0.234, 0.4)) {
     test_that(
       sprintf(

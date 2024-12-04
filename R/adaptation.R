@@ -184,6 +184,57 @@ variance_shape_adapter <- function(kappa = 0.6) {
   )
 }
 
+#' Create object to adapt proposal with shape based on estimate of target
+#' distribution covariance matrix.
+#'
+#' Requires `ramcmc` package to be installed.
+#'
+#' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#'
+#' @inherit simple_scale_adapter return
+#'
+#' @export
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   grad_log_density = function(x) -x
+#' )
+#' proposal <- barker_proposal(target_distribution)
+#' adapter <- covariance_shape_adapter()
+#' adapter$initialize(proposal, chain_state(c(0, 0)))
+covariance_shape_adapter <- function(kappa = 0.6) {
+  rlang::check_installed("ramcmc", reason = "to use this function")
+  mean_estimate <- NULL
+  chol_covariance_estimate <- NULL
+  initialize <- function(proposal, initial_state) {
+    mean_estimate <<- initial_state$position()
+    chol_covariance_estimate <<- diag(1., initial_state$dimension())
+  }
+  update <- function(proposal, sample_index, state_and_statistics) {
+    # Offset sample_index by 1 so that initial identity covariance estimate acts
+    # as regularizer
+    beta <- (sample_index + 1)^(-kappa)
+    position <- state_and_statistics$state$position()
+    mean_estimate <<- mean_estimate + beta * (position - mean_estimate)
+    chol_covariance_estimate <<- ramcmc::chol_update(
+      sqrt(1 - beta) * chol_covariance_estimate,
+      sqrt(beta) * (position - mean_estimate)
+    )
+    proposal$update(shape = chol_covariance_estimate)
+  }
+  list(
+    initialize = initialize,
+    update = update,
+    finalize = NULL,
+    state = function() {
+      list(
+        mean_estimate = mean_estimate,
+        chol_covariance_estimate = chol_covariance_estimate
+      )
+    }
+  )
+}
+
 #' Create object to adapt proposal shape (and scale) using robust adaptive
 #' Metropolis algorithm of Vihola (2012).
 #'
