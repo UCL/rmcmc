@@ -2,6 +2,7 @@
 
 export(barker_proposal)
 export(chain_state)
+export(covariance_shape_adapter)
 export(dual_averaging_scale_adapter)
 export(example_gaussian_stan_model)
 export(hamiltonian_proposal)
