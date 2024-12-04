@@ -151,22 +151,18 @@ distribution.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adapters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/simple_scale_adapter.html">simple_scale_adapter</a></span><span class="op">(</span></span>
-<span>    initial_scale <span class="op">=</span> <span class="fl">2.38</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="va">dimension</span><span class="op">^</span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">3</span><span class="op">)</span>,</span>
-<span>    target_accept_prob <span class="op">=</span> <span class="fl">0.4</span></span>
+<span>    initial_scale <span class="op">=</span> <span class="va">dimension</span><span class="op">^</span><span class="op">(</span><span class="op">-</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">6</span><span class="op">)</span>,</span>
+<span>    target_accept_prob <span class="op">=</span> <span class="fl">0.574</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="../reference/variance_shape_adapter.html">variance_shape_adapter</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Here we set the initial scale to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2.38</mn><mn>2</mn></msup><mi>/</mi><msup><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">dimension</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mn>1</mn><mn>3</mn></mfrac></msup></mrow><annotation encoding="application/x-tex">2.38^2/(\text{dimension})^{\frac{1}{3}}</annotation></semantics></math>
-following the results for MALA in <span class="citation">Roberts and
-Rosenthal (<a href="#ref-roberts2001optimal">2001</a>)</span>, and set
-the target acceptance probability to 0.4 following the guideline in
-<span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span>. This is equivalent
-to the default behaviour when not specifying the
-<code>initial_scale</code> and <code>target_accept_prob</code>
-arguments, in which case proposal and dimension dependent values
-following the guidelines in <span class="citation">Roberts and Rosenthal
-(<a href="#ref-roberts2001optimal">2001</a>)</span> and <span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span> will be used. Both
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mtext mathvariant="normal">dimension</mtext><mrow><mo>−</mo><mfrac><mn>1</mn><mn>6</mn></mfrac></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{O}(\text{dimension}^{-\frac{1}{6}})</annotation></semantics></math>
+and the target acceptance probability to 0.574 following the guidelines
+in <span class="citation">Vogrinc, Livingstone, and Zanella (<a href="#ref-vogrinc2023optimal">2023</a>)</span>. This is equivalent to
+the default behaviour when not specifying the <code>initial_scale</code>
+and <code>target_accept_prob</code> arguments, in which case proposal
+and dimension dependent values following the guidelines in <span class="citation">Vogrinc, Livingstone, and Zanella (<a href="#ref-vogrinc2023optimal">2023</a>)</span> will be used. Both
 adapters have an optional <code>kappa</code> argument which can be used
 to set the decay rate exponent for the adaptation learning rate. We
 leave this as the default value of 0.6 (following the recommendation in
@@ -205,9 +201,13 @@ non-adaptive main chain iterations and list of adapters to use.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_warm_up_iteration</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span>
 <span><span class="va">n_main_iteration</span> <span class="op">&lt;-</span> <span class="fl">10000</span></span></code></pre></div>
-<p>Here we sample a chain with 10^{4} warm-up and 10^{4} main chain
-iterations. We set <code>trace_warm_up</code> to <code>TRUE</code> to
-record statistics during the adaptive warm-up chain iterations.</p>
+<p>Here we sample a chain with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^{4}</annotation></semantics></math>
+warm-up and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>4</mn></msup><annotation encoding="application/x-tex">10^{4}</annotation></semantics></math>
+main chain iterations. We set <code>trace_warm_up</code> to
+<code>TRUE</code> to record statistics during the adaptive warm-up chain
+iterations.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">barker_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_chain.html">sample_chain</a></span><span class="op">(</span></span>
 <span>  target_distribution <span class="op">=</span> <span class="va">target_distribution</span>,</span>
@@ -237,8 +237,8 @@ probability of the main chain iterations as follows:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mean_accept_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">barker_results</span><span class="op">$</span><span class="va">statistics</span><span class="op">[</span>, <span class="st">"accept_prob"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Average acceptance probability is %.2f"</span>, <span class="va">mean_accept_prob</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Average acceptance probability is 0.38</span></span></code></pre></div>
-<p>This is close to the target acceptance rate of 0.4 indicating the
+<span><span class="co">#&gt; Average acceptance probability is 0.57</span></span></code></pre></div>
+<p>This is close to the target acceptance rate of 0.574 indicating the
 scale adaptation worked as expected.</p>
 <p>We can also inspect the shape parameter of the proposal to check the
 variance based shape adaptation succeeded. The below snippet extracts
@@ -253,7 +253,7 @@ the (first few dimensions of the) adapted shape from the
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"True target scales: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/toString.html" class="external-link">toString</a></span><span class="op">(</span><span class="va">scales</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">clipped_dimension</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\n"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Adapter scale est.: 0.0106860943277528, 0.90522823483678, 0.847338974552089, 0.764798716268774, 0.758552106344874</span></span>
+<span><span class="co">#&gt; Adapter scale est.: 0.00837397174060859, 0.903666144812827, 0.743247392562424, 0.867223071521973, 0.93934619853388</span></span>
 <span><span class="co">#&gt; True target scales: 0.01, 1, 1, 1, 1</span></span></code></pre></div>
 <p>Again adaptation appears to have been successful with the adapted
 shape close to the true target scales.</p>
@@ -289,17 +289,17 @@ of summary statistics and diagnostic measures for each variable.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 11 × 10</span></span></span>
 <span><span class="co">#&gt;    variable         mean   median      sd     mad      q5     q95  rhat ess_bulk</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> position1    -<span style="color: #BB0000;">2.39</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> -<span style="color: #BB0000;">2.30</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 0.009<span style="text-decoration: underline;">19</span> 0.009<span style="text-decoration: underline;">81</span> -<span style="color: #BB0000;">0.015</span><span style="color: #BB0000; text-decoration: underline;">3</span>  0.014<span style="text-decoration: underline;">7</span>  1.00    <span style="text-decoration: underline;">1</span>654.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> position2     1.13<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">2.48</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.906   0.967   -<span style="color: #BB0000;">1.39</span>    1.55    1.00    <span style="text-decoration: underline;">1</span>227.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> position3     3.96<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  6.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.898   0.906   -<span style="color: #BB0000;">1.48</span>    1.49    1.00    <span style="text-decoration: underline;">1</span>105.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> position4     1.77<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  2.20<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.881   0.925   -<span style="color: #BB0000;">1.44</span>    1.49    1.00     961.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> position5     1.25<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">1.56</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.895   0.940   -<span style="color: #BB0000;">1.46</span>    1.50    1.00     912.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> position6    -<span style="color: #BB0000;">3.60</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">2.38</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.900   0.903   -<span style="color: #BB0000;">1.50</span>    1.44    1.00     925.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> position7     7.59<span style="color: #949494;">e</span><span style="color: #BB0000;">-3</span>  8.81<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 0.894   0.909   -<span style="color: #BB0000;">1.45</span>    1.52    1.00    <span style="text-decoration: underline;">1</span>163.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> position8    -<span style="color: #BB0000;">4.03</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-3</span>  1.02<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.928   0.970   -<span style="color: #BB0000;">1.53</span>    1.53    1.01     901.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> position9    -<span style="color: #BB0000;">4.57</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">8.32</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.908   0.905   -<span style="color: #BB0000;">1.53</span>    1.50    1.00    <span style="text-decoration: underline;">1</span>042.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> position10   -<span style="color: #BB0000;">1.50</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">1.15</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.931   0.977   -<span style="color: #BB0000;">1.53</span>    1.47    1.00    <span style="text-decoration: underline;">1</span>398.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> target_log_… -<span style="color: #BB0000;">4.11</span><span style="color: #949494;">e</span>+0 -<span style="color: #BB0000;">4.00</span><span style="color: #949494;">e</span>+0 1.59    1.58    -<span style="color: #BB0000;">6.94</span>   -<span style="color: #BB0000;">1.78</span>    1.00     831.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> position1     2.56<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>  8.66<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span> 0.008<span style="text-decoration: underline;">68</span> 0.008<span style="text-decoration: underline;">92</span> -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">6</span>  0.014<span style="text-decoration: underline;">2</span>  1.00     964.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> position2     2.33<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  4.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.868   0.904   -<span style="color: #BB0000;">1.40</span>    1.46    1.00    <span style="text-decoration: underline;">1</span>031.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> position3     5.41<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  4.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.843   0.844   -<span style="color: #BB0000;">1.31</span>    1.43    1.00     685.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> position4    -<span style="color: #BB0000;">1.91</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">2.46</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.879   0.899   -<span style="color: #BB0000;">1.45</span>    1.43    1.00     831.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> position5     2.52<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  2.64<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.883   0.909   -<span style="color: #BB0000;">1.42</span>    1.49    1.00    <span style="text-decoration: underline;">1</span>188.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> position6     2.39<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  1.45<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.872   0.910   -<span style="color: #BB0000;">1.42</span>    1.45    1.00     717.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> position7     2.02<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  2.62<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.844   0.853   -<span style="color: #BB0000;">1.39</span>    1.40    1.00     798.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> position8    -<span style="color: #BB0000;">2.68</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">3.56</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.852   0.856   -<span style="color: #BB0000;">1.44</span>    1.40    1.00     700.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> position9    -<span style="color: #BB0000;">4.67</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">4.58</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.870   0.902   -<span style="color: #BB0000;">1.45</span>    1.37    1.00    <span style="text-decoration: underline;">1</span>088.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> position10   -<span style="color: #BB0000;">3.19</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">4.29</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.855   0.899   -<span style="color: #BB0000;">1.40</span>    1.36    1.00     927.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> target_log_… -<span style="color: #BB0000;">3.73</span><span style="color: #949494;">e</span>+0 -<span style="color: #BB0000;">3.58</span><span style="color: #949494;">e</span>+0 1.47    1.45    -<span style="color: #BB0000;">6.43</span>   -<span style="color: #BB0000;">1.62</span>    1.00     994.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>We can also first explicit convert the <code>traces</code> matrix to
 a <code>posterior</code> draws object using the
@@ -311,17 +311,17 @@ a <code>posterior</code> draws object using the
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 11 × 10</span></span></span>
 <span><span class="co">#&gt;    variable         mean   median      sd     mad      q5     q95  rhat ess_bulk</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> position1    -<span style="color: #BB0000;">2.39</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> -<span style="color: #BB0000;">2.30</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 0.009<span style="text-decoration: underline;">19</span> 0.009<span style="text-decoration: underline;">81</span> -<span style="color: #BB0000;">0.015</span><span style="color: #BB0000; text-decoration: underline;">3</span>  0.014<span style="text-decoration: underline;">7</span>  1.00    <span style="text-decoration: underline;">1</span>654.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> position2     1.13<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">2.48</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.906   0.967   -<span style="color: #BB0000;">1.39</span>    1.55    1.00    <span style="text-decoration: underline;">1</span>227.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> position3     3.96<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  6.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.898   0.906   -<span style="color: #BB0000;">1.48</span>    1.49    1.00    <span style="text-decoration: underline;">1</span>105.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> position4     1.77<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  2.20<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.881   0.925   -<span style="color: #BB0000;">1.44</span>    1.49    1.00     961.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> position5     1.25<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">1.56</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.895   0.940   -<span style="color: #BB0000;">1.46</span>    1.50    1.00     912.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> position6    -<span style="color: #BB0000;">3.60</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">2.38</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.900   0.903   -<span style="color: #BB0000;">1.50</span>    1.44    1.00     925.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> position7     7.59<span style="color: #949494;">e</span><span style="color: #BB0000;">-3</span>  8.81<span style="color: #949494;">e</span><span style="color: #BB0000;">-4</span> 0.894   0.909   -<span style="color: #BB0000;">1.45</span>    1.52    1.00    <span style="text-decoration: underline;">1</span>163.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> position8    -<span style="color: #BB0000;">4.03</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-3</span>  1.02<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.928   0.970   -<span style="color: #BB0000;">1.53</span>    1.53    1.01     901.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> position9    -<span style="color: #BB0000;">4.57</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">8.32</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.908   0.905   -<span style="color: #BB0000;">1.53</span>    1.50    1.00    <span style="text-decoration: underline;">1</span>042.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> position10   -<span style="color: #BB0000;">1.50</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">1.15</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.931   0.977   -<span style="color: #BB0000;">1.53</span>    1.47    1.00    <span style="text-decoration: underline;">1</span>398.</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> target_log_… -<span style="color: #BB0000;">4.11</span><span style="color: #949494;">e</span>+0 -<span style="color: #BB0000;">4.00</span><span style="color: #949494;">e</span>+0 1.59    1.58    -<span style="color: #BB0000;">6.94</span>   -<span style="color: #BB0000;">1.78</span>    1.00     831.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> position1     2.56<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>  8.66<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span> 0.008<span style="text-decoration: underline;">68</span> 0.008<span style="text-decoration: underline;">92</span> -<span style="color: #BB0000;">0.014</span><span style="color: #BB0000; text-decoration: underline;">6</span>  0.014<span style="text-decoration: underline;">2</span>  1.00     964.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> position2     2.33<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  4.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.868   0.904   -<span style="color: #BB0000;">1.40</span>    1.46    1.00    <span style="text-decoration: underline;">1</span>031.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> position3     5.41<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  4.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.843   0.844   -<span style="color: #BB0000;">1.31</span>    1.43    1.00     685.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> position4    -<span style="color: #BB0000;">1.91</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">2.46</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.879   0.899   -<span style="color: #BB0000;">1.45</span>    1.43    1.00     831.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> position5     2.52<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  2.64<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.883   0.909   -<span style="color: #BB0000;">1.42</span>    1.49    1.00    <span style="text-decoration: underline;">1</span>188.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> position6     2.39<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  1.45<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.872   0.910   -<span style="color: #BB0000;">1.42</span>    1.45    1.00     717.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> position7     2.02<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span>  2.62<span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.844   0.853   -<span style="color: #BB0000;">1.39</span>    1.40    1.00     798.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> position8    -<span style="color: #BB0000;">2.68</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">3.56</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.852   0.856   -<span style="color: #BB0000;">1.44</span>    1.40    1.00     700.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> position9    -<span style="color: #BB0000;">4.67</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">4.58</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.870   0.902   -<span style="color: #BB0000;">1.45</span>    1.37    1.00    <span style="text-decoration: underline;">1</span>088.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> position10   -<span style="color: #BB0000;">3.19</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> -<span style="color: #BB0000;">4.29</span><span style="color: #949494;">e</span><span style="color: #BB0000;">-2</span> 0.855   0.899   -<span style="color: #BB0000;">1.40</span>    1.36    1.00     927.</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> target_log_… -<span style="color: #BB0000;">3.73</span><span style="color: #949494;">e</span>+0 -<span style="color: #BB0000;">3.58</span><span style="color: #949494;">e</span>+0 1.47    1.45    -<span style="color: #BB0000;">6.43</span>   -<span style="color: #BB0000;">1.62</span>    1.00     994.</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: ess_tail &lt;dbl&gt;</span></span></span></code></pre></div>
 <p>The draws object can also be manipulated and subsetted with various
 functions provided by <code>posterior</code>. For example the <a href="https://mc-stan.org/posterior/reference/extract_variable.html" class="external-link"><code>extract_variable</code>
@@ -337,7 +337,7 @@ we could do the following</p>
 <span>    <span class="fu"><a href="https://mc-stan.org/posterior/reference/ess_mean.html" class="external-link">ess_mean</a></span><span class="op">(</span><span class="fu"><a href="https://mc-stan.org/posterior/reference/extract_variable.html" class="external-link">extract_variable</a></span><span class="op">(</span><span class="va">draws</span>, <span class="st">"target_log_density"</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Effective sample size of mean(target_log_density) is 858</span></span></code></pre></div>
+<span><span class="co">#&gt; Effective sample size of mean(target_log_density) is 983</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="sampling-using-a-langevin-proposal">Sampling using a Langevin proposal<a class="anchor" aria-label="anchor" href="#sampling-using-a-langevin-proposal"></a>
@@ -347,7 +347,7 @@ we could do the following</p>
 <code>baker_proposal</code>.</p>
 <p>Here we create a new set of adapters using the default arguments to
 <code>simple_scale_adapter</code> which will set the target acceptance
-rate to the Langevin proposal specific value of 0.574 following the
+rate to the Langevin proposal optimal value of 0.574 following the
 results in <span class="citation">Roberts and Rosenthal (<a href="#ref-roberts2001optimal">2001</a>)</span>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mala_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_chain.html">sample_chain</a></span><span class="op">(</span></span>
@@ -383,7 +383,7 @@ the mean of the <code>target_log_density</code> variable</p>
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Effective sample size of mean(target_log_density) is 2904</span></span></code></pre></div>
+<span><span class="co">#&gt; Effective sample size of mean(target_log_density) is 2863</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="comparing-adaptation-using-barker-and-langevin-proposal">Comparing adaptation using Barker and Langevin proposal<a class="anchor" aria-label="anchor" href="#comparing-adaptation-using-barker-and-langevin-proposal"></a>
@@ -418,14 +418,14 @@ the <code>warm_up_statistics</code> entry in the list returned by
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\sigma_t</annotation></semantics></math>,
 which is controlled to achieve a target average acceptance rate, we see
 that for Barker proposal the adaptation successfully coerces the average
-acceptance rate to be close to the 0.4 target value and that the scale
+acceptance rate to be close to the 0.574 target value and that the scale
 parameter adaptation has largely stabilized within the first 1000
 iterations.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">visualize_scale_adaptation</span><span class="op">(</span><span class="va">barker_results</span><span class="op">$</span><span class="va">warm_up_statistics</span>, <span class="st">"Barker proposal"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="barker-proposal_files/figure-html/unnamed-chunk-19-1.png" width="672"></p>
 <p>For the Langevin proposal on the other hand, while the acceptance
-rate does eventually converge to its target value of 0.57, the
+rate does eventually converge to its target value of 0.574, the
 convergence is slower and there is more evidence of unstable oscillatory
 behaviour in the adapted scale.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
@@ -526,6 +526,12 @@ Statistical Society Series B: Statistical Methodology</em> 84 (2):
 <div id="ref-roberts2001optimal" class="csl-entry">
 Roberts, Gareth O, and Jeffrey S Rosenthal. 2001. <span>“<span class="nocase">Optimal scaling for various Metropolis-Hastings
 algorithms</span>.”</span> <em>Statistical Science</em> 16 (4): 351–67.
+</div>
+<div id="ref-vogrinc2023optimal" class="csl-entry">
+Vogrinc, Jure, Samuel Livingstone, and Giacomo Zanella. 2023.
+<span>“Optimal Design of the Barker Proposal and Other Locally Balanced
+Metropolis–Hastings Algorithms.”</span> <em>Biometrika</em> 110 (3):
+579–95.
 </div>
 </div>
 </div>

@@ -68,7 +68,7 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>This is a basic example which shows you how to generate samples from a normal target distribution with random scales. Adapters are used to tune the proposal scale to achieve a target average acceptance probability; to tune the proposal shape with per-dimension scale factors based on online estimates of the target distribution variances.</p>
+<p>This is a basic example which shows you how to generate samples from a normal target distribution with random scales. Adapters are used to tune the proposal scale to achieve a target average acceptance probability, and to tune the proposal shape with per-dimension scale factors based on online estimates of the target distribution variances.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/UCL/rmcmc" class="external-link">rmcmc</a></span><span class="op">)</span></span>
 <span></span>
@@ -96,9 +96,9 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Adapter scale est.: %s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/toString.html" class="external-link">toString</a></span><span class="op">(</span><span class="va">adapted_shape</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\n"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Average acceptance probability is 0.41</span></span>
+<span><span class="co">#&gt; Average acceptance probability is 0.59</span></span>
 <span><span class="co">#&gt; True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645</span></span>
-<span><span class="co">#&gt; Adapter scale est.: 1.2489768457131, 1.23111560302158, 0.215024121396933</span></span></code></pre></div>
+<span><span class="co">#&gt; Adapter scale est.: 1.43398887990819, 1.22112523246304, 0.240554869853302</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
