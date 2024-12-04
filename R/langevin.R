@@ -82,6 +82,6 @@ langevin_proposal <- function(
     scale = scale,
     shape = shape,
     default_target_accept_prob = 0.574,
-    default_initial_scale = function(dimension) 2.38 / (dimension)^(1 / 3)
+    default_initial_scale = function(dimension) dimension^(-1 / 6)
   )
 }

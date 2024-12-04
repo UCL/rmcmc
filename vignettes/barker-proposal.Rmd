@@ -74,16 +74,16 @@ Below we instantiate a list of adapters to
 ```{r}
 adapters <- list(
   simple_scale_adapter(
-    initial_scale = 2.38^2 / dimension^(1 / 3),
-    target_accept_prob = 0.4
+    initial_scale = dimension^(-1 / 6),
+    target_accept_prob = 0.574
   ),
   variance_shape_adapter()
 )
 ```
 
-Here we set the initial scale to $2.38^2/(\text{dimension})^{\frac{1}{3}}$ following the results for MALA in @roberts2001optimal,
-and set the target acceptance probability to 0.4 following the guideline in @livingstone2022barker.
-This is equivalent to the default behaviour when not specifying the `initial_scale` and `target_accept_prob` arguments, in which case proposal and dimension dependent values following the guidelines in @roberts2001optimal and @livingstone2022barker will be used. 
+Here we set the initial scale to $\mathcal{O}(\text{dimension}^{-\frac{1}{6}})$ 
+and the target acceptance probability to 0.574 following the guidelines in @vogrinc2023optimal.
+This is equivalent to the default behaviour when not specifying the `initial_scale` and `target_accept_prob` arguments, in which case proposal and dimension dependent values following the guidelines in @vogrinc2023optimal will be used. 
 Both adapters have an optional `kappa` argument which can be used to set the decay rate exponent for the adaptation learning rate. We leave this as the default value of 0.6 (following the recommendation in @livingstone2022barker) in both cases.
 
 The adapter updates will be applied only during an initial set of 'warm-up' chain iterations,
@@ -114,8 +114,8 @@ n_warm_up_iteration <- 10000
 n_main_iteration <- 10000
 ```
 
-Here we sample a chain with `r n_warm_up_iteration` warm-up 
-and `r n_main_iteration` main chain iterations.
+Here we sample a chain with $`r n_warm_up_iteration`$ warm-up 
+and $`r n_main_iteration`$ main chain iterations.
 We set `trace_warm_up` to `TRUE` to record statistics during the adaptive warm-up chain iterations.
 
 ```{r}
@@ -142,7 +142,7 @@ mean_accept_prob <- mean(barker_results$statistics[, "accept_prob"])
 cat(sprintf("Average acceptance probability is %.2f", mean_accept_prob))
 ```
 
-This is close to the target acceptance rate of 0.4 indicating the scale adaptation worked as expected.
+This is close to the target acceptance rate of 0.574 indicating the scale adaptation worked as expected.
 
 We can also inspect the shape parameter of the proposal to check the variance based shape adaptation succeeded.
 The below snippet extracts the (first few dimensions of the) adapted shape from the `proposal` object and compares to the known true scales (per-coordinate standard deviations) of the target distribution.
@@ -199,7 +199,7 @@ cat(
 
 To sample a chain using a Langevin proposal, we can simple use `langevin_proposal` in place of `baker_proposal`.
 
-Here we create a new set of adapters using the default arguments to `simple_scale_adapter` which will set the target acceptance rate to the Langevin proposal specific value of 0.574 following the results in @roberts2001optimal.
+Here we create a new set of adapters using the default arguments to `simple_scale_adapter` which will set the target acceptance rate to the Langevin proposal optimal value of 0.574 following the results in @roberts2001optimal.
 
 ```{r}
 mala_results <- sample_chain(
@@ -271,7 +271,7 @@ visualize_scale_adaptation <- function(warm_up_statistics, label) {
 First considering the scalar scale parameter $\sigma_t$, 
 which is controlled to achieve a target average acceptance rate,
 we see that for Barker proposal the adaptation successfully coerces the average acceptance rate to be
-close to the 0.4 target value and that the scale parameter adaptation has largely stabilized within
+close to the 0.574 target value and that the scale parameter adaptation has largely stabilized within
 the first 1000 iterations.
 
 ```{r fig.width=7, fig.height=4}
@@ -279,7 +279,7 @@ visualize_scale_adaptation(barker_results$warm_up_statistics, "Barker proposal")
 ```
 
 For the Langevin proposal on the other hand, 
-while the  acceptance rate does eventually converge to its target value of 0.57,
+while the  acceptance rate does eventually converge to its target value of 0.574,
 the convergence is slower and there is more evidence of unstable oscillatory behaviour in the adapted scale.
 
 ```{r fig.width=7, fig.height=4}
