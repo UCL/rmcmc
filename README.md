@@ -35,8 +35,8 @@ devtools::install_github("UCL/rmcmc")
 
 This is a basic example which shows you how to generate samples from a
 normal target distribution with random scales. Adapters are used to tune
-the proposal scale to achieve a target average acceptance probability;
-to tune the proposal shape with per-dimension scale factors based on
+the proposal scale to achieve a target average acceptance probability,
+and to tune the proposal shape with per-dimension scale factors based on
 online estimates of the target distribution variances.
 
 ``` r
@@ -66,7 +66,7 @@ cat(
   sprintf("Adapter scale est.: %s", toString(adapted_shape)),
   sep = "\n"
 )
-#> Average acceptance probability is 0.41
+#> Average acceptance probability is 0.59
 #> True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645
-#> Adapter scale est.: 1.2489768457131, 1.23111560302158, 0.215024121396933
+#> Adapter scale est.: 1.43398887990819, 1.22112523246304, 0.240554869853302
 ```

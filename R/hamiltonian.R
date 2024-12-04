@@ -98,6 +98,6 @@ hamiltonian_proposal <- function(
     scale = scale,
     shape = shape,
     default_target_accept_prob = 0.8,
-    default_initial_scale = function(dimension) 2.38 / (dimension)^(1 / 4)
+    default_initial_scale = function(dimension) dimension^(-1 / 8)
   )
 }
