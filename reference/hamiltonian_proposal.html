@@ -59,7 +59,8 @@ evaluating the log density ratio.</p>
 <span>  <span class="va">n_step</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  shape <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  sample_auxiliary <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span></span>
+<span>  sample_auxiliary <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">dimension</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  sample_n_step <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -81,7 +82,8 @@ density of the target distribution as a list under the names <code>value</code> 
 
 <dt id="arg-n-step">n_step<a class="anchor" aria-label="anchor" href="#arg-n-step"></a></dt>
 <dd><p>Number of leapfrog steps to simulate Hamiltonian dynamics for
-in each proposed move.</p></dd>
+in each proposed move, or parameter passed to function specified by
+<code>sample_n_step</code> argument if not <code>NULL</code>.</p></dd>
 
 
 <dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
@@ -96,8 +98,23 @@ factors, or a matrix allowing arbitrary linear transformations.</p></dd>
 
 
 <dt id="arg-sample-auxiliary">sample_auxiliary<a class="anchor" aria-label="anchor" href="#arg-sample-auxiliary"></a></dt>
-<dd><p>Function which generates a random vector from
-auxiliary variable distribution.</p></dd>
+<dd><p>A function which samples new values for auxiliary
+variables (corresponding to a linear transform of momentum) given current
+chain state, leaving their standard normal target distribution invariant.
+Defaults to a function sampling independent standard normal random variates
+but can be used to implement alternative updates such as partial momentum
+refreshment. Function should accept a single argument which is passed the
+current chain state.</p></dd>
+
+
+<dt id="arg-sample-n-step">sample_n_step<a class="anchor" aria-label="anchor" href="#arg-sample-n-step"></a></dt>
+<dd><p>Optionally a function which randomly samples number of
+leapfrog steps to simulate in each proposed move from some integer-valued
+distribution, or <code>NULL</code> (the default) to use a fixed deterministic number
+of steps as specified by <code>n_step</code> argument. If a function it should accept
+a single argument which will be passed the value of <code>n_step</code> which can
+be used to specify parameter(s) of distribution to sample number of steps
+from.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -120,11 +137,44 @@ value to use for the initial proposal scale parameter.</p></li>
 <span class="r-in"><span>  log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>  gradient_log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="va">x</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Proposal with fixed number of leapfrog steps</span></span></span>
 <span class="r-in"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu">hamiltonian_proposal</span><span class="op">(</span><span class="va">target_distribution</span>, scale <span class="op">=</span> <span class="fl">1.</span>, n_step <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">state</span> <span class="op">&lt;-</span> <span class="fu"><a href="chain_state.html">chain_state</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.</span>, <span class="fl">0.</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">with_seed</a></span><span class="op">(</span><span class="fl">876287L</span>, <span class="va">proposed_state</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="va">state</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">log_density_ratio</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">log_density_ratio</span><span class="op">(</span><span class="va">state</span>, <span class="va">proposed_state</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">proposal</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Proposal with number of steps randomly sampled uniformly from 5:10</span></span></span>
+<span class="r-in"><span><span class="va">sample_uniform_int</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">lower</span>, <span class="va">upper</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">lower</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="va">upper</span> <span class="op">-</span> <span class="va">lower</span> <span class="op">+</span> <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu">hamiltonian_proposal</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">target_distribution</span>,</span></span>
+<span class="r-in"><span>  scale <span class="op">=</span> <span class="fl">1.</span>,</span></span>
+<span class="r-in"><span>  n_step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  sample_n_step <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">n_step</span><span class="op">)</span> <span class="fu">sample_uniform_int</span><span class="op">(</span><span class="va">n_step</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">n_step</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">with_seed</a></span><span class="op">(</span><span class="fl">876287L</span>, <span class="va">proposed_state</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="va">state</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Proposal with partial momentum refreshment</span></span></span>
+<span class="r-in"><span><span class="va">partial_momentum_update</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">state</span>, <span class="va">phi</span> <span class="op">=</span> <span class="va">pi</span> <span class="op">/</span> <span class="fl">4</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">momentum</span> <span class="op">&lt;-</span> <span class="va">state</span><span class="op">$</span><span class="fu">momentum</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">momentum</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">state</span><span class="op">$</span><span class="fu">dimension</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span> <span class="op">*</span> <span class="va">momentum</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="va">phi</span><span class="op">)</span> <span class="op">*</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">momentum</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu">hamiltonian_proposal</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">target_distribution</span>,</span></span>
+<span class="r-in"><span>  scale <span class="op">=</span> <span class="fl">1.</span>,</span></span>
+<span class="r-in"><span>  n_step <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>  sample_auxiliary <span class="op">=</span> <span class="va">partial_momentum_update</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">with_seed</a></span><span class="op">(</span><span class="fl">876287L</span>, <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">proposed_state</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="va">state</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
