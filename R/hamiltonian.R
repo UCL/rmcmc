@@ -8,8 +8,7 @@ sample_hamiltonian <- function(
     scale_and_shape,
     sample_auxiliary,
     sample_n_step) {
-  momentum <- sample_auxiliary(state$momentum())
-  state$update(momentum = momentum)
+  state$update(momentum = sample_auxiliary(state))
   if (!is.null(sample_n_step)) {
     n_step <- sample_n_step(n_step)
   }
@@ -72,11 +71,12 @@ log_density_ratio_hamiltonian <- function(
 #'   in each proposed move, or parameter passed to function specified by
 #'   `sample_n_step` argument if not `NULL`.
 #' @param sample_auxiliary A function which samples new values for auxiliary
-#'   variables (corresponding to a linear transform of momentum) given previous
-#'   values, leaving their standard normal target distribution invariant.
+#'   variables (corresponding to a linear transform of momentum) given current
+#'   chain state, leaving their standard normal target distribution invariant.
 #'   Defaults to a function sampling independent standard normal random variates
 #'   but can be used to implement alternative updates such as partial momentum
-#'   refreshment.
+#'   refreshment. Function should accept a single argument which is passed the
+#'   current chain state.
 #' @param sample_n_step Optionally a function which randomly samples number of
 #'   leapfrog steps to simulate in each proposed move from some integer-valued
 #'   distribution, or `NULL` (the default) to use a fixed deterministic number
@@ -101,24 +101,33 @@ log_density_ratio_hamiltonian <- function(
 #' proposal$update(scale = 0.5)
 #'
 #' # Proposal with number of steps randomly sampled uniformly from 5:10
+#' sample_uniform_int <- function(lower, upper) {
+#'   lower + sample.int(upper - lower + 1) - 1
+#' }
 #' proposal <- hamiltonian_proposal(
 #'   target_distribution,
 #'   scale = 1.,
 #'   n_step = c(5, 10),
-#'   sample_n_step = function(n) n[1] + sample.int(n[2] - n[1] + 1) - 1
+#'   sample_n_step = function(n_step) sample_uniform_int(n_step[1], n_step[2])
 #' )
 #' withr::with_seed(876287L, proposed_state <- proposal$sample(state))
 #'
 #' # Proposal with partial momentum refreshment
-#' phi <- pi / 4
+#' partial_momentum_update <- function(state, phi = pi / 4) {
+#'   momentum <- state$momentum()
+#'   if (is.null(momentum)) {
+#'     stats::rnorm(state$dimension())
+#'   } else {
+#'     cos(phi) * momentum + sin(phi) * stats::rnorm(length(momentum))
+#'   }
+#' }
 #' proposal <- hamiltonian_proposal(
 #'   target_distribution,
 #'   scale = 1.,
 #'   n_step = 1,
-#'   sample_auxiliary = function(m) cos(phi) * m + sin(phi) * rnorm(length(m))
+#'   sample_auxiliary = partial_momentum_update
 #' )
 #' withr::with_seed(876287L, {
-#'   state <- chain_state(rnorm(2), rnorm(2))
 #'   proposed_state <- proposal$sample(state)
 #' })
 hamiltonian_proposal <- function(
@@ -126,7 +135,7 @@ hamiltonian_proposal <- function(
     n_step,
     scale = NULL,
     shape = NULL,
-    sample_auxiliary = function(auxiliary) stats::rnorm(length(auxiliary)),
+    sample_auxiliary = function(state) stats::rnorm(state$dimension()),
     sample_n_step = NULL) {
   scale_and_shape_proposal(
     sample = function(state, scale_and_shape) {
