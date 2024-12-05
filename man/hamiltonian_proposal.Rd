@@ -88,7 +88,7 @@ proposal$update(scale = 0.5)
 
 # Proposal with number of steps randomly sampled uniformly from 5:10
 sample_uniform_int <- function(lower, upper) {
-  lower + sample.int(upper - lower + 1) - 1
+  lower + sample.int(upper - lower + 1, 1) - 1
 }
 proposal <- hamiltonian_proposal(
   target_distribution,

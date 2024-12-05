@@ -1,10 +1,12 @@
-hamiltonian_proposal_with_standard_normal_target <- function(n_step) {
+hamiltonian_proposal_with_standard_normal_target <- function(
+    n_step, sample_n_step = NULL) {
   function(scale = NULL, shape = NULL) {
     hamiltonian_proposal(
       target_distribution = standard_normal_target_distribution(),
       n_step = n_step,
       scale = scale,
-      shape = shape
+      shape = shape,
+      sample_n_step = sample_n_step
     )
   }
 }
@@ -49,3 +51,13 @@ for (dimension in c(1L, 2L, 3L)) {
     }
   }
 }
+
+test_scale_and_shape_proposal(
+  hamiltonian_proposal_with_standard_normal_target(
+    n_step = c(1, 5),
+    sample_n_step = function(n) n[1] + sample.int(n[2] - n[1] + 1, 1) - 1
+  ),
+  proposal_name = sprintf("Hamiltonian proposal with randomized n_step"),
+  dimensions = c(1L, 2L),
+  scales = c(0.5, 1., 2.)
+)
