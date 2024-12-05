@@ -9,7 +9,8 @@ hamiltonian_proposal(
   n_step,
   scale = NULL,
   shape = NULL,
-  sample_auxiliary = stats::rnorm
+  sample_auxiliary = function(auxiliary) stats::rnorm(length(auxiliary)),
+  sample_n_step = NULL
 )
 }
 \arguments{
@@ -24,7 +25,8 @@ density of the target distribution as a list under the names \code{value} and
 \code{gradient} respectively.}
 
 \item{n_step}{Number of leapfrog steps to simulate Hamiltonian dynamics for
-in each proposed move.}
+in each proposed move, or parameter passed to function specified by
+\code{sample_n_step} argument if not \code{NULL}.}
 
 \item{scale}{Scale parameter of proposal distribution. A non-negative scalar
 value determining scale of steps proposed.}
@@ -33,8 +35,20 @@ value determining scale of steps proposed.}
 corresponding to a diagonal shape matrix with per-dimension scaling
 factors, or a matrix allowing arbitrary linear transformations.}
 
-\item{sample_auxiliary}{Function which generates a random vector from
-auxiliary variable distribution.}
+\item{sample_auxiliary}{A function which samples new values for auxiliary
+variables (corresponding to a linear transform of momentum) given previous
+values, leaving their standard normal target distribution invariant.
+Defaults to a function sampling independent standard normal random variates
+but can be used to implement alternative updates such as partial momentum
+refreshment.}
+
+\item{sample_n_step}{Optionally a function which randomly samples number of
+leapfrog steps to simulate in each proposed move from some integer-valued
+distribution, or \code{NULL} (the default) to use a fixed deterministic number
+of steps as specified by \code{n_step} argument. If a function it should accept
+a single argument which will be passed the value of \code{n_step} which can
+be used to specify parameter(s) of distribution to sample number of steps
+from.}
 }
 \value{
 Proposal object. A list with entries
@@ -63,9 +77,33 @@ target_distribution <- list(
   log_density = function(x) -sum(x^2) / 2,
   gradient_log_density = function(x) -x
 )
+
+# Proposal with fixed number of leapfrog steps
 proposal <- hamiltonian_proposal(target_distribution, scale = 1., n_step = 5)
 state <- chain_state(c(0., 0.))
 withr::with_seed(876287L, proposed_state <- proposal$sample(state))
 log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
 proposal$update(scale = 0.5)
+
+# Proposal with number of steps randomly sampled uniformly from 5:10
+proposal <- hamiltonian_proposal(
+  target_distribution,
+  scale = 1.,
+  n_step = c(5, 10),
+  sample_n_step = function(n) n[1] + sample.int(n[2] - n[1] + 1) - 1
+)
+withr::with_seed(876287L, proposed_state <- proposal$sample(state))
+
+# Proposal with partial momentum refreshment
+phi <- pi / 4
+proposal <- hamiltonian_proposal(
+  target_distribution,
+  scale = 1.,
+  n_step = 1,
+  sample_auxiliary = function(m) cos(phi) * m + sin(phi) * rnorm(length(m))
+)
+withr::with_seed(876287L, {
+  state <- chain_state(rnorm(2), rnorm(2))
+  proposed_state <- proposal$sample(state)
+})
 }

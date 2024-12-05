@@ -9,7 +9,8 @@ sample_hamiltonian(
   target_distribution,
   n_step,
   scale_and_shape,
-  sample_auxiliary = stats::rnorm
+  sample_auxiliary,
+  sample_n_step
 )
 }
 \description{
