@@ -1,7 +1,3 @@
-is_non_scalar_vector <- function(obj) {
-  is.null(dim(obj)) && length(obj) > 1
-}
-
 get_shape_matrix <- function(scale, shape) {
   if (!is.null(scale) && (length(scale) > 1 || scale < 0)) {
     stop("Scale should be a non-negative scalar")
