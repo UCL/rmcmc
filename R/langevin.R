@@ -21,15 +21,11 @@ sample_langevin <- function(
 #' @keywords internal
 involution_langevin <- function(state, scale_and_shape, target_distribution) {
   gradient <- state$gradient_log_density(target_distribution)
-  momentum <- state$momentum() + Matrix::drop(
-    Matrix::t(scale_and_shape) %*% gradient
-  ) / 2
-  position <- state$position() + Matrix::drop(scale_and_shape %*% momentum)
+  momentum <- state$momentum() + (gradient %@% scale_and_shape) / 2
+  position <- state$position() + (scale_and_shape %@% momentum)
   state <- chain_state(position = position, momentum = momentum)
   gradient <- state$gradient_log_density(target_distribution)
-  momentum <- state$momentum() + Matrix::drop(
-    Matrix::t(scale_and_shape) %*% gradient
-  ) / 2
+  momentum <- state$momentum() + (gradient %@% scale_and_shape) / 2
   state$update(momentum = -momentum)
   state
 }

@@ -9,7 +9,7 @@ sample_random_walk <- function(
     scale_and_shape,
     sample_auxiliary = stats::rnorm) {
   momentum <- sample_auxiliary(state$dimension())
-  position <- state$position() + Matrix::drop(scale_and_shape %*% momentum)
+  position <- state$position() + (scale_and_shape %@% momentum)
   chain_state(position = position, momentum = momentum)
 }
 
