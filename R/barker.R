@@ -31,8 +31,9 @@ sample_barker <- function(
   p_signs <- logistic_sigmoid((grad %@% scale_and_shape) * auxiliary)
   signs <- 2 * (sample_uniform(dim) < p_signs) - 1
   momentum <- signs * auxiliary
+  state$update(momentum = momentum)
   position <- state$position() + (scale_and_shape %@% momentum)
-  chain_state(position = position, momentum = momentum)
+  chain_state(position = position, momentum = -momentum)
 }
 
 #' Compute logarithm of Barker proposal density ratio.
@@ -50,11 +51,11 @@ log_density_ratio_barker <- function(
     scale_and_shape) {
   sum(
     log1p_exp(
-      state$momentum() * (
+      -state$momentum() * (
         state$gradient_log_density(target_distribution) %@% scale_and_shape
       )
     ) - log1p_exp(
-      proposed_state$momentum() * (
+      -proposed_state$momentum() * (
         proposed_state$gradient_log_density(target_distribution) %@% scale_and_shape
       )
     )
