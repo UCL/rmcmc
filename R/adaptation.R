@@ -142,6 +142,7 @@ dual_averaging_scale_adapter <- function(
 #' of target distribution variances.
 #'
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#'   Value of 1 (default) corresponds to computing empirical variances.
 #'
 #' @inherit simple_scale_adapter return
 #'
@@ -154,7 +155,7 @@ dual_averaging_scale_adapter <- function(
 #' proposal <- barker_proposal(target_distribution)
 #' adapter <- variance_shape_adapter()
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
-variance_shape_adapter <- function(kappa = 0.6) {
+variance_shape_adapter <- function(kappa = 1) {
   mean_estimate <- NULL
   variance_estimate <- NULL
   initialize <- function(proposal, initial_state) {
@@ -190,6 +191,7 @@ variance_shape_adapter <- function(kappa = 0.6) {
 #' Requires `ramcmc` package to be installed.
 #'
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#'  Value of 1 (default) corresponds to computing empirical covariance matrix.
 #'
 #' @inherit simple_scale_adapter return
 #'
@@ -202,7 +204,7 @@ variance_shape_adapter <- function(kappa = 0.6) {
 #' proposal <- barker_proposal(target_distribution)
 #' adapter <- covariance_shape_adapter()
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
-covariance_shape_adapter <- function(kappa = 0.6) {
+covariance_shape_adapter <- function(kappa = 1) {
   rlang::check_installed("ramcmc", reason = "to use this function")
   mean_estimate <- NULL
   chol_covariance_estimate <- NULL

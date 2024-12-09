@@ -57,8 +57,8 @@ results <- sample_chain(
   target_distribution = target_distribution,
   proposal = proposal,
   initial_state = rnorm(dimension),
-  n_warm_up_iteration = 1000,
-  n_main_iteration = 1000,
+  n_warm_up_iteration = 10000,
+  n_main_iteration = 10000,
   adapters = list(simple_scale_adapter(), variance_shape_adapter())
 )
 mean_accept_prob <- mean(results$statistics[, "accept_prob"])

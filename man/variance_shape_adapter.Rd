@@ -5,10 +5,11 @@
 \title{Create object to adapt proposal with per dimension scales based on estimates
 of target distribution variances.}
 \usage{
-variance_shape_adapter(kappa = 0.6)
+variance_shape_adapter(kappa = 1)
 }
 \arguments{
-\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
+\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.
+Value of 1 (default) corresponds to computing empirical variances.}
 }
 \value{
 List of functions with entries

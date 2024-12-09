@@ -54,8 +54,8 @@ results <- sample_chain(
   target_distribution = target_distribution,
   proposal = proposal,
   initial_state = rnorm(dimension),
-  n_warm_up_iteration = 1000,
-  n_main_iteration = 1000,
+  n_warm_up_iteration = 10000,
+  n_main_iteration = 10000,
   adapters = list(simple_scale_adapter(), variance_shape_adapter())
 )
 mean_accept_prob <- mean(results$statistics[, "accept_prob"])
@@ -66,7 +66,7 @@ cat(
   sprintf("Adapter scale est.: %s", toString(adapted_shape)),
   sep = "\n"
 )
-#> Average acceptance probability is 0.59
+#> Average acceptance probability is 0.60
 #> True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645
-#> Adapter scale est.: 1.43398887990819, 1.22112523246304, 0.240554869853302
+#> Adapter scale est.: 1.50440063740149, 1.36616655268066, 0.273584402661664
 ```
