@@ -60,11 +60,22 @@ is_non_scalar_vector <- function(obj) {
 `%@%` <- function(left, right) {
   if (is.null(dim(left)) && is.null(dim(right))) {
     return(left * right)
+  } else if ((length(left) == 1 && length(right) == 1)) {
+    return(drop(left * right))
   } else if (is.matrix(left) && is_non_scalar_vector(right)) {
     return(Matrix::drop(left %*% right))
   } else if (is_non_scalar_vector(left) && is.matrix(right)) {
     return(Matrix::drop(Matrix::t(right) %*% left))
   } else {
-    stop("Expected at least one vector argument")
+    stop(
+      paste0(
+        "Expected at least one vector argument: ",
+        sprintf(
+          "dim(left) = (%s), dim(right) = (%s)",
+          paste(dim(left), collapse = ", "),
+          paste(dim(right), collapse = ", ")
+        )
+      )
+    )
   }
 }
