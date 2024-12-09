@@ -26,25 +26,19 @@ involution_hamiltonian <- function(
     state, n_step, scale_and_shape, target_distribution) {
   # Initial half-step
   gradient <- state$gradient_log_density(target_distribution)
-  momentum <- state$momentum() + Matrix::drop(
-    Matrix::t(scale_and_shape) %*% gradient
-  ) / 2
+  momentum <- state$momentum() + (gradient %@% scale_and_shape) / 2
   # Inner full 'leapfrog' steps
   for (step in seq_len(n_step - 1)) {
-    position <- state$position() + Matrix::drop(scale_and_shape %*% momentum)
+    position <- state$position() + (scale_and_shape %@% momentum)
     state <- chain_state(position = position, momentum = momentum)
     gradient <- state$gradient_log_density(target_distribution)
-    momentum <- state$momentum() + Matrix::drop(
-      Matrix::t(scale_and_shape) %*% gradient
-    )
+    momentum <- state$momentum() + (gradient %@% scale_and_shape)
   }
   # Final half-step
-  position <- state$position() + Matrix::drop(scale_and_shape %*% momentum)
+  position <- state$position() + (scale_and_shape %@% momentum)
   state <- chain_state(position = position, momentum = momentum)
   gradient <- state$gradient_log_density(target_distribution)
-  momentum <- state$momentum() + Matrix::drop(
-    Matrix::t(scale_and_shape) %*% gradient
-  ) / 2
+  momentum <- state$momentum() + (gradient %@% scale_and_shape) / 2
   # Negate momentum to make an involution
   state$update(momentum = -momentum)
   state

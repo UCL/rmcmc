@@ -28,12 +28,10 @@ sample_barker <- function(
   grad <- state$gradient_log_density(target_distribution)
   dim <- state$dimension()
   auxiliary <- sample_auxiliary(dim)
-  p_signs <- logistic_sigmoid(
-    Matrix::drop(Matrix::t(scale_and_shape) %*% grad) * auxiliary
-  )
+  p_signs <- logistic_sigmoid((grad %@% scale_and_shape) * auxiliary)
   signs <- 2 * (sample_uniform(dim) < p_signs) - 1
   momentum <- signs * auxiliary
-  position <- state$position() + Matrix::drop(scale_and_shape %*% momentum)
+  position <- state$position() + (scale_and_shape %@% momentum)
   chain_state(position = position, momentum = momentum)
 }
 
@@ -52,14 +50,12 @@ log_density_ratio_barker <- function(
     scale_and_shape) {
   sum(
     log1p_exp(
-      state$momentum() * Matrix::drop(
-        Matrix::t(scale_and_shape) %*%
-          state$gradient_log_density(target_distribution)
+      state$momentum() * (
+        state$gradient_log_density(target_distribution) %@% scale_and_shape
       )
     ) - log1p_exp(
-      proposed_state$momentum() * Matrix::drop(
-        Matrix::t(scale_and_shape) %*%
-          proposed_state$gradient_log_density(target_distribution)
+      proposed_state$momentum() * (
+        proposed_state$gradient_log_density(target_distribution) %@% scale_and_shape
       )
     )
   )

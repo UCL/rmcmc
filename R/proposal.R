@@ -2,9 +2,6 @@ get_shape_matrix <- function(scale, shape) {
   if (!is.null(scale) && (length(scale) > 1 || scale < 0)) {
     stop("Scale should be a non-negative scalar")
   }
-  if (!is.null(shape) && is_non_scalar_vector(shape)) {
-    shape <- diag(shape)
-  }
   if (is.null(scale) && is.null(shape)) {
     stop("One of scale and shape parameters must be set")
   } else if (is.null(scale)) {
