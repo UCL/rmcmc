@@ -26,8 +26,8 @@ state variables.
 }
 }
 \description{
-Create object to adapt proposal with per dimension scales based on estimates
-of target distribution variances.
+Corresponds to variance variant of Algorithm 2 in Andrieu and Thoms (2009),
+which is itself a restatement of method proposed in Haario et al. (2001).
 }
 \examples{
 target_distribution <- list(
@@ -37,4 +37,11 @@ target_distribution <- list(
 proposal <- barker_proposal(target_distribution)
 adapter <- variance_shape_adapter()
 adapter$initialize(proposal, chain_state(c(0, 0)))
+}
+\references{
+Andrieu, C., & Thoms, J. (2008). A tutorial on adaptive MCMC.
+\emph{Statistics and Computing}, 18, 343-373.
+
+Haario, H., Saksman, E., & Tamminen, J. (2001). An adaptive
+Metropolis algorithm. \emph{Bernoulli}, 7(2): 223-242.
 }

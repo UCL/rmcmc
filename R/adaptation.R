@@ -1,11 +1,14 @@
-#' Create object to adapt proposal scale to coerce average acceptance rate using
-#' a Robbins and Monro (1951) scheme.
+#' Create object to adapt proposal scale to coerce average acceptance rate.
 #'
+#' @param algorithm String specifying algorithm to use. One of:
+#'   * "stochastic_approximation" to use a Robbins-Monro (1951) based scheme,
+#'   * "dual_averaging" to use dual-averaging scheme of Nesterov (2009).
 #' @param initial_scale Initial value to use for scale parameter. If not set
 #'   explicitly a proposal and dimension dependent default will be used.
 #' @param target_accept_prob Target value for average accept probability for
 #'   chain. If not set a proposal dependent default will be used.
-#' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#' @param ... Any additional algorithmic parameters to pass through to
+#'   [dual_averaging_scale_adapter()] or [stochastic_approximation_scale_adapter()].
 #'
 #' @return List of functions with entries
 #' * `initialize`, a function for initializing adapter state and proposal
@@ -18,6 +21,13 @@
 #' * `state` a zero-argument function for accessing current values of adapter
 #'   state variables.
 #'
+#' @seealso [dual_averaging_scale_adapter(), stochastic_approximation_scale_adapter()]
+#'
+#' @references Nesterov, Y. (2009). Primal-dual subgradient methods for convex
+#'   problems. _Mathematical Programming_, 120(1), 221-259.
+#' @references Robbins, H., & Monro, S. (1951). A stochastic approximation
+#'   method. _The Annals of Mathematical Statistics_, 400-407.
+#'
 #' @export
 #'
 #' @examples
@@ -26,9 +36,47 @@
 #'   grad_log_density = function(x) -x
 #' )
 #' proposal <- barker_proposal(target_distribution)
-#' adapter <- simple_scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
+#' adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
-simple_scale_adapter <- function(
+scale_adapter <- function(
+    algorithm = "dual_averaging",
+    initial_scale = NULL,
+    target_accept_prob = NULL,
+    ...) {
+  adapter_function <- switch(algorithm,
+    dual_averaging = dual_averaging_scale_adapter,
+    stochastic_approximation = stochastic_approximation_scale_adapter,
+    stop(sprintf("Unrecognized algorithm choice %s"), algorithm)
+  )
+  adapter_function(initial_scale, target_accept_prob, ...)
+}
+
+#' Create object to adapt proposal scale to coerce average acceptance rate using
+#' a Robbins and Monro (1951) scheme.
+#'
+#' When combined with [covariance_shape_adapter()] corresponds to Algorithm 4 in
+#' Andrieu and Thoms (2009).
+#'
+#' @inherit scale_adapter params return
+#'
+#' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#'
+#' @references Robbins, H., & Monro, S. (1951). A stochastic approximation
+#'   method. _The Annals of Mathematical Statistics_, 400-407.
+#'
+#' @export
+#'
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   grad_log_density = function(x) -x
+#' )
+#' proposal <- barker_proposal(target_distribution)
+#' adapter <- stochastic_approximation_scale_adapter(
+#'   initial_scale = 1., target_accept_prob = 0.4
+#' )
+#' adapter$initialize(proposal, chain_state(c(0, 0)))
+stochastic_approximation_scale_adapter <- function(
     initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
   log_scale <- NULL
   initialize <- function(proposal, initial_state) {
@@ -58,8 +106,10 @@ simple_scale_adapter <- function(
 #' Create object to adapt proposal scale to coerce average acceptance rate
 #' using dual averaging scheme of Nesterov (2009) and Hoffman and Gelman (2014).
 #'
-#' @inherit simple_scale_adapter params return
+#' @inherit scale_adapter params return
 #'
+#' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#'   Defaults to value recommended in Hoffman and Gelman (2014).
 #' @param gamma Regularization coefficient for (log) scale in dual averaging
 #'   algorithm. Controls amount of regularization of (log) scale towards `mu`.
 #'   Should be set to a non-negative value. Defaults to value recommended in
@@ -72,6 +122,12 @@ simple_scale_adapter <- function(
 #' @param mu Value to regularize (log) scale towards. If `NULL` (the default),
 #'   `mu` will be set to `log(10 * initial_scale)`, as recommended in Hoffman
 #'   and Gelman (2014).
+#'
+#' @references Nesterov, Y. (2009). Primal-dual subgradient methods for convex
+#'   problems. _Mathematical Programming_, 120(1), 221-259.
+#' @references Hoffman, M. D., & Gelman, A. (2014). The No-U-Turn sampler:
+#'   adaptively setting path lengths in Hamiltonian Monte Carlo.
+#'   _Journal of Machine Learning Research_, 15(1), 1593-1623.
 #'
 #' @export
 #'
@@ -138,13 +194,47 @@ dual_averaging_scale_adapter <- function(
   )
 }
 
-#' Create object to adapt proposal with per dimension scales based on estimates
-#' of target distribution variances.
+#' Create object to adapt proposal shape.
 #'
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'   Value of 1 (default) corresponds to computing empirical variances.
 #'
-#' @inherit simple_scale_adapter return
+#' @inherit scale_adapter return
+#'
+#' @export
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   grad_log_density = function(x) -x
+#' )
+#' proposal <- barker_proposal(target_distribution)
+#' adapter <- shape_adapter()
+#' adapter$initialize(proposal, chain_state(c(0, 0)))
+shape_adapter <- function(type = "covariance", kappa = 1) {
+  adapter_function <- switch(type,
+    covariance = covariance_shape_adapter,
+    variance = variance_shape_adapter,
+    stop(sprintf("Unrecognized type choice %s"), type)
+  )
+  adapter_function(kappa)
+}
+
+
+#' Create object to adapt proposal with per dimension scales based on estimates
+#' of target distribution variances.
+#'
+#' Corresponds to variance variant of Algorithm 2 in Andrieu and Thoms (2009),
+#' which is itself a restatement of method proposed in Haario et al. (2001).
+#'
+#' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
+#'   Value of 1 (default) corresponds to computing empirical variances.
+#'
+#' @inherit scale_adapter return
+#'
+#' @references Andrieu, C., & Thoms, J. (2008). A tutorial on adaptive MCMC.
+#'   _Statistics and Computing_, 18, 343-373.
+#' @references Haario, H., Saksman, E., & Tamminen, J. (2001). An adaptive
+#'   Metropolis algorithm. _Bernoulli_, 7(2): 223-242.
 #'
 #' @export
 #' @examples
@@ -188,12 +278,21 @@ variance_shape_adapter <- function(kappa = 1) {
 #' Create object to adapt proposal with shape based on estimate of target
 #' distribution covariance matrix.
 #'
-#' Requires `ramcmc` package to be installed.
+#' Corresponds to Algorithm 2 in Andrieu and Thoms (2009), which is itself a
+#' restatement of method proposed in Haario et al. (2001).
+#'
+#' Requires `ramcmc` package to be installed for access to efficient rank-1
+#' Cholesky update function [ramcmc::chol_update()].
 #'
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'  Value of 1 (default) corresponds to computing empirical covariance matrix.
 #'
-#' @inherit simple_scale_adapter return
+#' @inherit scale_adapter return
+#'
+#' @references Andrieu, C., & Thoms, J. (2008). A tutorial on adaptive MCMC.
+#'   _Statistics and Computing_, 18, 343-373.
+#' @references Haario, H., Saksman, E., & Tamminen, J. (2001). An adaptive
+#'   Metropolis algorithm. _Bernoulli_, 7(2): 223-242.
 #'
 #' @export
 #' @examples
@@ -246,9 +345,9 @@ covariance_shape_adapter <- function(kappa = 1) {
 #'     coerced acceptance rate. _Statistics and Computing_, 22, 997-1008.
 #'     <https://doi.iorg/10.1007/s11222-011-9269-5>
 #'
-#' @inheritParams simple_scale_adapter
+#' @inheritParams scale_adapter
 #'
-#' @inherit simple_scale_adapter return
+#' @inherit scale_adapter return
 #'
 #' @export
 #'

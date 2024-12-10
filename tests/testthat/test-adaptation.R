@@ -68,7 +68,7 @@ check_scale_adapter_with_default_args_works <- function(
   expect_gte(adapter_state$log_scale, expected_log_scale)
 }
 
-check_simple_scale_adapter_state <- function(adapter_state) {
+check_stochastic_approximation_scale_adapter_state <- function(adapter_state) {
   expect_named(adapter_state, c("log_scale"))
   expect_length(adapter_state$log_scale, 1)
 }
@@ -79,13 +79,13 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
       test_that(
         sprintf(
           paste0(
-            "Simple scale adapter works with target_accept_prob %.1f ",
+            "Stochastic approximation scale adapter works with target_accept_prob %.1f ",
             "initial_scale %.1f kappa %.1f"
           ),
           target_accept_prob, initial_scale, kappa
         ),
         {
-          adapter <- simple_scale_adapter(
+          adapter <- stochastic_approximation_scale_adapter(
             initial_scale = initial_scale,
             target_accept_prob = target_accept_prob,
             kappa = kappa
@@ -94,7 +94,7 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
           proposal <- dummy_proposal_with_scale_parameter()
           adapter$initialize(proposal, chain_state(rep(0, dimension)))
           adapter_state <- adapter$state()
-          check_simple_scale_adapter_state(adapter_state)
+          check_stochastic_approximation_scale_adapter_state(adapter_state)
           old_scale <- initial_scale
           # If accept probability higher than target scale should be increased
           for (sample_index in 1:2) {
@@ -133,11 +133,14 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
 for (dimension in c(1L, 2L, 5L)) {
   test_that(
     sprintf(
-      "Simple scale adapter with default args works in dimension %i", dimension
+      "Stochastic approximation scale adapter with default args works in dimension %i",
+      dimension
     ),
     {
       check_scale_adapter_with_default_args_works(
-        simple_scale_adapter(), dimension, check_simple_scale_adapter_state
+        stochastic_approximation_scale_adapter(),
+        dimension,
+        check_stochastic_approximation_scale_adapter_state
       )
     }
   )

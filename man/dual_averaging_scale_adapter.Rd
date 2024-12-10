@@ -21,7 +21,8 @@ explicitly a proposal and dimension dependent default will be used.}
 \item{target_accept_prob}{Target value for average accept probability for
 chain. If not set a proposal dependent default will be used.}
 
-\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
+\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.
+Defaults to value recommended in Hoffman and Gelman (2014).}
 
 \item{gamma}{Regularization coefficient for (log) scale in dual averaging
 algorithm. Controls amount of regularization of (log) scale towards \code{mu}.
@@ -66,4 +67,12 @@ adapter <- dual_averaging_scale_adapter(
   initial_scale = 1., target_accept_prob = 0.4
 )
 adapter$initialize(proposal, chain_state(c(0, 0)))
+}
+\references{
+Nesterov, Y. (2009). Primal-dual subgradient methods for convex
+problems. \emph{Mathematical Programming}, 120(1), 221-259.
+
+Hoffman, M. D., & Gelman, A. (2014). The No-U-Turn sampler:
+adaptively setting path lengths in Hamiltonian Monte Carlo.
+\emph{Journal of Machine Learning Research}, 15(1), 1593-1623.
 }
