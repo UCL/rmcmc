@@ -50,6 +50,9 @@ adapter <- stochastic_approximation_scale_adapter(
 adapter$initialize(proposal, chain_state(c(0, 0)))
 }
 \references{
+Andrieu, C., & Thoms, J. (2008). A tutorial on adaptive MCMC.
+\emph{Statistics and Computing}, 18, 343-373.
+
 Robbins, H., & Monro, S. (1951). A stochastic approximation
 method. \emph{The Annals of Mathematical Statistics}, 400-407.
 }

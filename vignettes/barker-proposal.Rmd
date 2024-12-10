@@ -74,17 +74,19 @@ Below we instantiate a list of adapters to
 ```{r}
 adapters <- list(
   scale_adapter(
+    algorithm = "stochastic_approximation",
     initial_scale = dimension^(-1 / 6),
-    target_accept_prob = 0.574
+    target_accept_prob = 0.574,
+    kappa = 0.6
   ),
-  shape_adapter("variance")
+  shape_adapter(type = "variance", kappa = 0.6)
 )
 ```
 
 Here we set the initial scale to $\mathcal{O}(\text{dimension}^{-\frac{1}{6}})$ 
 and the target acceptance probability to 0.574 following the guidelines in @vogrinc2023optimal.
 This is equivalent to the default behaviour when not specifying the `initial_scale` and `target_accept_prob` arguments, in which case proposal and dimension dependent values following the guidelines in @vogrinc2023optimal will be used. 
-Both adapters have an optional `kappa` argument which can be used to set the decay rate exponent for the adaptation learning rate. We leave this as the default value of 0.6 (following the recommendation in @livingstone2022barker) in both cases.
+Both adapters have an optional `kappa` argument which can be used to set the decay rate exponent for the adaptation learning rate. We set this to 0.6, following the recommendation in @livingstone2022barker, in both cases.
 
 The adapter updates will be applied only during an initial set of 'warm-up' chain iterations,
 with the proposal parameters remaining fixed to their final adapted values during a subsequent
@@ -199,7 +201,7 @@ cat(
 
 To sample a chain using a Langevin proposal, we can simple use `langevin_proposal` in place of `baker_proposal`.
 
-Here we create a new set of adapters using the default arguments to `scale_adapter` which will set the target acceptance rate to the Langevin proposal optimal value of 0.574 following the results in @roberts2001optimal.
+Here we create a new set of adapters using the default `target_accept_prob` argument to `scale_adapter` which will set the target acceptance rate to the Langevin proposal optimal value of 0.574 following the results in @roberts2001optimal.
 
 ```{r}
 mala_results <- sample_chain(
@@ -208,7 +210,10 @@ mala_results <- sample_chain(
   initial_state = initial_state,
   n_warm_up_iteration = n_warm_up_iteration,
   n_main_iteration = n_main_iteration,
-  adapters = list(scale_adapter(), shape_adapter("variance")),
+  adapters = list(
+    scale_adapter(algorithm = "stochastic_approximation", kappa = 0.6),
+    shape_adapter(type = "variance", kappa = 0.6)
+  ),
   trace_warm_up = TRUE
 )
 ```
