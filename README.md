@@ -31,13 +31,14 @@ You can install the development version of `rmcmc` like so:
 devtools::install_github("UCL/rmcmc")
 ```
 
-## Example
+## Examples
 
-This is a basic example which shows you how to generate samples from a
-normal target distribution with random scales. Adapters are used to tune
-the proposal scale to achieve a target average acceptance probability,
-and to tune the proposal shape with per-dimension scale factors based on
-online estimates of the target distribution variances.
+The snippet belows shows a basic example of using the package to
+generate samples from a normal target distribution with random scales.
+Adapters are used to tune the proposal scale to achieve a target average
+acceptance probability, and to tune the proposal shape with
+per-dimension scale factors based on online estimates of the target
+distribution variances.
 
 ``` r
 library(rmcmc)
@@ -70,3 +71,41 @@ cat(
 #> True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645
 #> Adapter scale est.: 1.5328097767097, 1.42342707172926, 0.280359693392091
 ```
+
+As a second example, the snippet below demonstrates sampling from a
+two-dimensional ‘banana’ shaped distribution based on the [Rosenbrock
+function](https://en.wikipedia.org/wiki/Rosenbrock_function) and
+plotting the generated chain samples.
+
+``` r
+library(rmcmc)
+
+set.seed(651239L)
+target_distribution <- list(
+  log_density = function(x) -sum(x^2) / 8 - (x[1]^2 - x[2])^2 - (x[1] - 1)^2 / 10,
+  gradient_log_density = function(x) {
+    c(
+      -x[1] / 4 + 4 * x[1] * (x[2] - x[1]^2) - 0.2 * x[1] + 0.2,
+      -x[2] / 4 + 2 * x[1]^2 - 2 * x[2]
+    )
+  }
+)
+proposal <- barker_proposal(target_distribution)
+results <- sample_chain(
+  target_distribution = target_distribution,
+  proposal = proposal,
+  initial_state = rnorm(2),
+  n_warm_up_iteration = 10000,
+  n_main_iteration = 10000,
+)
+plot(
+  results$traces[, "position1"],
+  results$traces[, "position2"],
+  xlab = expression(x[1]),
+  ylab = expression(x[2]),
+  col = "#1f77b4",
+  pch = 20
+)
+```
+
+<img src="man/figures/README-banana-samples-1.png" width="100%" />
