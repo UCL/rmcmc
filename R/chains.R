@@ -13,9 +13,9 @@
 #' @param n_main_iteration Number of main (non-adaptive) chain iterations to
 #'   run.
 #' @param adapters List of adapters to tune proposal parameters during warm-up.
-#'   Defaults to using list with instances of `dual_averaging_scale_adapter` and
-#'   `covariance_shape_adapter`, corresponding to respectively, adapting the
-#'   scale to coerce the average acceptance rate to a target value using a
+#'   Defaults to using list with instances of [dual_averaging_scale_adapter()]
+#'   and [covariance_shape_adapter()], corresponding to respectively, adapting
+#'   the scale to coerce the average acceptance rate to a target value using a
 #'   dual-averaging algorithm, and adapting the shape to an estimate of the
 #'   covariance of the target distribution.
 #' @param trace_function Function which given current chain state outputs list

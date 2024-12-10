@@ -43,9 +43,9 @@ run.}
 run.}
 
 \item{adapters}{List of adapters to tune proposal parameters during warm-up.
-Defaults to using list with instances of \code{dual_averaging_scale_adapter} and
-\code{covariance_shape_adapter}, corresponding to respectively, adapting the
-scale to coerce the average acceptance rate to a target value using a
+Defaults to using list with instances of \code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}}
+and \code{\link[=covariance_shape_adapter]{covariance_shape_adapter()}}, corresponding to respectively, adapting
+the scale to coerce the average acceptance rate to a target value using a
 dual-averaging algorithm, and adapting the shape to an estimate of the
 covariance of the target distribution.}
 
