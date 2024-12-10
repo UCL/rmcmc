@@ -5,10 +5,11 @@
 \title{Create object to adapt proposal with shape based on estimate of target
 distribution covariance matrix.}
 \usage{
-covariance_shape_adapter(kappa = 0.6)
+covariance_shape_adapter(kappa = 1)
 }
 \arguments{
-\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
+\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.
+Value of 1 (default) corresponds to computing empirical covariance matrix.}
 }
 \value{
 List of functions with entries
@@ -25,7 +26,12 @@ state variables.
 }
 }
 \description{
-Requires \code{ramcmc} package to be installed.
+Corresponds to Algorithm 2 in Andrieu and Thoms (2009), which is itself a
+restatement of method proposed in Haario et al. (2001).
+}
+\details{
+Requires \code{ramcmc} package to be installed for access to efficient rank-1
+Cholesky update function \code{\link[ramcmc:chol_update]{ramcmc::chol_update()}}.
 }
 \examples{
 target_distribution <- list(
@@ -35,4 +41,11 @@ target_distribution <- list(
 proposal <- barker_proposal(target_distribution)
 adapter <- covariance_shape_adapter()
 adapter$initialize(proposal, chain_state(c(0, 0)))
+}
+\references{
+Andrieu, C., & Thoms, J. (2008). A tutorial on adaptive MCMC.
+\emph{Statistics and Computing}, 18, 343-373.
+
+Haario, H., Saksman, E., & Tamminen, J. (2001). An adaptive
+Metropolis algorithm. \emph{Bernoulli}, 7(2): 223-242.
 }

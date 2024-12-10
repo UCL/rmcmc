@@ -10,7 +10,7 @@ sample_chain(
   initial_state,
   n_warm_up_iteration,
   n_main_iteration,
-  adapters = NULL,
+  adapters = list(dual_averaging_scale_adapter(), covariance_shape_adapter()),
   trace_function = NULL,
   show_progress_bar = TRUE,
   trace_warm_up = FALSE
@@ -42,7 +42,12 @@ run.}
 \item{n_main_iteration}{Number of main (non-adaptive) chain iterations to
 run.}
 
-\item{adapters}{List of adapters to tune proposal parameters during warm-up.}
+\item{adapters}{List of adapters to tune proposal parameters during warm-up.
+Defaults to using list with instances of \code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}}
+and \code{\link[=covariance_shape_adapter]{covariance_shape_adapter()}}, corresponding to respectively, adapting
+the scale to coerce the average acceptance rate to a target value using a
+dual-averaging algorithm, and adapting the shape to an estimate of the
+covariance of the target distribution.}
 
 \item{trace_function}{Function which given current chain state outputs list
 of variables to trace on each main (non-adaptive) chain iteration.}

@@ -57,9 +57,9 @@ results <- sample_chain(
   target_distribution = target_distribution,
   proposal = proposal,
   initial_state = rnorm(dimension),
-  n_warm_up_iteration = 1000,
-  n_main_iteration = 1000,
-  adapters = list(simple_scale_adapter(), variance_shape_adapter())
+  n_warm_up_iteration = 10000,
+  n_main_iteration = 10000,
+  adapters = list(scale_adapter(), shape_adapter("variance"))
 )
 mean_accept_prob <- mean(results$statistics[, "accept_prob"])
 adapted_shape <- proposal$parameters()$shape
