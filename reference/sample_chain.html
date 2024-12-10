@@ -54,7 +54,7 @@ stage.</p>
 <span>  <span class="va">initial_state</span>,</span>
 <span>  <span class="va">n_warm_up_iteration</span>,</span>
 <span>  <span class="va">n_main_iteration</span>,</span>
-<span>  adapters <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  adapters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="covariance_shape_adapter.html">covariance_shape_adapter</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  trace_function <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  trace_warm_up <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -101,7 +101,12 @@ run.</p></dd>
 
 
 <dt id="arg-adapters">adapters<a class="anchor" aria-label="anchor" href="#arg-adapters"></a></dt>
-<dd><p>List of adapters to tune proposal parameters during warm-up.</p></dd>
+<dd><p>List of adapters to tune proposal parameters during warm-up.
+Defaults to using list with instances of <code><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter()</a></code>
+and <code><a href="covariance_shape_adapter.html">covariance_shape_adapter()</a></code>, corresponding to respectively, adapting
+the scale to coerce the average acceptance rate to a target value using a
+dual-averaging algorithm, and adapting the shape to an estimate of the
+covariance of the target distribution.</p></dd>
 
 
 <dt id="arg-trace-function">trace_function<a class="anchor" aria-label="anchor" href="#arg-trace-function"></a></dt>

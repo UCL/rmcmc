@@ -27,7 +27,9 @@
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_langevin.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_metropolis_hastings.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/sample_random_walk.html</loc></url>
-<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/simple_scale_adapter.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/scale_adapter.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/shape_adapter.html</loc></url>
+<url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/stochastic_approximation_scale_adapter.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/target_distribution_from_stan_model.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/trace_function_from_stan_model.html</loc></url>
 <url><loc>http://github-pages.ucl.ac.uk/rmcmc/reference/variance_shape_adapter.html</loc></url>

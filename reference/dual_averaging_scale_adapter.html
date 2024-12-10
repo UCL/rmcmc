@@ -70,7 +70,8 @@ chain. If not set a proposal dependent default will be used.</p></dd>
 
 
 <dt id="arg-kappa">kappa<a class="anchor" aria-label="anchor" href="#arg-kappa"></a></dt>
-<dd><p>Decay rate exponent in <code>[0.5, 1]</code> for adaptation learning rate.</p></dd>
+<dd><p>Decay rate exponent in <code>[0.5, 1]</code> for adaptation learning rate.
+Defaults to value recommended in Hoffman and Gelman (2014).</p></dd>
 
 
 <dt id="arg-gamma">gamma<a class="anchor" aria-label="anchor" href="#arg-gamma"></a></dt>
@@ -106,6 +107,14 @@ unused).</p></li>
 <li><p><code>state</code> a zero-argument function for accessing current values of adapter
 state variables.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Nesterov, Y. (2009). Primal-dual subgradient methods for convex
+problems. <em>Mathematical Programming</em>, 120(1), 221-259.</p>
+<p>Hoffman, M. D., &amp; Gelman, A. (2014). The No-U-Turn sampler:
+adaptively setting path lengths in Hamiltonian Monte Carlo.
+<em>Journal of Machine Learning Research</em>, 15(1), 1593-1623.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
