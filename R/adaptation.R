@@ -21,7 +21,7 @@
 #' * `state` a zero-argument function for accessing current values of adapter
 #'   state variables.
 #'
-#' @seealso [dual_averaging_scale_adapter(), stochastic_approximation_scale_adapter()]
+#' @seealso [dual_averaging_scale_adapter()], [stochastic_approximation_scale_adapter()]
 #'
 #' @references Nesterov, Y. (2009). Primal-dual subgradient methods for convex
 #'   problems. _Mathematical Programming_, 120(1), 221-259.
@@ -196,8 +196,15 @@ dual_averaging_scale_adapter <- function(
 
 #' Create object to adapt proposal shape.
 #'
+#' @param type Type of shape adapter to use. One of:
+#'   * "variance": Diagonal shape matrix adaptation based on estimates of target
+#'     distribution variances (see [variance_shape_adapter()]),
+#'   * "covariance": Dense shape matrix adaptation based on estimates of target
+#'     distribution covariance matrix (see [covariance_shape_adapter()]).
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
-#'   Value of 1 (default) corresponds to computing empirical variances.
+#'   Value of 1 (default) corresponds to computing empirical (co)variances.
+#'
+#' @seealso [variance_shape_adapter()], [covariance_shape_adapter()]
 #'
 #' @inherit scale_adapter return
 #'
@@ -345,7 +352,7 @@ covariance_shape_adapter <- function(kappa = 1) {
 #'     coerced acceptance rate. _Statistics and Computing_, 22, 997-1008.
 #'     <https://doi.iorg/10.1007/s11222-011-9269-5>
 #'
-#' @inheritParams scale_adapter
+#' @inheritParams stochastic_approximation_scale_adapter
 #'
 #' @inherit scale_adapter return
 #'

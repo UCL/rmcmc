@@ -61,5 +61,5 @@ Robbins, H., & Monro, S. (1951). A stochastic approximation
 method. \emph{The Annals of Mathematical Statistics}, 400-407.
 }
 \seealso{
-\code{\link[=dual_averaging_scale_adapter(), stochastic_approximation_scale_adapter]{dual_averaging_scale_adapter(), stochastic_approximation_scale_adapter()}}
+\code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}}, \code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}}
 }

@@ -17,6 +17,8 @@ explicitly a proposal and dimension dependent default will be used.}
 
 \item{target_accept_prob}{Target value for average accept probability for
 chain. If not set a proposal dependent default will be used.}
+
+\item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.}
 }
 \value{
 List of functions with entries

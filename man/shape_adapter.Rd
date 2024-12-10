@@ -7,8 +7,16 @@
 shape_adapter(type = "covariance", kappa = 1)
 }
 \arguments{
+\item{type}{Type of shape adapter to use. One of:
+\itemize{
+\item "variance": Diagonal shape matrix adaptation based on estimates of target
+distribution variances (see \code{\link[=variance_shape_adapter]{variance_shape_adapter()}}),
+\item "covariance": Dense shape matrix adaptation based on estimates of target
+distribution covariance matrix (see \code{\link[=covariance_shape_adapter]{covariance_shape_adapter()}}).
+}}
+
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.
-Value of 1 (default) corresponds to computing empirical variances.}
+Value of 1 (default) corresponds to computing empirical (co)variances.}
 }
 \value{
 List of functions with entries
@@ -35,4 +43,7 @@ target_distribution <- list(
 proposal <- barker_proposal(target_distribution)
 adapter <- shape_adapter()
 adapter$initialize(proposal, chain_state(c(0, 0)))
+}
+\seealso{
+\code{\link[=variance_shape_adapter]{variance_shape_adapter()}}, \code{\link[=covariance_shape_adapter]{covariance_shape_adapter()}}
 }
