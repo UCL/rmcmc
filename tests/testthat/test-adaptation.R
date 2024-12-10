@@ -85,7 +85,8 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
           target_accept_prob, initial_scale, kappa
         ),
         {
-          adapter <- stochastic_approximation_scale_adapter(
+          adapter <- scale_adapter(
+            algorithm = "stochastic_approximation",
             initial_scale = initial_scale,
             target_accept_prob = target_accept_prob,
             kappa = kappa
@@ -138,7 +139,7 @@ for (dimension in c(1L, 2L, 5L)) {
     ),
     {
       check_scale_adapter_with_default_args_works(
-        stochastic_approximation_scale_adapter(),
+        scale_adapter(algorithm = "stochastic_approximation"),
         dimension,
         check_stochastic_approximation_scale_adapter_state
       )
@@ -169,7 +170,8 @@ for (target_accept_prob in c(0.2, 0.4, 0.6)) {
             target_accept_prob, initial_scale, kappa, gamma
           ),
           {
-            adapter <- dual_averaging_scale_adapter(
+            adapter <- scale_adapter(
+              algorithm = "dual_averaging",
               initial_scale = initial_scale,
               target_accept_prob = target_accept_prob,
               kappa = kappa,
@@ -198,7 +200,7 @@ for (dimension in c(1L, 2L, 5L)) {
     ),
     {
       check_scale_adapter_with_default_args_works(
-        dual_averaging_scale_adapter(),
+        scale_adapter(algorithm = "dual_averaging"),
         dimension,
         check_dual_averaging_scale_adapter_state
       )
@@ -219,7 +221,7 @@ for (dimension in c(1L, 2L, 5L)) {
         ),
         {
           proposal <- dummy_proposal_with_shape_parameter()
-          adapter <- variance_shape_adapter(kappa = kappa)
+          adapter <- shape_adapter(type = "variance", kappa = kappa)
           check_adapter(adapter)
           withr::local_seed(default_seed())
           target_scales <- exp(2 * rnorm(dimension))
@@ -275,7 +277,7 @@ for (dimension in c(1L, 2L, 3L)) {
           target_distribution,
           scale = 2.4 / sqrt(dimension)
         )
-        adapter <- covariance_shape_adapter(kappa = kappa)
+        adapter <- shape_adapter(type = "covariance", kappa = kappa)
         check_adapter(adapter)
         state <- chain_state(position = rnorm(dimension))
         adapter$initialize(proposal, state)
