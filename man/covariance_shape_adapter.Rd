@@ -31,7 +31,7 @@ restatement of method proposed in Haario et al. (2001).
 }
 \details{
 Requires \code{ramcmc} package to be installed for access to efficient rank-1
-Cholesky update function \code{\link[ramcmc:chol_update]{ramcmc::chol_update()}}.
+Cholesky update function \code{ramcmc::chol_update}.
 }
 \examples{
 target_distribution <- list(
