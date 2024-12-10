@@ -61,6 +61,8 @@ scale_adapter <- function(
 #'
 #' @param kappa Decay rate exponent in `[0.5, 1]` for adaptation learning rate.
 #'
+#' @references Andrieu, C., & Thoms, J. (2008). A tutorial on adaptive MCMC.
+#'   _Statistics and Computing_, 18, 343-373.
 #' @references Robbins, H., & Monro, S. (1951). A stochastic approximation
 #'   method. _The Annals of Mathematical Statistics_, 400-407.
 #'
