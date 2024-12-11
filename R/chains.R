@@ -4,7 +4,21 @@
 #' target distribution and proposal (defaulting to Barker proposal), optionally
 #' adapting proposal parameters in a warm-up stage.
 #'
-#' @inheritParams sample_metropolis_hastings
+#' @param target_distribution Target stationary distribution for chain. A list
+#'   with named entries `log_density` and `gradient_log_density` corresponding
+#'   to respectively functions for evaluating the logarithm of the (potentially
+#'   unnormalized) density of the target distribution and its gradient (only
+#'   required for gradient-based proposals). As an alternative to
+#'   `gradient_log_density` an entry `value_and_gradient_log_density` may
+#'   instead be provided which is a function returning both the value and
+#'   gradient of the logarithm of the (unnormalized) density of the target
+#'   distribution as a list under the names `value` and `gradient` respectively.
+#'   The list may also contain a named entry `trace_function`, correspond to a
+#'   function which given current chain state outputs list of variables to trace
+#'   on each main (non-adaptive) chain iteration. If a `trace_function` entry is
+#'   not specified, then the default behaviour is to trace the position
+#'   component of the chain state along with the log density of the target
+#'   distribution.
 #' @param initial_state Initial chain state. Either a vector specifying just
 #'   the position component of the chain state or a list output by `chain_state`
 #'   specifying the full chain state.
@@ -78,7 +92,6 @@ sample_chain <- function(
     n_main_iteration,
     proposal = barker_proposal(),
     adapters = list(scale_adapter(), shape_adapter()),
-    trace_function = NULL,
     show_progress_bar = TRUE,
     trace_warm_up = FALSE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
@@ -90,8 +103,10 @@ sample_chain <- function(
   } else {
     stop("initial_state must be a vector or list with an entry named position.")
   }
-  if (is.null(trace_function)) {
+  if (is.null(target_distribuion$trace_function)) {
     trace_function <- default_trace_function(target_distribution)
+  } else {
+    trace_function <- target_distribution$trace_function
   }
   statistic_names <- list("accept_prob")
   warm_up_results <- chain_loop(
