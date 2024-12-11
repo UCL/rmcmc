@@ -112,7 +112,6 @@ example_gaussian_stan_model <- function(n_data = 50, seed = 1234L) {
   )
 }
 
-
 #' Construct target distribution from a formula specifying log density.
 #'
 #' @param log_density_formula Formula for which right-hand side specifies
@@ -138,7 +137,7 @@ target_distribution_from_log_density_formula <- function(log_density_formula) {
   value_and_gradient_log_density <- function(position) {
     names(position) <- variables
     value <- rlang::inject(deriv_log_density(!!!position))
-    gradient <- attr(value, "gradient")
+    gradient <- drop(attr(value, "gradient"))
     attr(value, "gradient") <- NULL
     list(value = value, gradient = gradient)
   }
