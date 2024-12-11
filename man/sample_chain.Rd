@@ -37,11 +37,11 @@ instead be provided which is a function returning both the value and
 gradient of the logarithm of the (unnormalized) density of the target
 distribution as a list under the names \code{value} and \code{gradient}
 respectively. The list may also contain a named entry \code{trace_function},
-correspond to a function which given current chain state outputs list of
-variables to trace on each main (non-adaptive) chain iteration. If a
-\code{trace_function} entry is not specified, then the default behaviour is to
-trace the position component of the chain state along with the log
-density of the target distribution.
+correspond to a function which given current chain state outputs a named
+vector or list of variables to trace on each main (non-adaptive) chain
+iteration. If a \code{trace_function} entry is not specified, then the default
+behaviour is to trace the position component of the chain state along
+with the log density of the target distribution.
 }}
 
 \item{initial_state}{Initial chain state. Either a vector specifying just
@@ -82,9 +82,6 @@ Requires \code{progress} package to be installed to have an effect.}
 \item{trace_warm_up}{Whether to record chain traces and adaptation /
 transition statistics during (adaptive) warm-up iterations in addition to
 (non-adaptive) main chain iterations.}
-
-\item{trace_function}{Function which given current chain state outputs list
-of variables to trace on each main (non-adaptive) chain iteration.}
 }
 \value{
 A list with entries

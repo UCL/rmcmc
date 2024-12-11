@@ -24,11 +24,11 @@
 #'     gradient of the logarithm of the (unnormalized) density of the target
 #'     distribution as a list under the names `value` and `gradient`
 #'     respectively. The list may also contain a named entry `trace_function`,
-#'     correspond to a function which given current chain state outputs list of
-#'     variables to trace on each main (non-adaptive) chain iteration. If a
-#'     `trace_function` entry is not specified, then the default behaviour is to
-#'     trace the position component of the chain state along with the log
-#'     density of the target distribution.
+#'     correspond to a function which given current chain state outputs a named
+#'     vector or list of variables to trace on each main (non-adaptive) chain
+#'     iteration. If a `trace_function` entry is not specified, then the default
+#'     behaviour is to trace the position component of the chain state along
+#'     with the log density of the target distribution.
 #' @param initial_state Initial chain state. Either a vector specifying just
 #'   the position component of the chain state or a list output by `chain_state`
 #'   specifying the full chain state.
@@ -56,8 +56,6 @@
 #'   coerce the average acceptance rate to a target value using a dual-averaging
 #'   algorithm, and adapting the shape to an estimate of the covariance of the
 #'   target distribution.
-#' @param trace_function Function which given current chain state outputs list
-#'   of variables to trace on each main (non-adaptive) chain iteration.
 #' @param show_progress_bar Whether to show progress bars during sampling.
 #'   Requires `progress` package to be installed to have an effect.
 #' @param trace_warm_up Whether to record chain traces and adaptation /
