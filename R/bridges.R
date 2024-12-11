@@ -111,3 +111,49 @@ example_gaussian_stan_model <- function(n_data = 50, seed = 1234L) {
     fileext = ".stan"
   )
 }
+
+
+#' Construct target distribution from a formula specifying log density.
+#'
+#' @param log_density_formula Formula for which right-hand side specifies
+#'   expression for logarithm of (unnormalized) density of target distribution.
+#'
+#' @return A list with entries
+#' * `log_density`: A function to evaluate log density function for target
+#'   distribution given current position vector.
+#' * `value_and_gradient_log_density`: A function to evaluate value and gradient
+#'   of log density function for target distribution given current position
+#'   vector, returning as a list with entries `value` and `gradient`.
+#'
+#' @export
+#'
+#' @examples
+#' target_distribution <- target_distribution_from_log_density_formula(
+#'   ~ (-(x^2 + y^2) / 8 - (x^2 - y)^2 - (x - 1)^2 / 10),
+#' )
+#' target_distribution$value_and_gradient_log_density(c(0.1, -0.3))
+target_distribution_from_log_density_formula <- function(log_density_formula) {
+  variables <- all.vars(log_density_formula)
+  deriv_log_density <- deriv(log_density_formula, variables, func = TRUE)
+  value_and_gradient_log_density <- function(position) {
+    names(position) <- variables
+    value <- rlang::inject(deriv_log_density(!!!position))
+    gradient <- attr(value, "gradient")
+    attr(value, "gradient") <- NULL
+    list(value = value, gradient = gradient)
+  }
+  log_density <- function(position) {
+    value_and_gradient_log_density(position)$value
+  }
+  trace_function <- function(state) {
+    trace_values <- state$position()
+    names(trace_values) <- variables
+    trace_values["log_density"] <- log_density(state$position())
+    trace_values
+  }
+  list(
+    log_density = log_density,
+    value_and_gradient_log_density = value_and_gradient_log_density,
+    trace_function = trace_function
+  )
+}
