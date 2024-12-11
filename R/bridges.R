@@ -91,6 +91,7 @@ example_gaussian_stan_model <- function(n_data = 50, seed = 1234L) {
   }"
   withr::with_seed(seed, y <- stats::rnorm(n_data))
   data_string <- sprintf('{"N": %i, "y": [%s]}', n_data, toString(y))
+  model_file <- NULL # to avoid 'no visible binding for global variable' note
   withr::with_tempfile("model_file",
     {
       writeLines(model_string, model_file)
