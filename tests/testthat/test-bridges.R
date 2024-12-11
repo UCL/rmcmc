@@ -19,9 +19,7 @@ test_that("Creating example Gaussian Stan model works", {
   expect_identical(model$param_unc_num(), 2L)
 })
 
-test_that("Creating target distribution from Stan model works", {
-  model <- cached_example_gaussian_stan_model()
-  target_distribution <- target_distribution_from_stan_model(model)
+check_target_distribution <- function(target_distribution) {
   expect_type(target_distribution, "list")
   expect_named(
     target_distribution,
@@ -30,19 +28,33 @@ test_that("Creating target distribution from Stan model works", {
   expect_type(target_distribution$log_density, "closure")
   expect_type(target_distribution$value_and_gradient_log_density, "closure")
   expect_type(target_distribution$trace_function, "closure")
-  position <- rep(0, model$param_unc_num())
+}
+
+check_log_density_and_gradient <- function(
+    position, target_distribution, true_log_density) {
   log_density <- target_distribution$log_density(position)
   value_and_gradient_log_density <- (
     target_distribution$value_and_gradient_log_density(position)
   )
   expect_type(log_density, "double")
-  expect_identical(log_density, model$log_density(position))
+  expect_equal(log_density, true_log_density(position))
   expect_type(value_and_gradient_log_density, "list")
   expect_identical(value_and_gradient_log_density$value, log_density)
   expect_equal(
     value_and_gradient_log_density$gradient,
-    numerical_gradient(target_distribution$log_density)(position),
-    tolerance = 1e-6
+    numerical_gradient(true_log_density)(position),
+    tolerance = 1e-6,
+    ignore_attr = TRUE
+  )
+}
+
+test_that("Creating target distribution from Stan model works", {
+  model <- cached_example_gaussian_stan_model()
+  target_distribution <- target_distribution_from_stan_model(model)
+  check_target_distribution(target_distribution)
+  position <- rep(0, model$param_unc_num())
+  check_log_density_and_gradient(
+    position, target_distribution, model$log_density
   )
 })
 
@@ -87,3 +99,21 @@ for (include_log_density in c(TRUE, FALSE)) {
     }
   )
 }
+
+test_that("Constructing target distribution from log density formula works", {
+  log_density_formula <- ~ -(x^2 + y^2 + z^2) / 2
+  target_distribution <- target_distribution_from_log_density_formula(
+    log_density_formula
+  )
+  check_target_distribution(target_distribution)
+  withr::with_seed(seed = default_seed(), position <- rnorm(3))
+  check_log_density_and_gradient(
+    position, target_distribution, function(x) -sum(x^2) / 2
+  )
+  trace_values <- target_distribution$trace_function(chain_state(position))
+  expect_named(trace_values, c("x", "y", "z", "log_density"))
+  expect_equal(
+    trace_values, c(position, -sum(position^2) / 2),
+    ignore_attr = TRUE
+  )
+})
