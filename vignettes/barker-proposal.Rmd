@@ -48,11 +48,11 @@ target_distribution <- list(
 
 `rmcmc` provides implementations of several different proposal distributions which can be used within a Metropolis--Hastings based MCMC method:
 
-- [barker_proposal()]: The robust gradient-based Barker proposal proposed by @livingstone2022barker.
-- [langevin_proposal()]: A gradient-based proposal based on a discretization of Langevin dynamics.
-- [hamiltonian_proposal()]: A gradient-based proposal based on a discretization of Hamiltonian dynamics, simulated for a fixed number of integrator steps. 
+- `barker_proposal()`: The robust gradient-based Barker proposal proposed by @livingstone2022barker.
+- `langevin_proposal()`: A gradient-based proposal based on a discretization of Langevin dynamics.
+- `hamiltonian_proposal()`: A gradient-based proposal based on a discretization of Hamiltonian dynamics, simulated for a fixed number of integrator steps. 
   With a single integrator step equivalent to `langevin_proposal`.
-- [random_walk_proposal()]: A Gaussian random-walk proposal.
+- `random_walk_proposal()`: A Gaussian random-walk proposal.
 
 Each function takes optional arguments which can be used to customize the behaviour of the proposal such as the scalar `scale` of the proposal, a vector or matrix defining the proposal `shape` and routines to sample the auxiliary variables used in the proposal.
 
