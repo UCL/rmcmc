@@ -107,13 +107,19 @@ proposal distributions which can be used within a Metropolis–Hastings
 based MCMC method:</p>
 <ul>
 <li>
-</li>
+<code><a href="../reference/barker_proposal.html">barker_proposal()</a></code>: The robust gradient-based Barker
+proposal proposed by <span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span>.</li>
 <li>
-</li>
-<li>With a single integrator step equivalent to
+<code><a href="../reference/langevin_proposal.html">langevin_proposal()</a></code>: A gradient-based proposal based on
+a discretization of Langevin dynamics.</li>
+<li>
+<code><a href="../reference/hamiltonian_proposal.html">hamiltonian_proposal()</a></code>: A gradient-based proposal based
+on a discretization of Hamiltonian dynamics, simulated for a fixed
+number of integrator steps. With a single integrator step equivalent to
 <code>langevin_proposal</code>.</li>
 <li>
-</li>
+<code><a href="../reference/random_walk_proposal.html">random_walk_proposal()</a></code>: A Gaussian random-walk
+proposal.</li>
 </ul>
 <p>Each function takes optional arguments which can be used to customize
 the behaviour of the proposal such as the scalar <code>scale</code> of
