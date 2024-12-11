@@ -48,19 +48,19 @@ target_distribution <- list(
 
 `rmcmc` provides implementations of several different proposal distributions which can be used within a Metropolis--Hastings based MCMC method:
 
-- `barker_proposal`: The robust gradient-based Barker proposal proposed by @livingstone2022barker.
-- `langevin_proposal`: A gradient-based proposal based on a discretization of Langevin dynamics.
-- `hamiltonian_proposal`: A gradient-based proposal based on a discretization of Hamiltonian dynamics, simulated for a fixed number of integrator steps. 
+- [barker_proposal()]: The robust gradient-based Barker proposal proposed by @livingstone2022barker.
+- [langevin_proposal()]: A gradient-based proposal based on a discretization of Langevin dynamics.
+- [hamiltonian_proposal()]: A gradient-based proposal based on a discretization of Hamiltonian dynamics, simulated for a fixed number of integrator steps. 
   With a single integrator step equivalent to `langevin_proposal`.
-- `random_walk_proposal`: A Gaussian random-walk proposal.
+- [random_walk_proposal()]: A Gaussian random-walk proposal.
 
-Each function requires the first argument to specify the target distribution the proposal is to be constructed for. 
-Optionally additional arguments can be used to specify the scalar `scale` of the proposal, a vector or matrix defining the proposal `shape` and routines to sample the auxiliary variables used in the proposal.
+Each function takes optional arguments which can be used to customize the behaviour of the proposal such as the scalar `scale` of the proposal, a vector or matrix defining the proposal `shape` and routines to sample the auxiliary variables used in the proposal.
 
-Here we create an instance of the Barker proposal, specifying only the target distribution with the other arguments left as their defaults. Rather than specifying fixed `scale` and `shape` tuning parameters, in the next section we illustrate how to set up adaptation of these parameters during a warm-up stage to the chains.
+Here we create an instance of the Barker proposal, using the default values of all arguments.
+Rather than specifying fixed `scale` and `shape` tuning parameters, in the next section we illustrate how to set up adaptation of these parameters during a warm-up stage to the chains.
 
 ```{r}
-proposal <- barker_proposal(target_distribution)
+proposal <- barker_proposal()
 ```
 
 ## Setting up adaptation of tuning parameters
@@ -97,9 +97,9 @@ set of main chain iterations.
 To sample a chain we first need to specify the initial chain state. 
 The `rmcmc` package encapsulates the chain state in a list which tracks the current position of the chain, but also additional quantities such as the auxiliary variables used to generate the proposed perturbation to the state,
 and cached values of the log density and its gradient once computed once at the current position to avoid re-computation.
-The `chain_state` function allows creation of a list of the required format, 
+The [chain_state()] function allows creation of a list of the required format, 
 with the first (and only required) argument specifying the position.
-Alternatively we can directly pass a vector specifying just the position component of the state to the `initial_state` argument of `sample_chain`.
+Alternatively we can directly pass a vector specifying just the position component of the state to the `initial_state` argument of [sample_chain()].
 Here we generate an initial state with position coordinates sampled from a independent normal distributions with standard deviation 10, following the example in @livingstone2022barker.
 For reproducibility we also fix the random seed.
 
@@ -199,14 +199,14 @@ cat(
 
 ## Sampling using a Langevin proposal
 
-To sample a chain using a Langevin proposal, we can simple use `langevin_proposal` in place of `baker_proposal`.
+To sample a chain using a Langevin proposal, we can simply use `langevin_proposal` in place of `baker_proposal`.
 
 Here we create a new set of adapters using the default `target_accept_prob` argument to `scale_adapter` which will set the target acceptance rate to the Langevin proposal optimal value of 0.574 following the results in @roberts2001optimal.
 
 ```{r}
 mala_results <- sample_chain(
   target_distribution = target_distribution,
-  proposal = langevin_proposal(target_distribution),
+  proposal = langevin_proposal(),
   initial_state = initial_state,
   n_warm_up_iteration = n_warm_up_iteration,
   n_main_iteration = n_main_iteration,

@@ -22,10 +22,13 @@ scale_and_shape_proposal <- function(
   scale <- scale
   shape <- shape
   list(
-    sample = function(state) sample(state, get_shape_matrix(scale, shape)),
-    log_density_ratio = function(state, proposed_state) {
+    sample = function(state, target_distribution) {
+      sample(state, target_distribution, get_shape_matrix(scale, shape))
+    },
+    log_density_ratio = function(state, proposed_state, target_distribution) {
+      shape_matrix <- get_shape_matrix(scale, shape)
       log_density_ratio(
-        state, proposed_state, get_shape_matrix(scale, shape)
+        state, proposed_state, target_distribution, shape_matrix
       )
     },
     update = function(scale = NULL, shape = NULL) {

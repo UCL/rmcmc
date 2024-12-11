@@ -88,10 +88,14 @@ log_density_ratio_hamiltonian <- function(
 #' )
 #'
 #' # Proposal with fixed number of leapfrog steps
-#' proposal <- hamiltonian_proposal(target_distribution, scale = 1., n_step = 5)
+#' proposal <- hamiltonian_proposal(scale = 1., n_step = 5)
 #' state <- chain_state(c(0., 0.))
-#' withr::with_seed(876287L, proposed_state <- proposal$sample(state))
-#' log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
+#' withr::with_seed(
+#'   876287L, proposed_state <- proposal$sample(state, target_distribution)
+#' )
+#' log_density_ratio <- proposal$log_density_ratio(
+#'   state, proposed_state, target_distribution
+#' )
 #' proposal$update(scale = 0.5)
 #'
 #' # Proposal with number of steps randomly sampled uniformly from 5:10
@@ -99,12 +103,13 @@ log_density_ratio_hamiltonian <- function(
 #'   lower + sample.int(upper - lower + 1, 1) - 1
 #' }
 #' proposal <- hamiltonian_proposal(
-#'   target_distribution,
 #'   scale = 1.,
 #'   n_step = c(5, 10),
 #'   sample_n_step = function(n_step) sample_uniform_int(n_step[1], n_step[2])
 #' )
-#' withr::with_seed(876287L, proposed_state <- proposal$sample(state))
+#' withr::with_seed(
+#'   876287L, proposed_state <- proposal$sample(state, target_distribution)
+#' )
 #'
 #' # Proposal with partial momentum refreshment
 #' partial_momentum_update <- function(state, phi = pi / 4) {
@@ -116,23 +121,21 @@ log_density_ratio_hamiltonian <- function(
 #'   }
 #' }
 #' proposal <- hamiltonian_proposal(
-#'   target_distribution,
 #'   scale = 1.,
 #'   n_step = 1,
 #'   sample_auxiliary = partial_momentum_update
 #' )
-#' withr::with_seed(876287L, {
-#'   proposed_state <- proposal$sample(state)
-#' })
+#' withr::with_seed(
+#'   876287L, proposed_state <- proposal$sample(state, target_distribution)
+#' )
 hamiltonian_proposal <- function(
-    target_distribution,
     n_step,
     scale = NULL,
     shape = NULL,
     sample_auxiliary = function(state) stats::rnorm(state$dimension()),
     sample_n_step = NULL) {
   scale_and_shape_proposal(
-    sample = function(state, scale_and_shape) {
+    sample = function(state, target_distribution, scale_and_shape) {
       sample_hamiltonian(
         state,
         target_distribution,
@@ -142,11 +145,7 @@ hamiltonian_proposal <- function(
         sample_n_step
       )
     },
-    log_density_ratio = function(state, proposed_state, scale_and_shape) {
-      log_density_ratio_hamiltonian(
-        state, proposed_state, target_distribution, scale_and_shape
-      )
-    },
+    log_density_ratio = log_density_ratio_hamiltonian,
     scale = scale,
     shape = shape,
     default_target_accept_prob = 0.8,

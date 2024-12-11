@@ -31,11 +31,7 @@
 #' @export
 #'
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 scale_adapter <- function(
@@ -69,11 +65,7 @@ scale_adapter <- function(
 #' @export
 #'
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- stochastic_approximation_scale_adapter(
 #'   initial_scale = 1., target_accept_prob = 0.4
 #' )
@@ -134,11 +126,7 @@ stochastic_approximation_scale_adapter <- function(
 #' @export
 #'
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- dual_averaging_scale_adapter(
 #'   initial_scale = 1., target_accept_prob = 0.4
 #' )
@@ -212,11 +200,7 @@ dual_averaging_scale_adapter <- function(
 #'
 #' @export
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- shape_adapter()
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 shape_adapter <- function(type = "covariance", kappa = 1) {
@@ -247,11 +231,7 @@ shape_adapter <- function(type = "covariance", kappa = 1) {
 #'
 #' @export
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- variance_shape_adapter()
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 variance_shape_adapter <- function(kappa = 1) {
@@ -305,11 +285,7 @@ variance_shape_adapter <- function(kappa = 1) {
 #'
 #' @export
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- covariance_shape_adapter()
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 covariance_shape_adapter <- function(kappa = 1) {
@@ -361,11 +337,7 @@ covariance_shape_adapter <- function(kappa = 1) {
 #' @export
 #'
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2,
-#'   grad_log_density = function(x) -x
-#' )
-#' proposal <- barker_proposal(target_distribution)
+#' proposal <- barker_proposal()
 #' adapter <- robust_shape_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 robust_shape_adapter <- function(

@@ -36,11 +36,7 @@ state variables.
 Create object to adapt proposal shape.
 }
 \examples{
-target_distribution <- list(
-  log_density = function(x) -sum(x^2) / 2,
-  grad_log_density = function(x) -x
-)
-proposal <- barker_proposal(target_distribution)
+proposal <- barker_proposal()
 adapter <- shape_adapter()
 adapter$initialize(proposal, chain_state(c(0, 0)))
 }

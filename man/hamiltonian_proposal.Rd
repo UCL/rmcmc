@@ -5,7 +5,6 @@
 \title{Create a new Hamiltonian proposal object.}
 \usage{
 hamiltonian_proposal(
-  target_distribution,
   n_step,
   scale = NULL,
   shape = NULL,
@@ -14,16 +13,6 @@ hamiltonian_proposal(
 )
 }
 \arguments{
-\item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{gradient_log_density} corresponding to
-respectively functions for evaluating the logarithm of the (potentially
-unnormalized) density of the target distribution and its gradient.
-As an alternative to \code{gradient_log_density} an entry
-\code{value_and_gradient_log_density} may instead be provided which is a function
-returning both the value and gradient of the logarithm of the (unnormalized)
-density of the target distribution as a list under the names \code{value} and
-\code{gradient} respectively.}
-
 \item{n_step}{Number of leapfrog steps to simulate Hamiltonian dynamics for
 in each proposed move, or parameter passed to function specified by
 \code{sample_n_step} argument if not \code{NULL}.}
@@ -80,10 +69,14 @@ target_distribution <- list(
 )
 
 # Proposal with fixed number of leapfrog steps
-proposal <- hamiltonian_proposal(target_distribution, scale = 1., n_step = 5)
+proposal <- hamiltonian_proposal(scale = 1., n_step = 5)
 state <- chain_state(c(0., 0.))
-withr::with_seed(876287L, proposed_state <- proposal$sample(state))
-log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
+withr::with_seed(
+  876287L, proposed_state <- proposal$sample(state, target_distribution)
+)
+log_density_ratio <- proposal$log_density_ratio(
+  state, proposed_state, target_distribution
+)
 proposal$update(scale = 0.5)
 
 # Proposal with number of steps randomly sampled uniformly from 5:10
@@ -91,12 +84,13 @@ sample_uniform_int <- function(lower, upper) {
   lower + sample.int(upper - lower + 1, 1) - 1
 }
 proposal <- hamiltonian_proposal(
-  target_distribution,
   scale = 1.,
   n_step = c(5, 10),
   sample_n_step = function(n_step) sample_uniform_int(n_step[1], n_step[2])
 )
-withr::with_seed(876287L, proposed_state <- proposal$sample(state))
+withr::with_seed(
+  876287L, proposed_state <- proposal$sample(state, target_distribution)
+)
 
 # Proposal with partial momentum refreshment
 partial_momentum_update <- function(state, phi = pi / 4) {
@@ -108,12 +102,11 @@ partial_momentum_update <- function(state, phi = pi / 4) {
   }
 }
 proposal <- hamiltonian_proposal(
-  target_distribution,
   scale = 1.,
   n_step = 1,
   sample_auxiliary = partial_momentum_update
 )
-withr::with_seed(876287L, {
-  proposed_state <- proposal$sample(state)
-})
+withr::with_seed(
+  876287L, proposed_state <- proposal$sample(state, target_distribution)
+)
 }

@@ -50,13 +50,13 @@ target_distribution <- list(
   log_density = function(x) -sum((x / scales)^2) / 2,
   gradient_log_density = function(x) -x / scales^2
 )
-proposal <- barker_proposal(target_distribution)
+proposal <- barker_proposal()
 results <- sample_chain(
   target_distribution = target_distribution,
-  proposal = proposal,
   initial_state = rnorm(dimension),
   n_warm_up_iteration = 10000,
   n_main_iteration = 10000,
+  proposal = proposal,
   adapters = list(scale_adapter(), shape_adapter("variance"))
 )
 mean_accept_prob <- mean(results$statistics[, "accept_prob"])
@@ -73,9 +73,14 @@ cat(
 ```
 
 As a second example, the snippet below demonstrates sampling from a
-two-dimensional ‘banana’ shaped distribution based on the [Rosenbrock
+two-dimensional banana shaped distribution based on the [Rosenbrock
 function](https://en.wikipedia.org/wiki/Rosenbrock_function) and
-plotting the generated chain samples.
+plotting the generated chain samples. Here we use the default values of
+the `proposal` and `adapters` arguments to `sample_chain`, corresponding
+respectively to the Barker proposal, and adapters for tuning the
+proposal scale to coerce the average acceptance rate using a
+dual-averaging algorithm, and for tuning the proposal shape based on an
+estimate of the target distribution covariance matrix.
 
 ``` r
 library(rmcmc)
@@ -90,10 +95,8 @@ target_distribution <- list(
     )
   }
 )
-proposal <- barker_proposal(target_distribution)
 results <- sample_chain(
   target_distribution = target_distribution,
-  proposal = proposal,
   initial_state = rnorm(2),
   n_warm_up_iteration = 10000,
   n_main_iteration = 10000,

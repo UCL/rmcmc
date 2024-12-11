@@ -45,11 +45,7 @@ state variables.
 Create object to adapt proposal scale to coerce average acceptance rate.
 }
 \examples{
-target_distribution <- list(
-  log_density = function(x) -sum(x^2) / 2,
-  grad_log_density = function(x) -x
-)
-proposal <- barker_proposal(target_distribution)
+proposal <- barker_proposal()
 adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
 adapter$initialize(proposal, chain_state(c(0, 0)))
 }

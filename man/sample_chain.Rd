@@ -6,10 +6,10 @@
 \usage{
 sample_chain(
   target_distribution,
-  proposal,
   initial_state,
   n_warm_up_iteration,
   n_main_iteration,
+  proposal = barker_proposal(),
   adapters = list(scale_adapter(), shape_adapter()),
   trace_function = NULL,
   show_progress_bar = TRUE,
@@ -27,11 +27,6 @@ returning both the value and gradient of the logarithm of the (unnormalized)
 density of the target distribution as a list under the names \code{value} and
 \code{gradient} respectively.}
 
-\item{proposal}{Proposal distribution object. Must define entries \code{sample}, a
-function to generate sample from proposal distribution given current chain
-state and \code{log_density_ratio}, a function to compute log density ratio for
-proposal for a given pair of current and proposed chain states.}
-
 \item{initial_state}{Initial chain state. Either a vector specifying just
 the position component of the chain state or a list output by \code{chain_state}
 specifying the full chain state.}
@@ -41,6 +36,21 @@ run.}
 
 \item{n_main_iteration}{Number of main (non-adaptive) chain iterations to
 run.}
+
+\item{proposal}{Proposal distribution object. Defaults to Barker proposal,
+that is the output of \code{\link[=barker_proposal]{barker_proposal()}}. Proposal objects are lists which
+must minimally define entries \code{sample}, a function to generate sample from
+proposal distribution given current chain state and \code{log_density_ratio}, a
+function to compute log density ratio for proposal for a given pair of
+current and proposed chain states. If adapters are being used to adaptively
+tune the proposal scale and shape parameters, which is the default
+behaviour of \code{sample_chain}, then additionally the list must also define
+entries: \code{update} a function for updating parameters of proposal,
+\code{parameters} a function for getting current proposal parameter values,
+\code{default_target_accept_prob} a function for getting proposal specific
+default target acceptance probability for scale adaptation and
+\code{default_initial_scale} a function for getting proposal and dimension
+dependent default initial value for scale parameter.}
 
 \item{adapters}{List of adapters to tune proposal parameters during warm-up.
 Defaults to using list with instances of \code{\link[=scale_adapter]{scale_adapter()}} and
@@ -79,26 +89,21 @@ along columns and iterations along rows. Only present if
 }
 }
 \description{
-Sample a Markov chain using Metropolis-Hastings kernel with given proposal
-and target distributions, optionally adapting proposal parameters in warm-up
-stage.
+Sample a Markov chain using Metropolis-Hastings kernel with a user-specified
+target distribution and proposal (defaulting to Barker proposal), optionally
+adapting proposal parameters in a warm-up stage.
 }
 \examples{
 target_distribution <- list(
   log_density = function(x) -sum(x^2) / 2,
   gradient_log_density = function(x) -x
 )
-proposal <- barker_proposal(target_distribution, scale = 1.)
-n_warm_up_iteration <- 1000
-n_main_iteration <- 1000
 withr::with_seed(876287L, {
-  initial_state <- chain_state(stats::rnorm(2))
   results <- sample_chain(
     target_distribution,
-    proposal,
-    initial_state,
-    n_warm_up_iteration,
-    n_main_iteration
+    initial_state = stats::rnorm(2),
+    n_warm_up_iteration = 1000,
+    n_main_iteration = 1000
   )
 })
 }
