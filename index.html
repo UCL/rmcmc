@@ -79,13 +79,13 @@
 <span>  log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">x</span> <span class="op">/</span> <span class="va">scales</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span>
 <span>  gradient_log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="va">x</span> <span class="op">/</span> <span class="va">scales</span><span class="op">^</span><span class="fl">2</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span>
+<span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sample_chain.html">sample_chain</a></span><span class="op">(</span></span>
 <span>  target_distribution <span class="op">=</span> <span class="va">target_distribution</span>,</span>
-<span>  proposal <span class="op">=</span> <span class="va">proposal</span>,</span>
 <span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">dimension</span><span class="op">)</span>,</span>
 <span>  n_warm_up_iteration <span class="op">=</span> <span class="fl">10000</span>,</span>
 <span>  n_main_iteration <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  proposal <span class="op">=</span> <span class="va">proposal</span>,</span>
 <span>  adapters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="reference/scale_adapter.html">scale_adapter</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="reference/shape_adapter.html">shape_adapter</a></span><span class="op">(</span><span class="st">"variance"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">mean_accept_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">statistics</span><span class="op">[</span>, <span class="st">"accept_prob"</span><span class="op">]</span><span class="op">)</span></span>
@@ -99,7 +99,7 @@
 <span><span class="co">#&gt; Average acceptance probability is 0.58</span></span>
 <span><span class="co">#&gt; True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645</span></span>
 <span><span class="co">#&gt; Adapter scale est.: 1.5328097767097, 1.42342707172926, 0.280359693392091</span></span></code></pre></div>
-<p>As a second example, the snippet below demonstrates sampling from a two-dimensional ‘banana’ shaped distribution based on the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function" class="external-link">Rosenbrock function</a> and plotting the generated chain samples.</p>
+<p>As a second example, the snippet below demonstrates sampling from a two-dimensional banana shaped distribution based on the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function" class="external-link">Rosenbrock function</a> and plotting the generated chain samples. Here we use the default values of the <code>proposal</code> and <code>adapters</code> arguments to <code>sample_chain</code>, corresponding respectively to the Barker proposal, and adapters for tuning the proposal scale to coerce the average acceptance rate using a dual-averaging algorithm, and for tuning the proposal shape based on an estimate of the target distribution covariance matrix.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/UCL/rmcmc" class="external-link">rmcmc</a></span><span class="op">)</span></span>
 <span></span>
@@ -113,10 +113,8 @@
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sample_chain.html">sample_chain</a></span><span class="op">(</span></span>
 <span>  target_distribution <span class="op">=</span> <span class="va">target_distribution</span>,</span>
-<span>  proposal <span class="op">=</span> <span class="va">proposal</span>,</span>
 <span>  initial_state <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span>
 <span>  n_warm_up_iteration <span class="op">=</span> <span class="fl">10000</span>,</span>
 <span>  n_main_iteration <span class="op">=</span> <span class="fl">10000</span>,</span>

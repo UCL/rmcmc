@@ -55,7 +55,6 @@ evaluating the log density ratio.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">barker_proposal</span><span class="op">(</span></span>
-<span>  <span class="va">target_distribution</span>,</span>
 <span>  scale <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  shape <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample_auxiliary <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span>,</span>
@@ -67,19 +66,7 @@ evaluating the log density ratio.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-target-distribution">target_distribution<a class="anchor" aria-label="anchor" href="#arg-target-distribution"></a></dt>
-<dd><p>Target stationary distribution for chain. A list
-with named entries <code>log_density</code> and <code>gradient_log_density</code> corresponding to
-respectively functions for evaluating the logarithm of the (potentially
-unnormalized) density of the target distribution and its gradient.
-As an alternative to <code>gradient_log_density</code> an entry
-<code>value_and_gradient_log_density</code> may instead be provided which is a function
-returning both the value and gradient of the logarithm of the (unnormalized)
-density of the target distribution as a list under the names <code>value</code> and
-<code>gradient</code> respectively.</p></dd>
-
-
-<dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
+<dl><dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
 <dd><p>Scale parameter of proposal distribution. A non-negative scalar
 value determining scale of steps proposed.</p></dd>
 
@@ -120,10 +107,14 @@ value to use for the initial proposal scale parameter.</p></li>
 <span class="r-in"><span>  log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>  gradient_log_density <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span><span class="va">x</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu">barker_proposal</span><span class="op">(</span><span class="va">target_distribution</span>, scale <span class="op">=</span> <span class="fl">1.</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu">barker_proposal</span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">1.</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">state</span> <span class="op">&lt;-</span> <span class="fu"><a href="chain_state.html">chain_state</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.</span>, <span class="fl">0.</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">with_seed</a></span><span class="op">(</span><span class="fl">876287L</span>, <span class="va">proposed_state</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="va">state</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">log_density_ratio</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">log_density_ratio</span><span class="op">(</span><span class="va">state</span>, <span class="va">proposed_state</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_seed.html" class="external-link">with_seed</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fl">876287L</span>, <span class="va">proposed_state</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">sample</span><span class="op">(</span><span class="va">state</span>, <span class="va">target_distribution</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">log_density_ratio</span> <span class="op">&lt;-</span> <span class="va">proposal</span><span class="op">$</span><span class="fu">log_density_ratio</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">state</span>, <span class="va">proposed_state</span>, <span class="va">target_distribution</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">proposal</span><span class="op">$</span><span class="fu">update</span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>

@@ -107,33 +107,26 @@ proposal distributions which can be used within a Metropolis–Hastings
 based MCMC method:</p>
 <ul>
 <li>
-<code>barker_proposal</code>: The robust gradient-based Barker
-proposal proposed by <span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span>.</li>
+</li>
 <li>
-<code>langevin_proposal</code>: A gradient-based proposal based on a
-discretization of Langevin dynamics.</li>
-<li>
-<code>hamiltonian_proposal</code>: A gradient-based proposal based
-on a discretization of Hamiltonian dynamics, simulated for a fixed
-number of integrator steps. With a single integrator step equivalent to
+</li>
+<li>With a single integrator step equivalent to
 <code>langevin_proposal</code>.</li>
 <li>
-<code>random_walk_proposal</code>: A Gaussian random-walk
-proposal.</li>
+</li>
 </ul>
-<p>Each function requires the first argument to specify the target
-distribution the proposal is to be constructed for. Optionally
-additional arguments can be used to specify the scalar
-<code>scale</code> of the proposal, a vector or matrix defining the
-proposal <code>shape</code> and routines to sample the auxiliary
-variables used in the proposal.</p>
-<p>Here we create an instance of the Barker proposal, specifying only
-the target distribution with the other arguments left as their defaults.
-Rather than specifying fixed <code>scale</code> and <code>shape</code>
-tuning parameters, in the next section we illustrate how to set up
-adaptation of these parameters during a warm-up stage to the chains.</p>
+<p>Each function takes optional arguments which can be used to customize
+the behaviour of the proposal such as the scalar <code>scale</code> of
+the proposal, a vector or matrix defining the proposal
+<code>shape</code> and routines to sample the auxiliary variables used
+in the proposal.</p>
+<p>Here we create an instance of the Barker proposal, using the default
+values of all arguments. Rather than specifying fixed <code>scale</code>
+and <code>shape</code> tuning parameters, in the next section we
+illustrate how to set up adaptation of these parameters during a warm-up
+stage to the chains.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">proposal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="setting-up-adaptation-of-tuning-parameters">Setting up adaptation of tuning parameters<a class="anchor" aria-label="anchor" href="#setting-up-adaptation-of-tuning-parameters"></a>
@@ -182,12 +175,12 @@ which tracks the current position of the chain, but also additional
 quantities such as the auxiliary variables used to generate the proposed
 perturbation to the state, and cached values of the log density and its
 gradient once computed once at the current position to avoid
-re-computation. The <code>chain_state</code> function allows creation of
-a list of the required format, with the first (and only required)
-argument specifying the position. Alternatively we can directly pass a
-vector specifying just the position component of the state to the
-<code>initial_state</code> argument of <code>sample_chain</code>. Here
-we generate an initial state with position coordinates sampled from a
+re-computation. The [chain_state()] function allows creation of a list
+of the required format, with the first (and only required) argument
+specifying the position. Alternatively we can directly pass a vector
+specifying just the position component of the state to the
+<code>initial_state</code> argument of [sample_chain()]. Here we
+generate an initial state with position coordinates sampled from a
 independent normal distributions with standard deviation 10, following
 the example in <span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span>. For reproducibility
 we also fix the random seed.</p>
@@ -343,7 +336,7 @@ we could do the following</p>
 <div class="section level2">
 <h2 id="sampling-using-a-langevin-proposal">Sampling using a Langevin proposal<a class="anchor" aria-label="anchor" href="#sampling-using-a-langevin-proposal"></a>
 </h2>
-<p>To sample a chain using a Langevin proposal, we can simple use
+<p>To sample a chain using a Langevin proposal, we can simply use
 <code>langevin_proposal</code> in place of
 <code>baker_proposal</code>.</p>
 <p>Here we create a new set of adapters using the default
@@ -353,7 +346,7 @@ optimal value of 0.574 following the results in <span class="citation">Roberts a
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mala_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sample_chain.html">sample_chain</a></span><span class="op">(</span></span>
 <span>  target_distribution <span class="op">=</span> <span class="va">target_distribution</span>,</span>
-<span>  proposal <span class="op">=</span> <span class="fu"><a href="../reference/langevin_proposal.html">langevin_proposal</a></span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span>,</span>
+<span>  proposal <span class="op">=</span> <span class="fu"><a href="../reference/langevin_proposal.html">langevin_proposal</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  initial_state <span class="op">=</span> <span class="va">initial_state</span>,</span>
 <span>  n_warm_up_iteration <span class="op">=</span> <span class="va">n_warm_up_iteration</span>,</span>
 <span>  n_main_iteration <span class="op">=</span> <span class="va">n_main_iteration</span>,</span>
