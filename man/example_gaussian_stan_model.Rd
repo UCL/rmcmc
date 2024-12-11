@@ -8,7 +8,7 @@ example_gaussian_stan_model(n_data = 50, seed = 1234L)
 }
 \arguments{
 \item{n_data}{Number of independent data points \code{y} to generate and condition
-model against.}
+model against from \code{normal(0, 1)}.}
 
 \item{seed}{Integer seed for Stan model.}
 }
@@ -17,7 +17,8 @@ BridgeStan StanModel object.
 }
 \description{
 Requires BridgeStan package to be installed. Generative model is assumed to
-be of the form \code{y ~ normal(mu, sigma)} for unknown \code{mu} and \code{sigma}.
+be of the form \code{y ~ normal(mu, sigma)} for unknown \code{mu ~ normal(0, 3)} and
+\code{sigma ~ half_normal(0, 3)}.
 }
 \examples{
 \dontshow{if (requireNamespace("bridgestan", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
