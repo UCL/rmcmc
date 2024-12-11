@@ -1,12 +1,7 @@
-langevin_proposal_with_standard_normal_target <- function(
-    scale = NULL, shape = NULL) {
-  target_distribution <- standard_normal_target_distribution()
-  langevin_proposal(target_distribution, scale = scale, shape = shape)
-}
-
 test_scale_and_shape_proposal(
-  langevin_proposal_with_standard_normal_target,
+  langevin_proposal,
   proposal_name = "Langevin proposal",
+  target_distribution = standard_normal_target_distribution(),
   dimensions = c(1L, 2L),
   scales = c(0.5, 1., 2.)
 )

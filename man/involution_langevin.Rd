@@ -6,17 +6,6 @@
 \usage{
 involution_langevin(state, scale_and_shape, target_distribution)
 }
-\arguments{
-\item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{gradient_log_density} corresponding to
-respectively functions for evaluating the logarithm of the (potentially
-unnormalized) density of the target distribution and its gradient.
-As an alternative to \code{gradient_log_density} an entry
-\code{value_and_gradient_log_density} may instead be provided which is a function
-returning both the value and gradient of the logarithm of the (unnormalized)
-density of the target distribution as a list under the names \code{value} and
-\code{gradient} respectively.}
-}
 \value{
 Chain state after involution is applied.
 }

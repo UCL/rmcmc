@@ -54,27 +54,26 @@ log_density_ratio_langevin <- function(
 #'   log_density = function(x) -sum(x^2) / 2,
 #'   gradient_log_density = function(x) -x
 #' )
-#' proposal <- langevin_proposal(target_distribution, scale = 1.)
+#' proposal <- langevin_proposal(scale = 1.)
 #' state <- chain_state(c(0., 0.))
-#' withr::with_seed(876287L, proposed_state <- proposal$sample(state))
-#' log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
+#' withr::with_seed(
+#'   876287L, proposed_state <- proposal$sample(state, target_distribution)
+#' )
+#' log_density_ratio <- proposal$log_density_ratio(
+#'   state, proposed_state, target_distribution
+#' )
 #' proposal$update(scale = 0.5)
 langevin_proposal <- function(
-    target_distribution,
     scale = NULL,
     shape = NULL,
     sample_auxiliary = stats::rnorm) {
   scale_and_shape_proposal(
-    sample = function(state, scale_and_shape) {
+    sample = function(state, target_distribution, scale_and_shape) {
       sample_langevin(
         state, target_distribution, scale_and_shape, sample_auxiliary
       )
     },
-    log_density_ratio = function(state, proposed_state, scale_and_shape) {
-      log_density_ratio_langevin(
-        state, proposed_state, target_distribution, scale_and_shape
-      )
-    },
+    log_density_ratio = log_density_ratio_langevin,
     scale = scale,
     shape = shape,
     default_target_accept_prob = 0.574,

@@ -13,6 +13,18 @@ sample_random_walk <- function(
   chain_state(position = position, momentum = momentum)
 }
 
+#' Compute logarithm of random_walk proposal density ratio.
+#'
+#' @inherit log_density_ratio_barker return params
+#'
+#' @keywords internal
+log_density_ratio_random_walk <- function(
+    state,
+    proposed_state,
+    target_distribution,
+    scale_and_shape) {
+  0
+}
 
 #' Create a new random walk proposal object.
 #'
@@ -21,26 +33,27 @@ sample_random_walk <- function(
 #' @export
 #'
 #' @examples
-#' target_distribution <- list(
-#'   log_density = function(x) -sum(x^2) / 2
-#' )
-#' proposal <- random_walk_proposal(target_distribution, scale = 1.)
+#' target_distribution <- list(log_density = function(x) -sum(x^2) / 2)
+#' proposal <- random_walk_proposal(scale = 1.)
 #' state <- chain_state(c(0., 0.))
-#' withr::with_seed(876287L, proposed_state <- proposal$sample(state))
-#' log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
+#' withr::with_seed(
+#'   876287L, proposed_state <- proposal$sample(state, target_distribution)
+#' )
+#' log_density_ratio <- proposal$log_density_ratio(
+#'   state, proposed_state, target_distribution
+#' )
 #' proposal$update(scale = 0.5)
 random_walk_proposal <- function(
-    target_distribution,
     scale = NULL,
     shape = NULL,
     sample_auxiliary = stats::rnorm) {
   scale_and_shape_proposal(
-    sample = function(state, scale_and_shape) {
+    sample = function(state, target_distribution, scale_and_shape) {
       sample_random_walk(
         state, target_distribution, scale_and_shape, sample_auxiliary
       )
     },
-    log_density_ratio = function(state, proposed_state, scale_and_shape) 0,
+    log_density_ratio = log_density_ratio_random_walk,
     scale = scale,
     shape = shape,
     default_target_accept_prob = 0.234,

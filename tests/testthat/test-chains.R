@@ -21,10 +21,8 @@ for (n_warm_up_iteration in c(0, 1, 10)) {
               ),
               {
                 target_distribution <- standard_normal_target_distribution()
-                barker_proposal(target_distribution)
-                proposal <- barker_proposal(target_distribution)
                 adapters <- list(
-                  stochastic_approximation_scale_adapter(initial_scale = 1.)
+                  scale_adapter("stochastic_approximation", initial_scale = 1.)
                 )
                 withr::with_seed(default_seed(), {
                   position <- rnorm(dimension)
@@ -36,7 +34,6 @@ for (n_warm_up_iteration in c(0, 1, 10)) {
                 }
                 results <- sample_chain(
                   target_distribution = target_distribution,
-                  proposal = proposal,
                   initial_state = initial_state,
                   n_warm_up_iteration = n_warm_up_iteration,
                   n_main_iteration = n_main_iteration,
@@ -80,8 +77,7 @@ for (n_warm_up_iteration in c(0, 1, 10)) {
 
 test_that("Sample chains with invalid initial_state raises error", {
   target_distribution <- standard_normal_target_distribution()
-  barker_proposal(target_distribution)
-  proposal <- barker_proposal(target_distribution)
+  proposal <- barker_proposal()
   expect_error(
     sample_chain(
       target_distribution = target_distribution,

@@ -1,8 +1,8 @@
 #' Sample a Markov chain
 #'
-#' Sample a Markov chain using Metropolis-Hastings kernel with given proposal
-#' and target distributions, optionally adapting proposal parameters in warm-up
-#' stage.
+#' Sample a Markov chain using Metropolis-Hastings kernel with a user-specified
+#' target distribution and proposal (defaulting to Barker proposal), optionally
+#' adapting proposal parameters in a warm-up stage.
 #'
 #' @inheritParams sample_metropolis_hastings
 #' @param initial_state Initial chain state. Either a vector specifying just
@@ -12,6 +12,20 @@
 #'   run.
 #' @param n_main_iteration Number of main (non-adaptive) chain iterations to
 #'   run.
+#' @param proposal Proposal distribution object. Defaults to Barker proposal,
+#'   that is the output of [barker_proposal()]. Proposal objects are lists which
+#'   must minimally define entries `sample`, a function to generate sample from
+#'   proposal distribution given current chain state and `log_density_ratio`, a
+#'   function to compute log density ratio for proposal for a given pair of
+#'   current and proposed chain states. If adapters are being used to adaptively
+#'   tune the proposal scale and shape parameters, which is the default
+#'   behaviour of `sample_chain`, then additionally the list must also define
+#'   entries: `update` a function for updating parameters of proposal,
+#'   `parameters` a function for getting current proposal parameter values,
+#'   `default_target_accept_prob` a function for getting proposal specific
+#'   default target acceptance probability for scale adaptation and
+#'   `default_initial_scale` a function for getting proposal and dimension
+#'   dependent default initial value for scale parameter.
 #' @param adapters List of adapters to tune proposal parameters during warm-up.
 #'   Defaults to using list with instances of [scale_adapter()] and
 #'   [shape_adapter()], corresponding to respectively, adapting the scale to
@@ -49,25 +63,20 @@
 #'   log_density = function(x) -sum(x^2) / 2,
 #'   gradient_log_density = function(x) -x
 #' )
-#' proposal <- barker_proposal(target_distribution, scale = 1.)
-#' n_warm_up_iteration <- 1000
-#' n_main_iteration <- 1000
 #' withr::with_seed(876287L, {
-#'   initial_state <- chain_state(stats::rnorm(2))
 #'   results <- sample_chain(
 #'     target_distribution,
-#'     proposal,
-#'     initial_state,
-#'     n_warm_up_iteration,
-#'     n_main_iteration
+#'     initial_state = stats::rnorm(2),
+#'     n_warm_up_iteration = 1000,
+#'     n_main_iteration = 1000
 #'   )
 #' })
 sample_chain <- function(
     target_distribution,
-    proposal,
     initial_state,
     n_warm_up_iteration,
     n_main_iteration,
+    proposal = barker_proposal(),
     adapters = list(scale_adapter(), shape_adapter()),
     trace_function = NULL,
     show_progress_bar = TRUE,

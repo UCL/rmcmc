@@ -58,11 +58,7 @@ Create object to adapt proposal scale to coerce average acceptance rate
 using dual averaging scheme of Nesterov (2009) and Hoffman and Gelman (2014).
 }
 \examples{
-target_distribution <- list(
-  log_density = function(x) -sum(x^2) / 2,
-  grad_log_density = function(x) -x
-)
-proposal <- barker_proposal(target_distribution)
+proposal <- barker_proposal()
 adapter <- dual_averaging_scale_adapter(
   initial_scale = 1., target_accept_prob = 0.4
 )

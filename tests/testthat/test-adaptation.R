@@ -273,10 +273,7 @@ for (dimension in c(1L, 2L, 3L)) {
         target_distribution <- multivariate_normal_target_distribution(
           mean = 0, covariance = covariance
         )
-        proposal <- random_walk_proposal(
-          target_distribution,
-          scale = 2.4 / sqrt(dimension)
-        )
+        proposal <- random_walk_proposal(scale = 2.4 / sqrt(dimension))
         adapter <- shape_adapter(type = "covariance", kappa = kappa)
         check_adapter(adapter)
         state <- chain_state(position = rnorm(dimension))
@@ -321,7 +318,7 @@ for (dimension in c(1L, 2L, 3L)) {
         target_distribution <- multivariate_normal_target_distribution(
           mean = 0, covariance = covariance
         )
-        proposal <- random_walk_proposal(target_distribution)
+        proposal <- random_walk_proposal()
         adapter <- robust_shape_adapter(
           kappa = 0.6,
           target_accept_prob = target_accept_prob
@@ -399,7 +396,7 @@ test_that("sample_chain works with dummy adapter with required interface", {
     state = function() list()
   )
   target_distribution <- standard_normal_target_distribution()
-  proposal <- barker_proposal(target_distribution, scale = 1)
+  proposal <- barker_proposal(scale = 1)
   expect_no_error(
     sample_chain(
       target_distribution = target_distribution,

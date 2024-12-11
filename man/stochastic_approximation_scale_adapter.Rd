@@ -39,11 +39,7 @@ When combined with \code{\link[=covariance_shape_adapter]{covariance_shape_adapt
 Andrieu and Thoms (2009).
 }
 \examples{
-target_distribution <- list(
-  log_density = function(x) -sum(x^2) / 2,
-  grad_log_density = function(x) -x
-)
-proposal <- barker_proposal(target_distribution)
+proposal <- barker_proposal()
 adapter <- stochastic_approximation_scale_adapter(
   initial_scale = 1., target_accept_prob = 0.4
 )

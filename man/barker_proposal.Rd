@@ -5,7 +5,6 @@
 \title{Create a new Barker proposal object.}
 \usage{
 barker_proposal(
-  target_distribution,
   scale = NULL,
   shape = NULL,
   sample_auxiliary = stats::rnorm,
@@ -13,16 +12,6 @@ barker_proposal(
 )
 }
 \arguments{
-\item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{gradient_log_density} corresponding to
-respectively functions for evaluating the logarithm of the (potentially
-unnormalized) density of the target distribution and its gradient.
-As an alternative to \code{gradient_log_density} an entry
-\code{value_and_gradient_log_density} may instead be provided which is a function
-returning both the value and gradient of the logarithm of the (unnormalized)
-density of the target distribution as a list under the names \code{value} and
-\code{gradient} respectively.}
-
 \item{scale}{Scale parameter of proposal distribution. A non-negative scalar
 value determining scale of steps proposed.}
 
@@ -63,9 +52,13 @@ target_distribution <- list(
   log_density = function(x) -sum(x^2) / 2,
   gradient_log_density = function(x) -x
 )
-proposal <- barker_proposal(target_distribution, scale = 1.)
+proposal <- barker_proposal(scale = 1.)
 state <- chain_state(c(0., 0.))
-withr::with_seed(876287L, proposed_state <- proposal$sample(state))
-log_density_ratio <- proposal$log_density_ratio(state, proposed_state)
+withr::with_seed(
+  876287L, proposed_state <- proposal$sample(state, target_distribution)
+)
+log_density_ratio <- proposal$log_density_ratio(
+  state, proposed_state, target_distribution
+)
 proposal$update(scale = 0.5)
 }
