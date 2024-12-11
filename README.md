@@ -84,7 +84,7 @@ estimate of the target distribution covariance matrix. The
 `target_distribution` argument to `sample_chain()` is passed a formula
 specifying the log density of the target distribution, which is passed
 to `target_distribution_from_log_density_formula()` to construct
-necessary functions, using `deriv()` to symbolically compute
+necessary functions, using `stats::deriv()` to symbolically compute
 derivatives.
 
 ``` r

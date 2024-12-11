@@ -25,7 +25,7 @@ Construct target distribution from a formula specifying log density.
 }
 \examples{
 target_distribution <- target_distribution_from_log_density_formula(
-  ~ (-(x^2 + y^2) / 8 - (x^2 - y)^2 - (x - 1)^2 / 10),
+  ~ (-(x^2 + y^2) / 8 - (x^2 - y)^2 - (x - 1)^2 / 10)
 )
 target_distribution$value_and_gradient_log_density(c(0.1, -0.3))
 }
