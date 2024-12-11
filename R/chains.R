@@ -113,11 +113,11 @@ sample_chain <- function(
   } else {
     stop("initial_state must be a vector or list with an entry named position.")
   }
-  if (is(target_distribution, "formula")) {
+  if (inherits(target_distribution, "formula")) {
     target_distribution <- target_distribution_from_log_density_formula(
       target_distribution
     )
-  } else if (is(target_distribution, "StanModel")) {
+  } else if (inherits(target_distribution, "StanModel")) {
     target_distribution <- target_distribution_from_stan_model(
       target_distribution
     )
