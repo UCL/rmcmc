@@ -42,7 +42,12 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">target_distribution_from_stan_model</span><span class="op">(</span><span class="va">model</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">target_distribution_from_stan_model</span><span class="op">(</span></span>
+<span>  <span class="va">model</span>,</span>
+<span>  include_log_density <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  include_generated_quantities <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  include_transformed_parameters <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -52,6 +57,22 @@
 <dl><dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
 <dd><p>Stan model object to use for target (posterior) distribution.</p></dd>
 
+
+<dt id="arg-include-log-density">include_log_density<a class="anchor" aria-label="anchor" href="#arg-include-log-density"></a></dt>
+<dd><p>Whether to include an entry <code>log_density</code>
+corresponding to current log density for target distribution in values
+returned by trace function.</p></dd>
+
+
+<dt id="arg-include-generated-quantities">include_generated_quantities<a class="anchor" aria-label="anchor" href="#arg-include-generated-quantities"></a></dt>
+<dd><p>Whether to included generated quantities
+in Stan model definition in values returned by trace function.</p></dd>
+
+
+<dt id="arg-include-transformed-parameters">include_transformed_parameters<a class="anchor" aria-label="anchor" href="#arg-include-transformed-parameters"></a></dt>
+<dd><p>Whether to include transformed
+parameters in Stan model definition in values returned by trace function.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -60,6 +81,9 @@ distribution given current position vector.</p></li>
 <li><p><code>value_and_gradient_log_density</code>: A function to evaluate value and gradient
 of log density function for target distribution given current position
 vector, returning as a list with entries <code>value</code> and <code>gradient</code>.</p></li>
+<li><p><code>trace_function</code>: A function which given a <code><a href="chain_state.html">chain_state()</a></code> object returns a
+named vector of values to trace during sampling. The constrained parameter
+values of model will always be included.</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -70,7 +94,10 @@ vector, returning as a list with entries <code>value</code> and <code>gradient</
 <span class="r-in"><span>  <span class="fl">876287L</span>, <span class="va">state</span> <span class="op">&lt;-</span> <span class="fu"><a href="chain_state.html">chain_state</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">model</span><span class="op">$</span><span class="fu">param_unc_num</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">state</span><span class="op">$</span><span class="fu">log_density</span><span class="op">(</span><span class="va">target_distribution</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -37.48172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -37.68319</span>
+<span class="r-in"><span><span class="va">target_distribution</span><span class="op">$</span><span class="fu">trace_function</span><span class="op">(</span><span class="va">state</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          mu       sigma log_density </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -1.400044    1.290871  -37.683193 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

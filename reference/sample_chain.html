@@ -55,7 +55,6 @@ adapting proposal parameters in a warm-up stage.</p>
 <span>  <span class="va">n_main_iteration</span>,</span>
 <span>  proposal <span class="op">=</span> <span class="fu"><a href="barker_proposal.html">barker_proposal</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  adapters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="scale_adapter.html">scale_adapter</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="shape_adapter.html">shape_adapter</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  trace_function <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  show_progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  trace_warm_up <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -66,15 +65,31 @@ adapting proposal parameters in a warm-up stage.</p>
 
 
 <dl><dt id="arg-target-distribution">target_distribution<a class="anchor" aria-label="anchor" href="#arg-target-distribution"></a></dt>
-<dd><p>Target stationary distribution for chain. A list
-with named entries <code>log_density</code> and <code>gradient_log_density</code> corresponding to
-respectively functions for evaluating the logarithm of the (potentially
-unnormalized) density of the target distribution and its gradient.
-As an alternative to <code>gradient_log_density</code> an entry
-<code>value_and_gradient_log_density</code> may instead be provided which is a function
-returning both the value and gradient of the logarithm of the (unnormalized)
-density of the target distribution as a list under the names <code>value</code> and
-<code>gradient</code> respectively.</p></dd>
+<dd><p>Target stationary distribution for chain. One of:</p><ul><li><p>A one-sided formula specifying expression for log density of target
+distribution which will be passed to
+<code><a href="target_distribution_from_log_density_formula.html">target_distribution_from_log_density_formula()</a></code> to construct functions
+to evaluate log density and its gradient using <code><a href="https://rdrr.io/r/stats/deriv.html" class="external-link">deriv()</a></code>.</p></li>
+<li><p>A <code><a href="https://rdrr.io/pkg/bridgestan/man/StanModel.html" class="external-link">bridgestan::StanModel</a></code> instance (requires <code>bridgestan</code> to be
+installed) specifying target model and data. Will be passed to
+<code><a href="target_distribution_from_stan_model.html">target_distribution_from_stan_model()</a></code> using default values for optional
+arguments - to override call <code><a href="target_distribution_from_stan_model.html">target_distribution_from_stan_model()</a></code>
+directly and pass the returned list as the <code>target_distribution</code> argument
+here.</p></li>
+<li><p>A list with named entries <code>log_density</code> and <code>gradient_log_density</code>
+corresponding to respectively functions for evaluating the logarithm of
+the (potentially unnormalized) density of the target distribution and its
+gradient (only required for gradient-based proposals). As an alternative
+to <code>gradient_log_density</code> an entry <code>value_and_gradient_log_density</code> may
+instead be provided which is a function returning both the value and
+gradient of the logarithm of the (unnormalized) density of the target
+distribution as a list under the names <code>value</code> and <code>gradient</code>
+respectively. The list may also contain a named entry <code>trace_function</code>,
+correspond to a function which given current chain state outputs a named
+vector or list of variables to trace on each main (non-adaptive) chain
+iteration. If a <code>trace_function</code> entry is not specified, then the default
+behaviour is to trace the position component of the chain state along
+with the log density of the target distribution.</p></li>
+</ul></dd>
 
 
 <dt id="arg-initial-state">initial_state<a class="anchor" aria-label="anchor" href="#arg-initial-state"></a></dt>
@@ -117,11 +132,6 @@ Defaults to using list with instances of <code><a href="scale_adapter.html">scal
 coerce the average acceptance rate to a target value using a dual-averaging
 algorithm, and adapting the shape to an estimate of the covariance of the
 target distribution.</p></dd>
-
-
-<dt id="arg-trace-function">trace_function<a class="anchor" aria-label="anchor" href="#arg-trace-function"></a></dt>
-<dd><p>Function which given current chain state outputs list
-of variables to trace on each main (non-adaptive) chain iteration.</p></dd>
 
 
 <dt id="arg-show-progress-bar">show_progress_bar<a class="anchor" aria-label="anchor" href="#arg-show-progress-bar"></a></dt>
