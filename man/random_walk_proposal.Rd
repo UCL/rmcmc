@@ -2,7 +2,7 @@
 % Please edit documentation in R/random_walk.R
 \name{random_walk_proposal}
 \alias{random_walk_proposal}
-\title{Create a new random walk proposal object.}
+\title{Create a new (Gaussian) random walk proposal object.}
 \usage{
 random_walk_proposal(
   scale = NULL,
@@ -37,11 +37,8 @@ value to use for the initial proposal scale parameter.
 }
 }
 \description{
-Returns a list with function to sample from the proposal, evaluate the log
-density ratio for a state pair for the proposal and update the proposal
-parameters. The proposal has two parameters \code{scale} and \code{shape}. At least one
-of \code{scale} and \code{shape} must be set before sampling from the proposal or
-evaluating the log density ratio.
+The Gaussian random walk proposal samples a new proposed state by perturbing
+the current state with zero-mean normally distributed noise.
 }
 \examples{
 target_distribution <- list(log_density = function(x) -sum(x^2) / 2)

@@ -56,11 +56,12 @@ value to use for the initial proposal scale parameter.
 }
 }
 \description{
-Returns a list with function to sample from the proposal, evaluate the log
-density ratio for a state pair for the proposal and update the proposal
-parameters. The proposal has two parameters \code{scale} and \code{shape}. At least one
-of \code{scale} and \code{shape} must be set before sampling from the proposal or
-evaluating the log density ratio.
+The Hamiltonian proposal augments the target distribution with normally
+distributed auxiliary momenta variables and simulates the dynamics for a
+Hamiltonian function corresponding to the negative logarithm of the density
+of the resulting joint target distribution using a leapfrog integrator, with
+the proposed new state being the forward integrate state with momenta negated
+to ensure reversibility.
 }
 \examples{
 target_distribution <- list(
@@ -109,4 +110,11 @@ proposal <- hamiltonian_proposal(
 withr::with_seed(
   876287L, proposed_state <- proposal$sample(state, target_distribution)
 )
+}
+\references{
+Duane, S., Kennedy, A. D., Pendleton, B. J., & Roweth, D. (1987).
+Hybrid Monte Carlo. \emph{Physics Letters B}, 195(2), 216-222.
+
+Neal, R. M. (2011). MCMC Using Hamiltonian Dynamics. In \emph{Handbook
+of Markov Chain Monte Carlo} (pp. 113-162). Chapman and Hall/CRC.
 }

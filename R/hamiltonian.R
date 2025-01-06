@@ -59,7 +59,14 @@ log_density_ratio_hamiltonian <- function(
 
 #' Create a new Hamiltonian proposal object.
 #'
-#' @inherit barker_proposal return params description
+#' The Hamiltonian proposal augments the target distribution with normally
+#' distributed auxiliary momenta variables and simulates the dynamics for a
+#' Hamiltonian function corresponding to the negative logarithm of the density
+#' of the resulting joint target distribution using a leapfrog integrator, with
+#' the proposed new state being the forward integrate state with momenta negated
+#' to ensure reversibility.
+#'
+#' @inherit barker_proposal return params
 #'
 #' @param n_step Number of leapfrog steps to simulate Hamiltonian dynamics for
 #'   in each proposed move, or parameter passed to function specified by
@@ -78,6 +85,11 @@ log_density_ratio_hamiltonian <- function(
 #'   a single argument which will be passed the value of `n_step` which can
 #'   be used to specify parameter(s) of distribution to sample number of steps
 #'   from.
+#'
+#' @references Duane, S., Kennedy, A. D., Pendleton, B. J., & Roweth, D. (1987).
+#'   Hybrid Monte Carlo. _Physics Letters B_, 195(2), 216-222.
+#' @references Neal, R. M. (2011). MCMC Using Hamiltonian Dynamics. In _Handbook
+#'   of Markov Chain Monte Carlo_ (pp. 113-162). Chapman and Hall/CRC.
 #'
 #' @export
 #'
