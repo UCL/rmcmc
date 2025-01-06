@@ -11,21 +11,38 @@ sample_chain(
   n_main_iteration,
   proposal = barker_proposal(),
   adapters = list(scale_adapter(), shape_adapter()),
-  trace_function = NULL,
   show_progress_bar = TRUE,
   trace_warm_up = FALSE
 )
 }
 \arguments{
-\item{target_distribution}{Target stationary distribution for chain. A list
-with named entries \code{log_density} and \code{gradient_log_density} corresponding to
-respectively functions for evaluating the logarithm of the (potentially
-unnormalized) density of the target distribution and its gradient.
-As an alternative to \code{gradient_log_density} an entry
-\code{value_and_gradient_log_density} may instead be provided which is a function
-returning both the value and gradient of the logarithm of the (unnormalized)
-density of the target distribution as a list under the names \code{value} and
-\code{gradient} respectively.}
+\item{target_distribution}{Target stationary distribution for chain. One of:
+\itemize{
+\item A one-sided formula specifying expression for log density of target
+distribution which will be passed to
+\code{\link[=target_distribution_from_log_density_formula]{target_distribution_from_log_density_formula()}} to construct functions
+to evaluate log density and its gradient using \code{\link[=deriv]{deriv()}}.
+\item A \code{bridgestan::StanModel} instance (requires \code{bridgestan} to be
+installed) specifying target model and data. Will be passed to
+\code{\link[=target_distribution_from_stan_model]{target_distribution_from_stan_model()}} using default values for optional
+arguments - to override call \code{\link[=target_distribution_from_stan_model]{target_distribution_from_stan_model()}}
+directly and pass the returned list as the \code{target_distribution} argument
+here.
+\item A list with named entries \code{log_density} and \code{gradient_log_density}
+corresponding to respectively functions for evaluating the logarithm of
+the (potentially unnormalized) density of the target distribution and its
+gradient (only required for gradient-based proposals). As an alternative
+to \code{gradient_log_density} an entry \code{value_and_gradient_log_density} may
+instead be provided which is a function returning both the value and
+gradient of the logarithm of the (unnormalized) density of the target
+distribution as a list under the names \code{value} and \code{gradient}
+respectively. The list may also contain a named entry \code{trace_function},
+correspond to a function which given current chain state outputs a named
+vector or list of variables to trace on each main (non-adaptive) chain
+iteration. If a \code{trace_function} entry is not specified, then the default
+behaviour is to trace the position component of the chain state along
+with the log density of the target distribution.
+}}
 
 \item{initial_state}{Initial chain state. Either a vector specifying just
 the position component of the chain state or a list output by \code{chain_state}
@@ -58,9 +75,6 @@ Defaults to using list with instances of \code{\link[=scale_adapter]{scale_adapt
 coerce the average acceptance rate to a target value using a dual-averaging
 algorithm, and adapting the shape to an estimate of the covariance of the
 target distribution.}
-
-\item{trace_function}{Function which given current chain state outputs list
-of variables to trace on each main (non-adaptive) chain iteration.}
 
 \item{show_progress_bar}{Whether to show progress bars during sampling.
 Requires \code{progress} package to be installed to have an effect.}

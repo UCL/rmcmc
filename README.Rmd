@@ -72,36 +72,22 @@ cat(
 ```
 
 As a second example, the snippet below demonstrates sampling from a two-dimensional banana shaped distribution based on the [Rosenbrock function](https://en.wikipedia.org/wiki/Rosenbrock_function) and plotting the generated chain samples.
-Here we use the default values of the `proposal` and `adapters` arguments to `sample_chain`,
+Here we use the default values of the `proposal` and `adapters` arguments to `sample_chain()`,
 corresponding respectively to the Barker proposal, and adapters for tuning the proposal scale to coerce the average acceptance rate using a dual-averaging algorithm,
 and for tuning the proposal shape based on an estimate of the target distribution covariance matrix.
+The `target_distribution` argument to `sample_chain()` is passed a formula specifying the log density of the target distribution, which is passed to `target_distribution_from_log_density_formula()` to construct necessary functions,
+using `stats::deriv()` to symbolically compute derivatives.
 
 
 ```{r banana-samples, fig.width=6, fig.height=4}
 library(rmcmc)
 
 set.seed(651239L)
-target_distribution <- list(
-  log_density = function(x) -sum(x^2) / 8 - (x[1]^2 - x[2])^2 - (x[1] - 1)^2 / 10,
-  gradient_log_density = function(x) {
-    c(
-      -x[1] / 4 + 4 * x[1] * (x[2] - x[1]^2) - 0.2 * x[1] + 0.2,
-      -x[2] / 4 + 2 * x[1]^2 - 2 * x[2]
-    )
-  }
-)
 results <- sample_chain(
-  target_distribution = target_distribution,
+  target_distribution = ~ (-(x^2 + y^2) / 8 - (x^2 - y)^2 - (x - 1)^2 / 100),
   initial_state = rnorm(2),
   n_warm_up_iteration = 10000,
-  n_main_iteration = 10000,
+  n_main_iteration = 10000
 )
-plot(
-  results$traces[, "position1"],
-  results$traces[, "position2"],
-  xlab = expression(x[1]),
-  ylab = expression(x[2]),
-  col = "#1f77b4",
-  pch = 20
-)
+plot(results$traces[, "x"], results$traces[, "y"], col = "#1f77b4", pch = 20)
 ```
