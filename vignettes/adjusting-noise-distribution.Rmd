@@ -61,8 +61,8 @@ with two equally-weighted normal components with means $\pm (1 - \sigma^2)$ and 
 sample_bimodal <- function(dimension) {
   sigma <- 0.1
   return(
-    sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2)
-      + stats::rnorm(dimension) * sigma
+    sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2) +
+      stats::rnorm(dimension) * sigma
   )
 }
 ```
@@ -84,11 +84,9 @@ and the second using the bimodal distribution.
 ```{r}
 normal_noise_proposal <- barker_proposal()
 bimodal_noise_proposal <- barker_proposal(sample_auxiliary = sample_bimodal)
-# Above line is equivalent to
-# bimodal_noise_proposal <- bimodal_barker_proposal()
 ```
 
-A convenience function `bimodal_barker_proposal()` is also provided in the package to simplify creating a proposal with bimodal noise distribution as above, with optional `sigma` argument specifying the standard deviation of the normal components.
+A convenience function `bimodal_barker_proposal()` is also provided in the package to simplify creating a proposal with bimodal noise distribution as above, with optional `sigma` argument specifying the standard deviation of the normal components. That is the second line above can equivalently be written `bimodal_noise_proposal <- bimodal_barker_proposal()` without the need to define the `sample_bimodal` function.
 
 ## Sampling chains with proposals
 

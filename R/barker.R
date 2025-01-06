@@ -179,8 +179,8 @@ bimodal_barker_proposal <- function(
     sample_uniform = stats::runif) {
   sample_bimodal <- function(dimension) {
     return(
-      sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2)
-        + stats::rnorm(dimension) * sigma
+      sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2) +
+        stats::rnorm(dimension) * sigma
     )
   }
   barker_proposal(
