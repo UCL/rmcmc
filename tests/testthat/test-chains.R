@@ -89,3 +89,15 @@ test_that("Sample chains with invalid initial_state raises error", {
     "initial_state"
   )
 })
+
+test_that("Sample chains with invalid target_distribution raises error", {
+  expect_error(
+    sample_chain(
+      target_distribution = list(),
+      initial_state = c(0., 0.),
+      n_warm_up_iteration = 1,
+      n_main_iteration = 1,
+    ),
+    "target_distribution"
+  )
+})
