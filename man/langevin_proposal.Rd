@@ -33,11 +33,8 @@ value to use for the initial proposal scale parameter.
 }
 }
 \description{
-Returns a list with function to sample from the proposal, evaluate the log
-density ratio for a state pair for the proposal and update the proposal
-parameters. The proposal has two parameters \code{scale} and \code{shape}. At least one
-of \code{scale} and \code{shape} must be set before sampling from the proposal or
-evaluating the log density ratio.
+The Langevin proposal is a gradient-based proposal corresponding to a
+Euler-Maruyama time discretisation of a Langevin diffusion.
 }
 \examples{
 target_distribution <- list(
@@ -53,4 +50,13 @@ log_density_ratio <- proposal$log_density_ratio(
   state, proposed_state, target_distribution
 )
 proposal$update(scale = 0.5)
+}
+\references{
+Besag, J. (1994). "Comments on "Representations of knowledge in
+complex systems" by U. Grenander and MI Miller". \emph{Journal of the Royal
+Statistical Society, Series B}. 56: 591–592.
+
+Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
+of Langevin distributions and their discrete approximations. \emph{Bernoulli} 2
+(4), 341 - 363.
 }

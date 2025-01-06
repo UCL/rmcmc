@@ -26,9 +26,12 @@ log_density_ratio_random_walk <- function(
   0
 }
 
-#' Create a new random walk proposal object.
+#' Create a new (Gaussian) random walk proposal object.
 #'
-#' @inherit barker_proposal return params description
+#' The Gaussian random walk proposal samples a new proposed state by perturbing
+#' the current state with zero-mean normally distributed noise.
+#'
+#' @inherit barker_proposal return params
 #'
 #' @export
 #'

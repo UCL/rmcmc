@@ -45,7 +45,17 @@ log_density_ratio_langevin <- function(
 
 #' Create a new Langevin proposal object.
 #'
-#' @inherit barker_proposal return params description
+#' The Langevin proposal is a gradient-based proposal corresponding to a
+#' Euler-Maruyama time discretisation of a Langevin diffusion.
+#'
+#' @inherit barker_proposal return params
+#'
+#' @references Besag, J. (1994). "Comments on "Representations of knowledge in
+#'   complex systems" by U. Grenander and MI Miller". _Journal of the Royal
+#'   Statistical Society, Series B_. 56: 591–592.
+#' @references Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
+#'   of Langevin distributions and their discrete approximations. _Bernoulli_ 2
+#'   (4), 341 - 363.
 #'
 #' @export
 #'
