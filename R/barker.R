@@ -64,11 +64,13 @@ log_density_ratio_barker <- function(
 
 #' Create a new Barker proposal object.
 #'
-#' Returns a list with function to sample from the proposal, evaluate the log
-#' density ratio for a state pair for the proposal and update the proposal
-#' parameters. The proposal has two parameters `scale` and `shape`. At least one
-#' of `scale` and `shape` must be set before sampling from the proposal or
-#' evaluating the log density ratio.
+#' The Barker proposal is a gradient-based proposal inspired by the Barker
+#' accept-reject rule and proposed in Livingstone and Zanella (2022). It offers
+#' improved robustness compared to alternative gradient-based proposals such as
+#' Langevin proposals.
+#'
+#' For more details see the vignette:
+#' \code{vignette("barker-proposal", package = "rmcmc")}
 #'
 #' @inheritParams sample_barker
 #' @param scale Scale parameter of proposal distribution. A non-negative scalar
@@ -88,6 +90,11 @@ log_density_ratio_barker <- function(
 #'   acceptance rate to use for any scale adaptation.
 #' * `default_initial_scale`: a function which given a dimension gives a default
 #'   value to use for the initial proposal scale parameter.
+#'
+#' @references Livingstone, S., & Zanella, G. (2022). The Barker proposal:
+#'   combining robustness and efficiency in gradient-based MCMC. _Journal of the
+#'   Royal Statistical Society Series B: Statistical Methodology_, 84(2),
+#'   496-523.
 #'
 #' @export
 #'
@@ -121,5 +128,65 @@ barker_proposal <- function(
     shape = shape,
     default_target_accept_prob = 0.574,
     default_initial_scale = function(dimension) dimension^(-1 / 6)
+  )
+}
+
+
+#' Create a new Barker proposal object with bimodal noise distribution.
+#'
+#' Convenience function for creating a Barker proposal with bimodal auxiliary
+#' noise variable distribution, corresponding to equally-weighted normal
+#' components with shared variance `sigma` and means `±sqrt(1 - sigma^2)`.
+#' This choice of noise distribution was suggested in Vogrinc et al. (2023) and
+#' found to give improved performance over the default choice of a standard
+#' normal auxiliary noise distribution in a range of targets.
+#'
+#' For more details see the vignette:
+#' \code{vignette("adjusting-noise-distribution", package = "rmcmc")}
+#'
+#' @inherit barker_proposal params return
+#'
+#' @param sigma Standard deviation of equally-weighted normal components in
+#'   bimodal auxiliary noise distribution, with corresponding means of
+#'   `±sqrt(1 - sigma^2)`.
+#'
+#' @references Vogrinc, J., Livingstone, S., & Zanella, G. (2023). Optimal
+#'   design of the Barker proposal and other locally balanced
+#'   Metropolis–Hastings algorithms. _Biometrika_, 110(3), 579-595.
+#'
+#' @seealso [barker_proposal()]
+#'
+#' @export
+#'
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   gradient_log_density = function(x) -x
+#' )
+#' proposal <- bimodal_barker_proposal(scale = 1.)
+#' state <- chain_state(c(0., 0.))
+#' withr::with_seed(
+#'   876287L, proposed_state <- proposal$sample(state, target_distribution)
+#' )
+#' log_density_ratio <- proposal$log_density_ratio(
+#'   state, proposed_state, target_distribution
+#' )
+#' proposal$update(scale = 0.5)
+bimodal_barker_proposal <- function(
+    sigma = 0.1,
+    scale = NULL,
+    shape = NULL,
+    sample_uniform = stats::runif) {
+  sample_bimodal <- function(dimension) {
+    return(
+      sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2)
+        + stats::rnorm(dimension) * sigma
+    )
+  }
+  barker_proposal(
+    scale = scale,
+    shape = shape,
+    sample_auxiliary = sample_bimodal,
+    sample_uniform = sample_uniform
   )
 }
