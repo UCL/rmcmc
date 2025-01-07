@@ -13,8 +13,8 @@ Authors@R: c(
 Description: Functions for simulating Markov chains using the Barker proposal
     to compute Markov chain Monte Carlo (MCMC) estimates of expectations with
     respect to a target distribution on a real-valued vector space. The Barker
-    proposal, described in Livingstone and Zanella (2022) 
-    <https://doi.org/10.1111/rssb.12482>, is a gradient-based MCMC algorithm
+    proposal, described in Livingstone and Zanella (2022)
+    <doi:10.1111/rssb.12482>, is a gradient-based MCMC algorithm
     inspired by the Barker accept-reject rule, which combines the robustness of
     simpler MCMC schemes such as random-walk Metropolis with the efficiency of
     gradient-based algorithms such as Metropolis adjusted Langevin algorithm.
