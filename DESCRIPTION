@@ -18,6 +18,17 @@ Description: Functions for simulating Markov chains using the Barker proposal
     inspired by the Barker accept-reject rule, which combines the robustness of
     simpler MCMC schemes such as random-walk Metropolis with the efficiency of
     gradient-based algorithms such as Metropolis adjusted Langevin algorithm.
+    The key function provided by the package is 'sample_chain' which allows
+    sampling a Markov chain which has a specified target distribution as its
+    stationary distribution, by using generating proposals and accepting or
+    rejecting using a Metropolis-Hasting acceptance rule. During an initial
+    warm-up stage, the parameters of the proposal distribution will be adapted,
+    with adapters available to tune both the scale of the proposals by coercing
+    the average acceptance rate to a target value, and the shape of the
+    proposals to match estimates of the covariances of the sampled variables
+    under the target distribution. As well as the default Barker proposal, the
+    package also provides implementations of alternative proposal distributions,
+    such as (Gaussian) random walk and Langevin proposals.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
