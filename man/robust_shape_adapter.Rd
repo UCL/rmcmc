@@ -45,5 +45,5 @@ adapter$initialize(proposal, chain_state(c(0, 0)))
 \references{
 Vihola, M. (2012). Robust adaptive Metropolis algorithm with
 coerced acceptance rate. \emph{Statistics and Computing}, 22, 997-1008.
-\url{https://doi.org/10.1007/s11222-011-9269-5}
+\doi{10.1007/s11222-011-9269-5}
 }
