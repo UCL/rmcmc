@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2024 rmcmc authors
+Copyright (c) 2025 rmcmc authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
