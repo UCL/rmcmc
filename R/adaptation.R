@@ -328,7 +328,7 @@ covariance_shape_adapter <- function(kappa = 1) {
 #'
 #' @references Vihola, M. (2012). Robust adaptive Metropolis algorithm with
 #'     coerced acceptance rate. _Statistics and Computing_, 22, 997-1008.
-#'     <https://doi.iorg/10.1007/s11222-011-9269-5>
+#'     <https://doi.org/10.1007/s11222-011-9269-5>
 #'
 #' @inheritParams stochastic_approximation_scale_adapter
 #'
