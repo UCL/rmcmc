@@ -6,6 +6,7 @@
 ^\.github$
 ^\.pre-commit-config\.yaml$
 ^_pkgdown\.yml$
+^cran-comments\.md$
 ^docs$
 ^pkgdown$
 ^rmcmc\.Rproj$
