@@ -51,6 +51,4 @@ Imports:
     Matrix,
     rlang,
     withr
-Remotes: 
-    roualdes/bridgestan/R
 VignetteBuilder: knitr

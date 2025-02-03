@@ -1,5 +1,6 @@
 skip_on_cran()
 skip_on_os("windows")
+skip_if_not_installed("bridgestan")
 
 cached_example_gaussian_stan_model <- (
   function() {
