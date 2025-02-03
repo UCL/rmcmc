@@ -33,9 +33,10 @@ to a target value; tune the shape of the proposals to match covariance
 estimates under the target distribution. As well as the default Barker
 proposal, the package also provides implementations of alternative
 proposal distributions, such as (Gaussian) random walk and Langevin
-proposals. Optionally, if [BridgeStan’s
-Rinterface](https://roualdes.github.io/bridgestan/latest/languages/r.html)
-is installed, then BridgeStan can be used to specify the target
+proposals. Optionally, if [BridgeStan’s R
+interface](https://roualdes.github.io/bridgestan/latest/languages/r.html),
+available [on GitHub](https://github.com/roualdes/bridgestan), is
+installed, then BridgeStan can be used to specify the target
 distribution to sample from.
 
 ## Installation
