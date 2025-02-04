@@ -1,3 +1,12 @@
+## Resubmission
+
+* Enclosed reference to library name, _BridgeStan_, in quotes in description
+  field in DESCRIPTION file.
+  
+* Updated plotting function in `barker-proposal` vignette to restore values of
+  graphical parameters set using `par()` during function to previous values on
+  exit.
+
 ## R CMD check results
 
 0 errors | 0 warnings | 2 notes
