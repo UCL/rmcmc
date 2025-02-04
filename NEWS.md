@@ -1,4 +1,4 @@
-# rmcmc (development version)
+# rmcmc 0.1.1
 
 ## rmcmc 0.1.0
 

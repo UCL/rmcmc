@@ -1,6 +1,6 @@
 Package: rmcmc
 Title: Robust Markov Chain Monte Carlo Methods
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person(c("Matthew", "M."), "Graham", , "m.graham@ucl.ac.uk",
            role = c("aut", "cre"),
