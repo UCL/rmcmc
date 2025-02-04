@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Robust Markov Chain Monte Carlo Methods">
-<meta name="description" content="Functions for simulating Markov chains using the Barker proposal to compute Markov chain Monte Carlo (MCMC) estimates of expectations with respect to a target distribution on a real-valued vector space. The Barker proposal, described in Livingstone and Zanella (2022) &lt;https://doi.org/10.1111/rssb.12482&gt;, is a gradient-based MCMC algorithm inspired by the Barker accept-reject rule, which combines the robustness of simpler MCMC schemes such as random-walk Metropolis with the efficiency of gradient-based algorithms such as Metropolis adjusted Langevin algorithm.">
-<meta property="og:description" content="Functions for simulating Markov chains using the Barker proposal to compute Markov chain Monte Carlo (MCMC) estimates of expectations with respect to a target distribution on a real-valued vector space. The Barker proposal, described in Livingstone and Zanella (2022) &lt;https://doi.org/10.1111/rssb.12482&gt;, is a gradient-based MCMC algorithm inspired by the Barker accept-reject rule, which combines the robustness of simpler MCMC schemes such as random-walk Metropolis with the efficiency of gradient-based algorithms such as Metropolis adjusted Langevin algorithm.">
+<meta name="description" content="Functions for simulating Markov chains using the Barker proposal to compute Markov chain Monte Carlo (MCMC) estimates of expectations with respect to a target distribution on a real-valued vector space. The Barker proposal, described in Livingstone and Zanella (2022) &lt;doi:10.1111/rssb.12482&gt;, is a gradient-based MCMC algorithm inspired by the Barker accept-reject rule. It combines the robustness of simpler MCMC schemes, such as random-walk Metropolis, with the efficiency of gradient-based methods, such as the Metropolis adjusted Langevin algorithm. The key function provided by the package is sample_chain(), which allows sampling a Markov chain with a specified target distribution as its stationary distribution. The chain is sampled by generating proposals and accepting or rejecting them using a Metropolis-Hasting acceptance rule. During an initial warm-up stage, the parameters of the proposal distribution can be adapted, with adapters available to both: tune the scale of the proposals by coercing the average acceptance rate to a target value; tune the shape of the proposals to match covariance estimates under the target distribution. As well as the default Barker proposal, the package also provides implementations of alternative proposal distributions, such as (Gaussian) random walk and Langevin proposals. Optionally, if BridgeStans R interface &lt;https://roualdes.github.io/bridgestan/latest/languages/r.html&gt;, available on GitHub &lt;https://github.com/roualdes/bridgestan&gt;, is installed, then BridgeStan can be used to specify the target distribution to sample from.">
+<meta property="og:description" content="Functions for simulating Markov chains using the Barker proposal to compute Markov chain Monte Carlo (MCMC) estimates of expectations with respect to a target distribution on a real-valued vector space. The Barker proposal, described in Livingstone and Zanella (2022) &lt;doi:10.1111/rssb.12482&gt;, is a gradient-based MCMC algorithm inspired by the Barker accept-reject rule. It combines the robustness of simpler MCMC schemes, such as random-walk Metropolis, with the efficiency of gradient-based methods, such as the Metropolis adjusted Langevin algorithm. The key function provided by the package is sample_chain(), which allows sampling a Markov chain with a specified target distribution as its stationary distribution. The chain is sampled by generating proposals and accepting or rejecting them using a Metropolis-Hasting acceptance rule. During an initial warm-up stage, the parameters of the proposal distribution can be adapted, with adapters available to both: tune the scale of the proposals by coercing the average acceptance rate to a target value; tune the shape of the proposals to match covariance estimates under the target distribution. As well as the default Barker proposal, the package also provides implementations of alternative proposal distributions, such as (Gaussian) random walk and Langevin proposals. Optionally, if BridgeStans R interface &lt;https://roualdes.github.io/bridgestan/latest/languages/r.html&gt;, available on GitHub &lt;https://github.com/roualdes/bridgestan&gt;, is installed, then BridgeStan can be used to specify the target distribution to sample from.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">rmcmc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,6 +39,7 @@
     <li><a class="dropdown-item" href="articles/barker-proposal.html">Robust gradient-based MCMC with the Barker proposal</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -57,12 +58,16 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><code>rmcmc</code> is an R package for simulating Markov chains using the Barker proposal to compute <em>Markov chain Monte Carlo</em> (MCMC) estimates of expectations with respect to a target distribution on a real-valued vector space. The Barker proposal, described in Livingstone and Zanella (2022) <a href="https://doi.org/10.1111/rssb.12482" class="external-link uri">https://doi.org/10.1111/rssb.12482</a>, is a gradient-based MCMC algorithm inspired by the Barker accept-reject rule. It combines the robustness of simpler MCMC schemes such as random-walk Metropolis with the efficiency of gradient-based algorithms such as Metropolis adjusted Langevin algorithm.</p>
+<p><code>rmcmc</code> is an R package for simulating Markov chains using the Barker proposal to compute <em>Markov chain Monte Carlo</em> (MCMC) estimates of expectations with respect to a target distribution on a real-valued vector space. The Barker proposal, described in <a href="https://doi.org/10.1111/rssb.12482" class="external-link">Livingstone and Zanella (2022)</a>, is a gradient-based MCMC algorithm inspired by the Barker accept-reject rule. It combines the robustness of simpler MCMC schemes, such as random-walk Metropolis, with the efficiency of gradient-based methods, such as the Metropolis adjusted Langevin algorithm.</p>
+<p>The key function provided by the package is <code><a href="reference/sample_chain.html">sample_chain()</a></code>, which allows sampling a Markov chain with a specified target distribution as its stationary distribution. The chain is sampled by generating proposals and accepting or rejecting them using a Metropolis-Hasting acceptance rule. During an initial warm-up stage, the parameters of the proposal distribution can be adapted, with adapters available to both: tune the scale of the proposals by coercing the average acceptance rate to a target value; tune the shape of the proposals to match covariance estimates under the target distribution. As well as the default Barker proposal, the package also provides implementations of alternative proposal distributions, such as (Gaussian) random walk and Langevin proposals. Optionally, if <a href="https://roualdes.github.io/bridgestan/latest/languages/r.html" class="external-link">BridgeStan’s R interface</a>, available <a href="https://github.com/roualdes/bridgestan" class="external-link">on GitHub</a>, is installed, then BridgeStan can be used to specify the target distribution to sample from.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>rmcmc</code> like so:</p>
+<p>The latest published release version of <code>rmcmc</code> on CRAN can be installed using</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"rmcmc"</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively, the current development version of <code>rmcmc</code> can be installed using</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"UCL/rmcmc"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -70,7 +75,7 @@
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <p>The snippet belows shows a basic example of using the package to generate samples from a normal target distribution with random scales. Adapters are used to tune the proposal scale to achieve a target average acceptance probability, and to tune the proposal shape with per-dimension scale factors based on online estimates of the target distribution variances.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/UCL/rmcmc" class="external-link">rmcmc</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">876287L</span><span class="op">)</span></span>
@@ -101,7 +106,7 @@
 <span><span class="co">#&gt; True target scales: 1.50538046096953, 1.37774732725824, 0.277038897322645</span></span>
 <span><span class="co">#&gt; Adapter scale est.: 1.5328097767097, 1.42342707172926, 0.280359693392091</span></span></code></pre></div>
 <p>As a second example, the snippet below demonstrates sampling from a two-dimensional banana shaped distribution based on the <a href="https://en.wikipedia.org/wiki/Rosenbrock_function" class="external-link">Rosenbrock function</a> and plotting the generated chain samples. Here we use the default values of the <code>proposal</code> and <code>adapters</code> arguments to <code><a href="reference/sample_chain.html">sample_chain()</a></code>, corresponding respectively to the Barker proposal, and adapters for tuning the proposal scale to coerce the average acceptance rate using a dual-averaging algorithm, and for tuning the proposal shape based on an estimate of the target distribution covariance matrix. The <code>target_distribution</code> argument to <code><a href="reference/sample_chain.html">sample_chain()</a></code> is passed a formula specifying the log density of the target distribution, which is passed to <code><a href="reference/target_distribution_from_log_density_formula.html">target_distribution_from_log_density_formula()</a></code> to construct necessary functions, using <code><a href="https://rdrr.io/r/stats/deriv.html" class="external-link">stats::deriv()</a></code> to symbolically compute derivatives.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/UCL/rmcmc" class="external-link">rmcmc</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">651239L</span><span class="op">)</span></span>
@@ -131,6 +136,13 @@
 </ul>
 </div>
 
+<div class="community">
+<h2 data-toc-skip>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CONTRIBUTING.html">Contributing guide</a></li>
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+</ul>
+</div>
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -156,7 +168,7 @@
 <li><a href="https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a></li>
 <li><a href="https://github.com/UCL/rmcmc/actions/workflows/lint.yaml" class="external-link"><img src="https://github.com/UCL/rmcmc/actions/workflows/lint.yaml/badge.svg" alt="lint"></a></li>
 <li><a href="https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml" class="external-link"><img src="https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml/badge.svg" alt="pre-commit"></a></li>
-<li><a href="https://codecov.io/github/UCL/rmcmc" class="external-link"><img src="https://codecov.io/github/UCL/rmcmc/graph/badge.svg?token=PL8557fpgT" alt="codecov"></a></li>
+<li><a href="https://app.codecov.io/github/UCL/rmcmc" class="external-link"><img src="https://codecov.io/github/UCL/rmcmc/graph/badge.svg?token=PL8557fpgT" alt="codecov"></a></li>
 </ul>
 </div>
 
