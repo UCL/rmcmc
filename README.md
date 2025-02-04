@@ -9,22 +9,47 @@
 [![pkgdown](https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pkgdown.yaml)
 [![lint](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml)
 [![pre-commit](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml)
-[![codecov](https://codecov.io/github/UCL/rmcmc/graph/badge.svg?token=PL8557fpgT)](https://codecov.io/github/UCL/rmcmc)
+[![codecov](https://codecov.io/github/UCL/rmcmc/graph/badge.svg?token=PL8557fpgT)](https://app.codecov.io/github/UCL/rmcmc)
 <!-- badges: end -->
 
 `rmcmc` is an R package for simulating Markov chains using the Barker
 proposal to compute *Markov chain Monte Carlo* (MCMC) estimates of
 expectations with respect to a target distribution on a real-valued
-vector space. The Barker proposal, described in Livingstone and Zanella
-(2022) <https://doi.org/10.1111/rssb.12482>, is a gradient-based MCMC
+vector space. The Barker proposal, described in [Livingstone and Zanella
+(2022)](https://doi.org/10.1111/rssb.12482), is a gradient-based MCMC
 algorithm inspired by the Barker accept-reject rule. It combines the
-robustness of simpler MCMC schemes such as random-walk Metropolis with
-the efficiency of gradient-based algorithms such as Metropolis adjusted
-Langevin algorithm.
+robustness of simpler MCMC schemes, such as random-walk Metropolis, with
+the efficiency of gradient-based methods, such as the Metropolis
+adjusted Langevin algorithm.
+
+The key function provided by the package is `sample_chain()`, which
+allows sampling a Markov chain with a specified target distribution as
+its stationary distribution. The chain is sampled by generating
+proposals and accepting or rejecting them using a Metropolis-Hasting
+acceptance rule. During an initial warm-up stage, the parameters of the
+proposal distribution can be adapted, with adapters available to both:
+tune the scale of the proposals by coercing the average acceptance rate
+to a target value; tune the shape of the proposals to match covariance
+estimates under the target distribution. As well as the default Barker
+proposal, the package also provides implementations of alternative
+proposal distributions, such as (Gaussian) random walk and Langevin
+proposals. Optionally, if [BridgeStan’s R
+interface](https://roualdes.github.io/bridgestan/latest/languages/r.html),
+available [on GitHub](https://github.com/roualdes/bridgestan), is
+installed, then BridgeStan can be used to specify the target
+distribution to sample from.
 
 ## Installation
 
-You can install the development version of `rmcmc` like so:
+The latest published release version of `rmcmc` on CRAN can be installed
+using
+
+``` r
+install.packages("rmcmc")
+```
+
+Alternatively, the current development version of `rmcmc` can be
+installed using
 
 ``` r
 # install.packages("devtools")

@@ -1,6 +1,6 @@
 Package: rmcmc
 Title: Robust Markov Chain Monte Carlo Methods
-Version: 0.0.0.9000
+Version: 0.1.1.9000
 Authors@R: c(
     person(c("Matthew", "M."), "Graham", , "m.graham@ucl.ac.uk",
            role = c("aut", "cre"),
@@ -13,11 +13,26 @@ Authors@R: c(
 Description: Functions for simulating Markov chains using the Barker proposal
     to compute Markov chain Monte Carlo (MCMC) estimates of expectations with
     respect to a target distribution on a real-valued vector space. The Barker
-    proposal, described in Livingstone and Zanella (2022) 
-    <https://doi.org/10.1111/rssb.12482>, is a gradient-based MCMC algorithm
-    inspired by the Barker accept-reject rule, which combines the robustness of
-    simpler MCMC schemes such as random-walk Metropolis with the efficiency of
-    gradient-based algorithms such as Metropolis adjusted Langevin algorithm.
+    proposal, described in Livingstone and Zanella (2022)
+    <doi:10.1111/rssb.12482>, is a gradient-based MCMC algorithm inspired by the
+    Barker accept-reject rule. It combines the robustness of simpler MCMC
+    schemes, such as random-walk Metropolis, with the efficiency of
+    gradient-based methods, such as the Metropolis adjusted Langevin algorithm. 
+    The key function provided by the package is sample_chain(), which allows
+    sampling a Markov chain with a specified target distribution as its
+    stationary distribution. The chain is sampled by generating proposals and
+    accepting or rejecting them using a Metropolis-Hasting acceptance rule.
+    During an initial warm-up stage, the parameters of the proposal distribution
+    can be adapted, with adapters available to both: tune the scale of the
+    proposals by coercing the average acceptance rate to a target value; tune
+    the shape of the proposals to match covariance estimates under the target 
+    distribution. As well as the default Barker proposal, the package also
+    provides implementations of alternative proposal distributions, such as
+    (Gaussian) random walk and Langevin proposals. Optionally, if 'BridgeStan's
+    R interface <https://roualdes.github.io/bridgestan/latest/languages/r.html>,
+    available on GitHub <https://github.com/roualdes/bridgestan>, is installed,
+    then 'BridgeStan' can be used to specify the target distribution to sample
+    from.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -37,6 +52,4 @@ Imports:
     Matrix,
     rlang,
     withr
-Remotes: 
-    roualdes/bridgestan/R
 VignetteBuilder: knitr

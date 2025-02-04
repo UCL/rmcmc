@@ -110,3 +110,32 @@ multivariate_normal_target_distribution <- function(mean, covariance) {
     }
   )
 }
+
+check_target_distribution <- function(target_distribution) {
+  expect_type(target_distribution, "list")
+  expect_named(
+    target_distribution,
+    c("log_density", "value_and_gradient_log_density", "trace_function")
+  )
+  expect_type(target_distribution$log_density, "closure")
+  expect_type(target_distribution$value_and_gradient_log_density, "closure")
+  expect_type(target_distribution$trace_function, "closure")
+}
+
+check_log_density_and_gradient <- function(
+    position, target_distribution, true_log_density) {
+  log_density <- target_distribution$log_density(position)
+  value_and_gradient_log_density <- (
+    target_distribution$value_and_gradient_log_density(position)
+  )
+  expect_type(log_density, "double")
+  expect_equal(log_density, true_log_density(position))
+  expect_type(value_and_gradient_log_density, "list")
+  expect_identical(value_and_gradient_log_density$value, log_density)
+  expect_equal(
+    value_and_gradient_log_density$gradient,
+    numerical_gradient(true_log_density)(position),
+    tolerance = 1e-6,
+    ignore_attr = TRUE
+  )
+}
