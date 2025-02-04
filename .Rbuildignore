@@ -1,12 +1,15 @@
 ^.lintr$
 ^CODE_OF_CONDUCT\.md$
+^CRAN-SUBMISSION$
 ^LICENSE\.md$
+^Meta$
 ^README\.Rmd$
 ^\.Rproj\.user$
 ^\.github$
 ^\.pre-commit-config\.yaml$
 ^_pkgdown\.yml$
 ^cran-comments\.md$
+^doc$
 ^docs$
 ^pkgdown$
 ^rmcmc\.Rproj$
