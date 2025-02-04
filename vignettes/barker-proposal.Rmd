@@ -252,7 +252,8 @@ by accessing the statistics recorded in the `warm_up_statistics` entry in the li
 ```{r}
 visualize_scale_adaptation <- function(warm_up_statistics, label) {
   n_warm_up_iteration <- nrow(warm_up_statistics)
-  par(mfrow = c(1, 2))
+  old_par <- par(mfrow = c(1, 2))
+  on.exit(par(old_par))
   plot(
     exp(warm_up_statistics[, "log_scale"]),
     type = "l",
