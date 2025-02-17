@@ -177,15 +177,13 @@ get_progress_bar <- function(use_progress_bar, n_iteration, label) {
     "%s :percent |:bar| :current/:total [:elapsed<:eta] :tick_rate it/s"
   )
   if (use_progress_bar) {
-    return(
-      progress::progress_bar$new(
-        format = sprintf(progress_bar_format, label),
-        total = n_iteration,
-        clear = FALSE
-      )
+    progress::progress_bar$new(
+      format = sprintf(progress_bar_format, label),
+      total = n_iteration,
+      clear = FALSE
     )
   } else {
-    return(NULL)
+    NULL
   }
 }
 
