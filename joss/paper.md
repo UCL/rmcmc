@@ -1,0 +1,139 @@
+---
+title: rmcmc: Robust Markov chain Monte Carlo methods in R
+tags:
+  - R
+  - Bayesian inference
+  - computational statistics
+  - Monte Carlo
+  - Markov chain Monte Carlo
+authors:
+  - given-names: Matthew M. 
+    surname: Graham
+    orcid: 0000-0001-9104-7960
+    affiliation: 1
+    corresponding: true
+  - given-names: Samuel
+    surname: Livingstone
+    orcid: 0000-0002-7277-086X
+    affiliation: 1
+affiliations:
+  - name: University College London
+    index: 1
+    ror: 02jx3x895
+date: 17 February 2025
+bibliography: references.bib
+---
+
+# Summary
+
+Generating samples from a probability distribution,
+is a common requirement in Bayesian inference settings.
+The distribution of interest is typically the posterior distribution on a model's parameters,
+conditioned on data corresponding to observed outputs of the model.
+Given samples from a target posterior distribution,
+expectations with respect to the posterior can be estimated,
+allowing for example computation of predictions with a model.
+_Markov chain Monte Carlo_ (MCMC) methods,
+are a general class of algorithms for approximately sampling from probability distributions.
+
+`rmcmc` is an R package providing implementations of MCMC methods for sampling from distributions on real-valued vector spaces.
+It provides a general purpose implementation of the Barker proposal [@livingstone2022barker],
+a gradient-based MCMC algorithm inspired by the Barker accept-reject rule [@barker1965monte].
+The key function provided by the package is `sample_chain`, 
+which allows sampling a Markov chain with a specified target distribution as its stationary distribution. 
+The chain is sampled by generating proposals 
+and accepting or rejecting them using the Metropolis--Hasting [@metropolis1953equation,@hastings1970monte] algorithm. 
+During an initial warm-up stage, the parameters of the proposal distribution can be adapted [@haario2001adaptive,@andrieu2008tutorial], 
+with schemes available to both: 
+tune the scale of the proposals by coercing the average acceptance rate to a target value;
+tune the shape of the proposals to match covariance estimates under the target distribution.
+
+# Statement of need
+
+For target distributions for which the density function is differentiable,
+gradient-based MCMC methods can provide significantly improved sampling efficiency
+over simpler schemes such as _random-walk Metropolis_ (RWM),
+particularly in high-dimensional settings [@roberts1996exponential,@roberts1998optimal,@beskos2013optimal].
+For schemes such as _Metropolis adjusted Langevin algorithm_ (MALA) [@rossky1978brownian,@besag1994comments,@roberts1996exponential]
+and _Hamiltonian Monte Carlo_ (HMC)  [@duane1987hybrid,@neal2011mcmc],
+this improved efficiency can however come at the cost of decreased robustness to tuning of the algorithm's parameters,
+compared to non-gradient based methods such as RWM [@livingstone2022barker].
+The Barker proposal provides a middle road, 
+offering similar efficiency in high-dimensional settings as other gradient-based methods such as MALA [@vogrinc2023optimal],
+while allowing easier adaptive tuning of the algorithm's parameters,
+and improved robustness to certain forms of irregularity, such as skewness,
+in the target distribution [@hird2020fresh].
+
+`rmcmc` fills a niche in the R statistical computing ecosystem, 
+by providing general purpose implementations of the Barker proposal, as well as Gaussian RWM, MALA and HMC,
+along with several schemes for adapting the proposal parameters.
+Significant flexibility is available in specifying the log density of the target distribution, 
+and its gradient. 
+Users can directly define functions for computing the log density and its gradient,
+specify a formula for the log density which will then be symbolically differentiated using the
+`deriv` function in the base R `stats` package [@rcoreteam2024r],
+or define a model using Stan's modelling syntax [@carpenter2017stan],
+via the R interface of BridgeStan [@roualdes2023bridgestan].
+The package has a modular design,
+which allow users to easily try out different algorithmic components and options,
+and to extend the package with new algorithms.
+`rmcmc` has a pure R codebase with minimal required dependencies,
+making it a lightweight addition to other projects.
+The package also interfaces with several existing packages, for instance,
+as well as the aforementioned BridgeStan integration,
+the package provides a wrapper around the _robust adaptive Metropolis_ (RAM) [@vihola2012robust]
+adaptation scheme in the `ramcmc` package [@helske2021ramcmc],
+and sampled chain traces can be directly passed to functions 
+for computing summary statistics and convergence diagnostics in the `posterior` package [@burkner2024posterior].
+
+# Related software
+
+Several other R packages provide implementations of MCMC methods.
+`mcmc` [@geyer2023mcmc] provides a general purpose implementation of RWM,
+along with a 'morphometric' variant  [@johnson2012variable],
+which reparametrizes the target distribution to improve efficiency.
+`MCMCpack` [@martin2011mcmcmpack] focuses on providing customized MCMC methods 
+for specific classes of statistical model that exploit the structure of the model,
+though it does also provide a general purpose RWM implementation.
+`fmcmc` [@yon2019fmcmc] is similar in design to `rmcmc`,
+providing a modular framework with a variety of pre-defined proposals such as Gaussian and uniform RWM,
+and adaptive methods such as RAM and adaptive Metropolis [@haario2001adaptive] methods.
+None of `mcmc`, `MCMCpack` or `fmcmc` provide gradient-based MCMC methods,
+which where applicable can give significantly improved sampling efficiency, as discussed above.
+
+The GitHub repository `gzanella/barker` [@zanella2019barker] 
+contains code to recreate the numerical experiments in @livingstone2022barker,
+and provides a basic implementation of the Barker proposal.
+The R scripts in the repository are not however structured into a package,
+complicating reuse in other projects, 
+and the implementation only provides support for sampling from the proposal,
+and evaluating its log density ratio.
+
+Stan and NIMBLE [@perry2017programming], 
+and their associated R interfaces `rstan` [@stan2024rstan] and `nimble` [@perry2024nimble],
+are _probabilistic programming languages_ (PPLs),
+domain specific languages for the specification of probabilistic models.
+Both Stan and NIMBLE also provide implementations of a variety algorithms 
+to perform inference in models defined via their PPLs, 
+and in particular both offer gradient-based MCMC methods.
+
+Stan's default MCMC implementation is a HMC method,
+which dynamically sets the trajectory lengths when simulating Hamiltonian dynamics to generate proposals [@hoffman2014no,@betancourt2017conceptual],
+and also includes schemes for adapting algorithm's scale (step-size) and shape (metric) parameters.
+Stan does not currently provide an implementation of the Barker proposal algorithm however.
+`rmcmc` does also offer a basic HMC implementation, but unlike Stan, current only supports HMC with a static or randomized trajectory lengths. One of the proposal scale adaptation schemes implemented in `rmcmc`,
+is a dual-averaging algorithm [@nesterov2009primal,@hoffman2014no] matching the corresponding scheme in Stan.
+
+NIMBLE allows definitions of both models and statistical algorithms in its PPL,
+and provides implementations of a variety of MCMC methods including,
+RWM, HMC [@turek2024nimblehmc], and the Barker proposal.
+Compared to `rmcmc`, NIMBLE's Barker proposal implementation is tightly integrated into the broader NIMBLE framework,
+and so can only easily be applied to models specified in NIMBLE.
+NIMBLE's Barker proposal implementation provides support for adapting the proposal scale and shape parameters,
+however unlike `rmcmc` the adaptation scheme provided is fixed,
+without an ability to swap in alternative adaptation schemes.
+
+# Acknowledgements
+
+Development of `rmcmc` was supported by a UK Engineering and Physical Sciences Research Council
+New Investigator Award grant.

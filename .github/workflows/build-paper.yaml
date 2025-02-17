@@ -1,0 +1,24 @@
+name: Build draft paper PDF
+on:
+  push:
+    paths:
+      - paper/**
+      - .github/workflows/build-paper.yml
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    name: Paper draft
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build draft paper PDF
+        uses: openjournals/openjournals-draft-action@master
+        with:
+          journal: joss
+          paper-path: joss/paper.md
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: paper
+          path: joss/paper.pdf
