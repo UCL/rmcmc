@@ -1,5 +1,5 @@
 ---
-title: rmcmc: Robust Markov chain Monte Carlo methods in R
+title: "rmcmc: Robust Markov chain Monte Carlo methods in R"
 tags:
   - R
   - Bayesian inference
