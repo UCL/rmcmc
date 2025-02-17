@@ -2,9 +2,41 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+    paths:
+      - .github/workflows/pkgdown.yaml
+      - .github/CONTRIBUTING.md
+      - _pkgdown.yml
+      - CODE_OF_CONDUCT.md
+      - DESCRIPTION
+      - LICENSE
+      - LICENSE.md
+      - NAMESPACE
+      - NEWS.md
+      - README.md
+      - README.Rmd
+      - R/**
+      - man/**
+      - vignettes/**
   pull_request:
-    branches: [main, master]
+    branches:
+      - main
+    paths:
+      - .github/workflows/pkgdown.yaml
+      - .github/CONTRIBUTING.md
+      - _pkgdown.yml
+      - CODE_OF_CONDUCT.md
+      - DESCRIPTION
+      - LICENSE
+      - LICENSE.md
+      - NAMESPACE
+      - NEWS.md
+      - README.md
+      - README.Rmd
+      - R/**
+      - man/**
+      - vignettes/**
   release:
     types: [published]
   workflow_dispatch:
