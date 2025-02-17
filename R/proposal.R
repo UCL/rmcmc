@@ -5,11 +5,11 @@ get_shape_matrix <- function(scale, shape) {
   if (is.null(scale) && is.null(shape)) {
     stop("One of scale and shape parameters must be set")
   } else if (is.null(scale)) {
-    return(shape)
+    shape
   } else if (is.null(shape)) {
-    return(scale)
+    scale
   } else {
-    return(shape * scale)
+    shape * scale
   }
 }
 
