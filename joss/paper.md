@@ -42,7 +42,7 @@ a gradient-based MCMC algorithm inspired by the Barker accept-reject rule [@bark
 The key function provided by the package is `sample_chain`, 
 which allows sampling a Markov chain with a specified target distribution as its stationary distribution. 
 The chain is sampled by generating proposals 
-and accepting or rejecting them using the Metropolis--Hasting [@metropolis1953equation,@hastings1970monte] algorithm. 
+and accepting or rejecting them using the Metropolis--Hasting [@metropolis1953equation;@hastings1970monte] algorithm. 
 During an initial warm-up stage, the parameters of the proposal distribution can be adapted [@haario2001adaptive,@andrieu2008tutorial], 
 with schemes available to both: 
 tune the scale of the proposals by coercing the average acceptance rate to a target value;
@@ -53,9 +53,9 @@ tune the shape of the proposals to match covariance estimates under the target d
 For target distributions for which the density function is differentiable,
 gradient-based MCMC methods can provide significantly improved sampling efficiency
 over simpler schemes such as _random-walk Metropolis_ (RWM),
-particularly in high-dimensional settings [@roberts1996exponential,@roberts1998optimal,@beskos2013optimal].
-For schemes such as _Metropolis adjusted Langevin algorithm_ (MALA) [@rossky1978brownian,@besag1994comments,@roberts1996exponential]
-and _Hamiltonian Monte Carlo_ (HMC)  [@duane1987hybrid,@neal2011mcmc],
+particularly in high-dimensional settings [@roberts1996exponential,@roberts1998optimal;@beskos2013optimal].
+For schemes such as _Metropolis adjusted Langevin algorithm_ (MALA) [@rossky1978brownian;@besag1994comments;@roberts1996exponential]
+and _Hamiltonian Monte Carlo_ (HMC)  [@duane1987hybrid;@neal2011mcmc],
 this improved efficiency can however come at the cost of decreased robustness to tuning of the algorithm's parameters,
 compared to non-gradient based methods such as RWM [@livingstone2022barker].
 The Barker proposal provides a middle road, 
@@ -118,13 +118,13 @@ to perform inference in models defined via their PPLs,
 and in particular both offer gradient-based MCMC methods.
 
 Stan's default MCMC implementation is a HMC method,
-which dynamically sets the trajectory lengths when simulating Hamiltonian dynamics to generate proposals [@hoffman2014no,@betancourt2017conceptual],
+which dynamically sets the trajectory lengths when simulating Hamiltonian dynamics to generate proposals [@hoffman2014no;@betancourt2017conceptual],
 and also includes schemes for adapting algorithm's scale (step-size) and shape (metric) parameters.
 Stan does not currently provide an implementation of the Barker proposal algorithm however.
 `rmcmc` does also offer a basic HMC implementation, but unlike Stan, 
 current only supports HMC with a static or randomized trajectory lengths. 
 One of the proposal scale adaptation schemes implemented in `rmcmc`,
-is a dual-averaging algorithm [@nesterov2009primal,@hoffman2014no] matching the corresponding scheme in Stan.
+is a dual-averaging algorithm [@nesterov2009primal;@hoffman2014no] matching the corresponding scheme in Stan.
 
 NIMBLE allows definitions of both models and statistical algorithms in its PPL,
 and provides implementations of a variety of MCMC methods including,
