@@ -60,7 +60,7 @@ with two equally-weighted normal components with means $\pm (1 - \sigma^2)$ and 
 ```{r}
 sample_bimodal <- function(dimension) {
   sigma <- 0.1
-  return(
+  (
     sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2) +
       stats::rnorm(dimension) * sigma
   )

@@ -59,13 +59,13 @@ is_non_scalar_vector <- function(obj) {
 #' @return Result of matrix vector multiplication of `left` and `right`.
 `%@%` <- function(left, right) {
   if (is.null(dim(left)) && is.null(dim(right))) {
-    return(left * right)
+    left * right
   } else if ((length(left) == 1 && length(right) == 1)) {
-    return(drop(left * right))
+    drop(left * right)
   } else if (is.matrix(left) && is_non_scalar_vector(right)) {
-    return(Matrix::drop(left %*% right))
+    Matrix::drop(left %*% right)
   } else if (is_non_scalar_vector(left) && is.matrix(right)) {
-    return(Matrix::drop(Matrix::t(right) %*% left))
+    Matrix::drop(Matrix::t(right) %*% left)
   } else {
     stop(
       paste0(
