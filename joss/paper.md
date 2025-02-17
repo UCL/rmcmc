@@ -121,7 +121,9 @@ Stan's default MCMC implementation is a HMC method,
 which dynamically sets the trajectory lengths when simulating Hamiltonian dynamics to generate proposals [@hoffman2014no,@betancourt2017conceptual],
 and also includes schemes for adapting algorithm's scale (step-size) and shape (metric) parameters.
 Stan does not currently provide an implementation of the Barker proposal algorithm however.
-`rmcmc` does also offer a basic HMC implementation, but unlike Stan, current only supports HMC with a static or randomized trajectory lengths. One of the proposal scale adaptation schemes implemented in `rmcmc`,
+`rmcmc` does also offer a basic HMC implementation, but unlike Stan, 
+current only supports HMC with a static or randomized trajectory lengths. 
+One of the proposal scale adaptation schemes implemented in `rmcmc`,
 is a dual-averaging algorithm [@nesterov2009primal,@hoffman2014no] matching the corresponding scheme in Stan.
 
 NIMBLE allows definitions of both models and statistical algorithms in its PPL,
