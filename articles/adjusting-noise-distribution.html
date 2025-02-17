@@ -120,7 +120,7 @@ and common variance
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sample_bimodal</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dimension</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="fl">0.1</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span></span>
+<span>  <span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="va">dimension</span>, <span class="cn">TRUE</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">sigma</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">dimension</span><span class="op">)</span> <span class="op">*</span> <span class="va">sigma</span></span>
 <span>  <span class="op">)</span></span>
