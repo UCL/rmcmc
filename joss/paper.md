@@ -65,7 +65,7 @@ in the target distribution [@hird2020fresh].
 
 `rmcmc` fills a niche in the R statistical computing ecosystem,
 by providing general purpose implementations of the Barker proposal, as well as Gaussian RWM, MALA and HMC,
-along with several schemes for adapting the proposal parameters. WE SHOULD COMMENT HERE ON HOW FLEXIBLY BARKER CAN BE DEFINED (e.g. bi-modal, choices of noise distribution etc.)
+along with several schemes for adapting the proposal parameters.
 Significant flexibility is available in specifying the log density of the target distribution,
 and its gradient.
 Users can either directly define functions to compute the log density and its gradient,
@@ -76,6 +76,10 @@ via the R interface of BridgeStan [@carpenter2017stan;@roualdes2023bridgestan].
 The package has a modular design,
 which allow users to easily try out different algorithmic components and options,
 and to extend the package with new algorithms.
+This is exemplified in the Barker proposal implementation,
+which allows customising the distribution over the auxiliary noise variables used in generating the proposal.
+As discussed in @vogrinc2023optimal and illustrated in one of the package vignettes,
+this can lead to significant improvements in sampling efficiency in some cases.
 `rmcmc` has a pure R codebase with minimal required dependencies,
 making it a lightweight addition to other projects.
 The package also interfaces with several others in addition to BridgeStan,
