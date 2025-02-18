@@ -77,9 +77,9 @@ The package has a modular design,
 which allow users to easily try out different algorithmic components and options,
 and to extend the package with new algorithms.
 This is exemplified in the Barker proposal implementation,
-which allows customising the distribution over the auxiliary noise variables used in generating the proposal.
-As discussed in @vogrinc2023optimal and illustrated in one of the package vignettes,
-this can lead to significant improvements in sampling efficiency in some cases.
+which allows customizing the distribution over the auxiliary variables used in generating the proposal.
+As discussed in @vogrinc2023optimal and illustrated in a package vignette,
+this can significantly improvement sampling efficiency in some cases.
 `rmcmc` has a pure R codebase with minimal required dependencies,
 making it a lightweight addition to other projects.
 The package also interfaces with several others in addition to BridgeStan,
