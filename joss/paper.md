@@ -38,12 +38,12 @@ are a general class of algorithms for approximately sampling from probability di
 `rmcmc` is an R package providing implementations of MCMC methods for sampling from distributions on real-valued vector spaces.
 It provides a general purpose implementation of the Barker proposal [@livingstone2022barker],
 a gradient-based MCMC algorithm inspired by the Barker accept-reject rule [@barker1965monte].
-The key function provided by the package is `sample_chain`, 
-which allows sampling a Markov chain with a user-specified stationary distribution. 
-The chain is sampled by generating proposals 
-and accepting or rejecting them using the Metropolis--Hastings [@metropolis1953equation;@hastings1970monte] algorithm. 
-During an initial warm-up stage, the parameters of the proposal distribution can be adapted [@haario2001adaptive,@andrieu2008tutorial], 
-with schemes available to both: 
+The key function provided by the package is `sample_chain`,
+which allows sampling a Markov chain with a user-specified stationary distribution.
+The chain is sampled by generating proposals
+and accepting or rejecting them using the Metropolis--Hastings [@metropolis1953equation;@hastings1970monte] algorithm.
+During an initial warm-up stage, the parameters of the proposal distribution can be adapted [@haario2001adaptive,@andrieu2008tutorial],
+with schemes available to both:
 tune the scale of the proposals by coercing the average acceptance rate to a target value;
 tune the shape of the proposals to match covariance estimates under the target distribution.
 
@@ -57,17 +57,17 @@ For schemes such as _Metropolis adjusted Langevin algorithm_ (MALA) [@rossky1978
 and _Hamiltonian Monte Carlo_ (HMC)  [@duane1987hybrid;@neal2011mcmc],
 this improved efficiency can however come at the cost of decreased robustness to tuning of the algorithm's parameters,
 compared to non-gradient based methods such as RWM [@livingstone2022barker].
-The Barker proposal provides a middle road, 
+The Barker proposal provides a middle road,
 offering similar efficiency in high-dimensional settings as other gradient-based methods such as MALA [@vogrinc2023optimal],
 while allowing easier adaptive tuning of the algorithm's parameters,
 and improved robustness to certain forms of irregularity, such as skewness,
 in the target distribution [@hird2020fresh].
 
-`rmcmc` fills a niche in the R statistical computing ecosystem, 
+`rmcmc` fills a niche in the R statistical computing ecosystem,
 by providing general purpose implementations of the Barker proposal, as well as Gaussian RWM, MALA and HMC,
 along with several schemes for adapting the proposal parameters. WE SHOULD COMMENT HERE ON HOW FLEXIBLY BARKER CAN BE DEFINED (e.g. bi-modal, choices of noise distribution etc.)
-Significant flexibility is available in specifying the log density of the target distribution, 
-and its gradient. 
+Significant flexibility is available in specifying the log density of the target distribution,
+and its gradient.
 Users can either directly define functions to compute the log density and its gradient,
 specify a formula for the log density which will then be symbolically differentiated using the
 `deriv` function in the base R `stats` package [@rcoreteam2024r],
@@ -81,8 +81,8 @@ making it a lightweight addition to other projects.
 The package also interfaces with several others in addition to BridgeStan,
 for instance a wrapper around the _robust adaptive Metropolis_ (RAM) [@vihola2012robust]
 adaptation scheme in the `ramcmc` package is provided [@helske2021ramcmc],
-and sampled chain traces can be directly passed to functions 
-for computing summary statistics and convergence diagnostics in the `posterior` or `coda` packages [@burkner2024posterior;@plummer2015package].
+and sampled chain traces can be directly passed to functions
+for computing summary statistics and convergence diagnostics in the `posterior` or `coda` packages [@burkner2024posterior;@plummer2015coda].
 
 # Related software
 
@@ -90,7 +90,7 @@ Several other R packages provide implementations of MCMC methods.
 `mcmc` [@geyer2023mcmc] provides a general purpose implementation of RWM,
 along with a 'morphometric' variant  [@johnson2012variable],
 which reparametrizes the target distribution to improve efficiency.
-`MCMCpack` [@martin2011mcmcmpack] focuses on providing customized MCMC methods 
+`MCMCpack` [@martin2011mcmcmpack] focuses on providing customized MCMC methods
 for specific classes of statistical model that exploit the structure of the model,
 though it does also provide a general purpose RWM implementation.
 `fmcmc` [@yon2019fmcmc] is similar in design to `rmcmc`,
@@ -99,28 +99,28 @@ and adaptive methods such as RAM and adaptive Metropolis [@haario2001adaptive] m
 None of `mcmc`, `MCMCpack` or `fmcmc` provide gradient-based MCMC methods,
 which can give significantly improved sampling efficiency, as discussed above.
 
-The GitHub repository `gzanella/barker` [@zanella2019barker] 
+The GitHub repository `gzanella/barker` [@zanella2019barker]
 contains code to recreate the numerical experiments in @livingstone2022barker,
 and provides a basic implementation of the Barker proposal.
 The R scripts in the repository are not, however, structured into a package,
-complicating reuse in other projects, 
+complicating reuse in other projects,
 and the implementation only provides support for sampling from the proposal
 and evaluating its log density ratio.
 
-Stan and NIMBLE [@perry2017programming], 
+Stan and NIMBLE [@perry2017programming],
 and their associated R interfaces `rstan` [@stan2024rstan] and `nimble` [@perry2024nimble],
 are _probabilistic programming languages_ (PPLs),
 domain specific languages for the specification of probabilistic models.
-Both Stan and NIMBLE also provide implementations of a variety algorithms 
-to perform inference in models defined via their PPLs, 
+Both Stan and NIMBLE also provide implementations of a variety algorithms
+to perform inference in models defined via their PPLs,
 and in particular both offer gradient-based MCMC methods.
 
 Stan's default MCMC implementation is a HMC method,
 which dynamically sets the trajectory lengths when simulating Hamiltonian dynamics to generate proposals [@hoffman2014no;@betancourt2017conceptual],
 and also includes schemes for adapting algorithm's scale (step-size) and shape (metric) parameters.
 Stan does not currently provide an implementation of the Barker proposal algorithm however.
-`rmcmc` does also offer a basic HMC implementation, but unlike Stan, 
-currently only supports HMC with a static or randomized trajectory lengths. 
+`rmcmc` does also offer a basic HMC implementation, but unlike Stan,
+currently only supports HMC with a static or randomized trajectory lengths.
 One of the proposal scale adaptation schemes implemented in `rmcmc`,
 is a dual-averaging algorithm [@nesterov2009primal;@hoffman2014no] matching the corresponding scheme in Stan.
 
