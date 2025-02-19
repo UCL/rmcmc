@@ -42,7 +42,7 @@ The key function provided by the package is `sample_chain`,
 which allows sampling a Markov chain with a user-specified stationary distribution.
 The chain is sampled by generating proposals
 and accepting or rejecting them using the Metropolis--Hastings [@metropolis1953equation;@hastings1970monte] algorithm.
-During an initial warm-up stage, the parameters of the proposal distribution can be adapted [@haario2001adaptive,@andrieu2008tutorial],
+During an initial warm-up stage, the parameters of the proposal distribution can be adapted [@haario2001adaptive;@andrieu2008tutorial],
 with schemes available to both:
 tune the scale of the proposals by coercing the average acceptance rate to a target value;
 tune the shape of the proposals to match covariance estimates under the target distribution.
@@ -52,8 +52,8 @@ tune the shape of the proposals to match covariance estimates under the target d
 For target distributions for which the density function is differentiable,
 gradient-based MCMC methods can provide significantly improved sampling efficiency
 over simpler schemes such as _random-walk Metropolis_ (RWM),
-particularly in high-dimensional settings [@roberts1996exponential,@roberts1998optimal;@beskos2013optimal].
-For schemes such as _Metropolis adjusted Langevin algorithm_ (MALA) [@rossky1978brownian;@besag1994comments;@roberts1996exponential]
+particularly in high-dimensional settings [@roberts1996exponential;@roberts1998optimal;@beskos2013optimal].
+For schemes such as _Metropolis adjusted Langevin algorithm_ (MALA) [@rossky1978brownian;@besag1994comments]
 and _Hamiltonian Monte Carlo_ (HMC)  [@duane1987hybrid;@neal2011mcmc],
 this improved efficiency can however come at the cost of decreased robustness to tuning of the algorithm's parameters,
 compared to non-gradient based methods such as RWM [@livingstone2022barker].
@@ -101,7 +101,7 @@ though it does also provide a general purpose RWM implementation.
 providing a modular framework with a variety of pre-defined proposals such as Gaussian and uniform RWM,
 and adaptive methods such as RAM and adaptive Metropolis [@haario2001adaptive] methods.
 None of `mcmc`, `MCMCpack` or `fmcmc` provide gradient-based MCMC methods,
-which can give significantly improved sampling efficiency, as discussed above.
+which can significantly improve sampling efficiency, as discussed above.
 
 The GitHub repository `gzanella/barker` [@zanella2019barker]
 contains code to recreate the numerical experiments in @livingstone2022barker,
@@ -112,7 +112,7 @@ and the implementation only provides support for sampling from the proposal
 and evaluating its log density ratio.
 
 Stan and NIMBLE [@perry2017programming],
-and their associated R interfaces `rstan` [@stan2024rstan] and `nimble` [@perry2024nimble],
+with associated R interfaces `rstan` [@stan2024rstan] and `nimble` [@perry2024nimble],
 are _probabilistic programming languages_ (PPLs),
 domain specific languages for the specification of probabilistic models.
 Both Stan and NIMBLE also provide implementations of a variety algorithms
