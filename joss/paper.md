@@ -37,7 +37,10 @@ are a general class of algorithms for approximately sampling from probability di
 
 `rmcmc` is an R package providing implementations of MCMC methods for sampling from distributions on $\mathbb{R}^d$ for $d \geq 1$.
 It provides a general purpose implementation of the Barker proposal [@livingstone2022barker],
-a gradient-based MCMC algorithm inspired by the Barker accept-reject rule [@barker1965monte]. It also provides implementations of other MCMC algorithms based on random walk (RWM), Langevin (MALA) and Hamiltonian (HMC) dynamics, and a flexible interface for performing adaptive MCMC so that algorithmic tuning parameters can be learned in a bespoke manner [@haario2001adaptive;@andrieu2008tutorial].
+a gradient-based MCMC algorithm inspired by the Barker accept-reject rule [@barker1965monte].
+It also provides implementations of other MCMC algorithms based on random walk, Langevin and Hamiltonian dynamics,
+and a flexible interface for performing adaptive MCMC
+so that algorithmic tuning parameters can be learned in a bespoke manner [@haario2001adaptive;@andrieu2008tutorial].
 The key function provided by the package is `sample_chain`,
 which allows sampling a Markov chain with a user-specified stationary distribution.
 The chain is sampled by generating proposals
@@ -125,7 +128,8 @@ and also includes schemes for adapting an algorithm's scale (step-size) and shap
 Stan also does not currently provide an implementation of the Barker proposal.
 `rmcmc` does also offer a basic HMC implementation, but currently only supports HMC with static or randomized trajectory lengths.
 One of the proposal scale adaptation schemes implemented in `rmcmc`,
-is a dual-averaging algorithm [@nesterov2009primal;@hoffman2014no] matching the corresponding scheme in Stan, but in contrast to Stan alternative schemes are available in `rmcmc`.
+is a dual-averaging algorithm [@nesterov2009primal;@hoffman2014no] matching the corresponding scheme in Stan,
+but in contrast to Stan alternative schemes are available in `rmcmc`.
 
 NIMBLE allows definitions of both models and statistical algorithms in its PPL,
 and provides implementations of a variety of MCMC methods including,
