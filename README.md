@@ -10,6 +10,7 @@
 [![lint](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/lint.yaml)
 [![pre-commit](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml)
 [![codecov](https://codecov.io/github/UCL/rmcmc/graph/badge.svg?token=PL8557fpgT)](https://app.codecov.io/github/UCL/rmcmc)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14804043.svg)](https://doi.org/10.5281/zenodo.14804043)
 <!-- badges: end -->
 
 `rmcmc` is an R package for simulating Markov chains using the Barker
