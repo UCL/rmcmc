@@ -35,7 +35,7 @@ allowing computation of posterior means, variances and other quantities of inter
 _Markov chain Monte Carlo_ (MCMC) methods
 are a general class of algorithms for approximately sampling from probability distributions.
 
-`rmcmc` is an R package providing implementations of MCMC methods for sampling from distributions $\mathbb{R}^d$ for $d \geq 1$.
+`rmcmc` is an R package providing implementations of MCMC methods for sampling from distributions on $\mathbb{R}^d$ for $d \geq 1$.
 It provides a general purpose implementation of the Barker proposal [@livingstone2022barker],
 a gradient-based MCMC algorithm inspired by the Barker accept-reject rule [@barker1965monte]. It also provides implementations of other MCMC algorithms based on random walk (RWM), Langevin (MALA) and Hamiltonian (HMC) dynamics, and a flexible interface for performing adaptive MCMC so that algorithmic tuning parameters can be learned in a bespoke manner [@haario2001adaptive;@andrieu2008tutorial].
 The key function provided by the package is `sample_chain`,
