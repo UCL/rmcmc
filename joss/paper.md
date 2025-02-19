@@ -121,7 +121,7 @@ and in particular both offer gradient-based MCMC methods.
 
 Stan's default MCMC implementation is a HMC method,
 which dynamically sets the trajectory lengths when simulating Hamiltonian dynamics to generate proposals [@hoffman2014no;@betancourt2017conceptual],
-and also includes schemes for adapting algorithm's scale (step-size) and shape (metric) parameters, but with limited user-flexibility.
+and also includes schemes for adapting an algorithm's scale (step-size) and shape (metric) parameters, but with limited user-flexibility.
 Stan also does not currently provide an implementation of the Barker proposal.
 `rmcmc` does also offer a basic HMC implementation, but currently only supports HMC with static or randomized trajectory lengths.
 One of the proposal scale adaptation schemes implemented in `rmcmc`,
