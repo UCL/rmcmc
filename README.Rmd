@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 [![pre-commit](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/UCL/rmcmc/actions/workflows/pre-commit.yaml)
 [![codecov](https://codecov.io/github/UCL/rmcmc/graph/badge.svg?token=PL8557fpgT)](https://app.codecov.io/github/UCL/rmcmc)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14804043.svg)](https://doi.org/10.5281/zenodo.14804043)
+[![JOSS status](https://joss.theoj.org/papers/b3d646dcf01299076e8a724ec8d909dc/status.svg)](https://joss.theoj.org/papers/b3d646dcf01299076e8a724ec8d909dc)
 <!-- badges: end -->
 
 `rmcmc` is an R package for simulating Markov chains using the Barker proposal
