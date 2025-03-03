@@ -105,25 +105,10 @@ sample_chain <- function(
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
   state <- check_and_process_initial_state(initial_state)
-  if (inherits(target_distribution, "formula")) {
-    target_distribution <- target_distribution_from_log_density_formula(
-      target_distribution
-    )
-  } else if (inherits(target_distribution, "StanModel")) {
-    target_distribution <- target_distribution_from_stan_model(
-      target_distribution
-    )
-  } else if (
-    !is.list(target_distribution) ||
-      !("log_density" %in% names(target_distribution))
-  ) {
-    stop("target_distribution invalid - see documentation for allowable types.")
-  }
-  if (is.null(target_distribution$trace_function)) {
-    trace_function <- default_trace_function(target_distribution)
-  } else {
-    trace_function <- target_distribution$trace_function
-  }
+  target_distribution <- check_and_process_target_distribution(
+    target_distribution
+  )
+  trace_function <- get_trace_function(target_distribution)
   statistic_names <- list("accept_prob")
   warm_up_results <- chain_loop(
     stage_name = "Warm-up",
@@ -164,6 +149,29 @@ check_and_process_initial_state <- function(initial_state) {
     initial_state$copy()
   } else {
     stop("initial_state must be a vector or list with an entry named position.")
+  }
+}
+
+check_and_process_target_distribution <- function(target_distribution) {
+  if (inherits(target_distribution, "formula")) {
+    target_distribution_from_log_density_formula(target_distribution)
+  } else if (inherits(target_distribution, "StanModel")) {
+    target_distribution_from_stan_model(target_distribution)
+  } else if (
+    !is.list(target_distribution) ||
+      !("log_density" %in% names(target_distribution))
+  ) {
+    stop("target_distribution invalid - see documentation for allowable types.")
+  } else {
+    target_distribution
+  }
+}
+
+get_trace_function <- function(target_distribution) {
+  if (is.null(target_distribution$trace_function)) {
+    default_trace_function(target_distribution)
+  } else {
+    target_distribution$trace_function
   }
 }
 
