@@ -104,13 +104,7 @@ sample_chain <- function(
     trace_warm_up = FALSE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
-  if (is.vector(initial_state) && is.atomic(initial_state)) {
-    state <- chain_state(initial_state)
-  } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
-    state <- initial_state$copy()
-  } else {
-    stop("initial_state must be a vector or list with an entry named position.")
-  }
+  state <- check_and_process_initial_state(initial_state)
   if (inherits(target_distribution, "formula")) {
     target_distribution <- target_distribution_from_log_density_formula(
       target_distribution
@@ -160,6 +154,16 @@ sample_chain <- function(
     return(combine_stage_results(warm_up_results, main_results))
   } else {
     return(main_results)
+  }
+}
+
+check_and_process_initial_state <- function(initial_state) {
+  if (is.vector(initial_state) && is.atomic(initial_state)) {
+    chain_state(initial_state)
+  } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
+    initial_state$copy()
+  } else {
+    stop("initial_state must be a vector or list with an entry named position.")
   }
 }
 
