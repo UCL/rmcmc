@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   adjusting-noise-distribution: adjusting-noise-distribution.html
   barker-proposal: barker-proposal.html
-last_built: 2025-03-03T09:57Z
+last_built: 2025-03-03T11:05Z
 urls:
   reference: http://github-pages.ucl.ac.uk/rmcmc/reference
   article: http://github-pages.ucl.ac.uk/rmcmc/articles
