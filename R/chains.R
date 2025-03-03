@@ -104,7 +104,7 @@ sample_chain <- function(
     trace_warm_up = FALSE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
-  state <- check_and_process_initial_state(initial_state)
+  initial_state <- check_and_process_initial_state(initial_state)
   target_distribution <- check_and_process_target_distribution(
     target_distribution
   )
@@ -113,7 +113,7 @@ sample_chain <- function(
   warm_up_results <- chain_loop(
     stage_name = "Warm-up",
     n_iteration = n_warm_up_iteration,
-    state = state,
+    state = initial_state,
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = adapters,
@@ -122,11 +122,10 @@ sample_chain <- function(
     trace_function = trace_function,
     statistic_names = statistic_names
   )
-  state <- warm_up_results$final_state
   main_results <- chain_loop(
     stage_name = "Main",
     n_iteration = n_main_iteration,
-    state = state,
+    state = warm_up_results$final_state,
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = NULL,
