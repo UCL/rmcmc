@@ -198,16 +198,41 @@ get_progress_bar <- function(use_progress_bar, n_iteration, label) {
   }
 }
 
-initialize_traces <- function(trace_names, n_iteration) {
+initialize_traces <- function(trace_function, state, n_iteration) {
+  trace_names <- names(unlist(trace_function(state)))
   traces <- matrix(ncol = length(trace_names), nrow = n_iteration)
   colnames(traces) <- trace_names
   traces
 }
 
-initialize_statistics <- function(statistic_names, n_iteration) {
+initialize_statistics <- function(statistic_names, adapters, n_iteration) {
+  adapter_statistics <- names(unlist(lapply(adapters, function(a) a$state())))
+  statistic_names <- c(statistic_names, adapter_statistics)
   statistics <- matrix(ncol = length(statistic_names), nrow = n_iteration)
   colnames(statistics) <- statistic_names
   statistics
+}
+
+initialize_adapters <- function(adapters, proposal, state) {
+  for (adapter in adapters) {
+    adapter$initialize(proposal, state)
+  }
+  invisible(adapters)
+}
+
+update_adapters <- function(
+    adapters, proposal, chain_iteration, state_and_statistics) {
+  for (adapter in adapters) {
+    adapter$update(proposal, chain_iteration, state_and_statistics)
+  }
+  invisible(adapters)
+}
+
+finalize_adapters <- function(adapters, proposal) {
+  for (adapter in adapters) {
+    if (!is.null(adapter$finalize)) adapter$finalize(proposal)
+  }
+  invisible(adapters)
 }
 
 chain_loop <- function(
@@ -225,16 +250,10 @@ chain_loop <- function(
   # Only show 10% increments in progress bar to avoid progress bar updates being
   # a bottleneck when chain iteration rate is high
   tick_amount <- max(n_iteration %/% 10, 1)
-  for (adapter in adapters) {
-    adapter$initialize(proposal, state)
-  }
+  initialize_adapters(adapters, proposal, state)
   if (record_traces_and_statistics) {
-    trace_names <- names(unlist(trace_function(state)))
-    traces <- initialize_traces(trace_names, n_iteration)
-    adapter_statistics <- names(unlist(lapply(adapters, function(a) a$state())))
-    statistics <- initialize_statistics(
-      c(statistic_names, adapter_statistics), n_iteration
-    )
+    traces <- initialize_traces(trace_function, state, n_iteration)
+    statistics <- initialize_statistics(statistic_names, adapters, n_iteration)
   } else {
     traces <- NULL
     statistics <- NULL
@@ -243,9 +262,7 @@ chain_loop <- function(
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
-    for (adapter in adapters) {
-      adapter$update(proposal, chain_iteration, state_and_statistics)
-    }
+    update_adapters(adapters, proposal, chain_iteration, state_and_statistics)
     state <- state_and_statistics$state
     if (record_traces_and_statistics) {
       traces[chain_iteration, ] <- unlist(trace_function(state))
@@ -261,9 +278,7 @@ chain_loop <- function(
   # Ensure progress bar shows completed in cases tick_amount not a factor of
   # n_iteration
   if (!is.null(progress_bar) && !progress_bar$finished) progress_bar$update(1)
-  for (adapter in adapters) {
-    if (!is.null(adapter$finalize)) adapter$finalize(proposal)
-  }
+  finalize_adapters(adapters, proposal)
   list(final_state = state, traces = traces, statistics = statistics)
 }
 
