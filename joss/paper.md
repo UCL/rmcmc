@@ -144,3 +144,5 @@ without an ability to swap in alternative adaptation schemes.
 
 Development of `rmcmc` was supported by a UK Engineering and Physical Sciences Research Council
 New Investigator Award EP/V055380/1.
+
+# References
