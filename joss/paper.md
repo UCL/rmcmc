@@ -82,7 +82,7 @@ and to extend the package with new algorithms.
 This is exemplified in the Barker proposal implementation,
 which allows customizing the distribution over the auxiliary variables used in generating the proposal.
 As discussed in @vogrinc2023optimal and illustrated in a package vignette,
-this can significantly improvement sampling efficiency in some cases.
+this can significantly improve sampling efficiency in some cases.
 `rmcmc` has a pure R codebase with minimal required dependencies,
 making it a lightweight addition to other projects.
 The package also interfaces with several others in addition to BridgeStan,
