@@ -21,7 +21,11 @@ jobs:
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, any::styler, github::roualdes/bridgestan/R@v2.6.2, local::.
+          extra-packages: local::.
+          needs: |
+            bridgestan
+            style
+            website
 
       - name: Set up Python
         uses: actions/setup-python@v5
