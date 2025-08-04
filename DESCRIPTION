@@ -46,6 +46,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Config/Needs/website: ggplot2, bayesplot
 URL: https://github.com/UCL/rmcmc, http://github-pages.ucl.ac.uk/rmcmc/
 BugReports: https://github.com/UCL/rmcmc/issues
 Imports: 
