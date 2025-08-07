@@ -18,6 +18,14 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Install R dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          needs: |
+            lint
+            style
+            website
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
