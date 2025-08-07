@@ -62,7 +62,8 @@ Config/Needs/website:
     any::pkgdown,
     ggplot2,
     bayesplot,
-    rjson
+    rjson,
+    hexbin
 URL: https://github.com/UCL/rmcmc, http://github-pages.ucl.ac.uk/rmcmc/
 BugReports: https://github.com/UCL/rmcmc/issues
 Imports: 
