@@ -47,7 +47,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Config/Needs/bridgestan:
-    github::roualdes/bridgestan/R@v2.6.2
+    url::https://community.r-multiverse.org/src/contrib/bridgestan_2.6.2.tar.gz
 Config/Needs/check:
     any::rcmdcheck
 Config/Needs/coverage:
