@@ -59,7 +59,12 @@ Config/Needs/lint:
 Config/Needs/style:
     any::styler
 Config/Needs/website:
-    any::pkgdown
+    any::pkgdown,
+    ggplot2,
+    bayesplot,
+    rjson,
+    hexbin,
+    gridExtra
 URL: https://github.com/UCL/rmcmc, http://github-pages.ucl.ac.uk/rmcmc/
 BugReports: https://github.com/UCL/rmcmc/issues
 Imports: 
