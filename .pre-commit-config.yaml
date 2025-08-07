@@ -8,9 +8,6 @@ repos:
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
     -   id: roxygenize
     -   id: use-tidy-description
-    -   id: lintr
-        args: [--warn_only]
-        verbose: true
     -   id: readme-rmd-rendered
     -   id: parsable-R
     -   id: no-browser-statement
