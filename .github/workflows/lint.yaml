@@ -37,7 +37,9 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: local::.
-          needs: lint
+          needs: |
+            bridgestan
+            lint
 
       - name: Lint
         run: lintr::lint_package()
