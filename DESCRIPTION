@@ -63,7 +63,8 @@ Config/Needs/website:
     ggplot2,
     bayesplot,
     rjson,
-    hexbin
+    hexbin,
+    gridExtra
 URL: https://github.com/UCL/rmcmc, http://github-pages.ucl.ac.uk/rmcmc/
 BugReports: https://github.com/UCL/rmcmc/issues
 Imports: 
