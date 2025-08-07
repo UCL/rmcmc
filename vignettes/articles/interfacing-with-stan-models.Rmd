@@ -11,8 +11,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `rmcmc` package includes support for using the probabilistic programming language Stan to define the target distribution for inference via the [R interface of the excellent BridgeStan package](https://roualdes.us/bridgestan/latest/languages/r.html).
-This article illustrates how to the Stan modelling syntax to define a model to use with `rmcmc` using an example model and data from computational neuroscience.
+The `rmcmc` package includes support for using the probabilistic programming language Stan 
+to define the target distribution for inference via the 
+[R interface of the excellent BridgeStan package](https://roualdes.us/bridgestan/latest/languages/r.html).
+This article illustrates how to the Stan modelling syntax to define a model to use with `rmcmc` 
+using an example model and data from computational neuroscience.
 
 
 ```{r setup}
@@ -21,21 +24,51 @@ library(rmcmc)
 
 ## Hodgkin-Huxley model for action potential generation
 
-We will use as an example a mathematical model describing how action potentials in neurons are generated and how we might fit that model to data. The [model of interest](https://en.wikipedia.org/wiki/Hodgkin%E2%80%93Huxley_model) was described by @hodgkin1952currents based on experimental investigations with squid giant axons, and they received the Nobel Prize in Physiology or Medicine for their work in 1963, and we will fit the model here to a digitisation of the data the original experiments from @daly2015hodgkin.
+We will use as an example a mathematical model describing how action potentials in neurons are generated
+and how we might fit that model to data. 
+The [model of interest](https://en.wikipedia.org/wiki/Hodgkin%E2%80%93Huxley_model) 
+was described by @hodgkin1952currents based on experimental investigations with squid giant axons.
+They received the Nobel Prize in Physiology or Medicine for their work in 1963.
+We will fit the model here to a digitisation of the data the original experiments from @daly2015hodgkin.
 
-The [cell membrane voltage $V_m$](https://en.wikipedia.org/wiki/Membrane_potential) is modeled as being controlled by [voltage-gated ion channels](https://en.wikipedia.org/wiki/Voltage-gated_ion_channel), with governing [ordinary differential equation (ODE)](https://en.wikipedia.org/wiki/Ordinary_differential_equation)
+The [cell membrane voltage $V_m$](https://en.wikipedia.org/wiki/Membrane_potential) 
+is modelled as being controlled by [voltage-gated ion channels](https://en.wikipedia.org/wiki/Voltage-gated_ion_channel),
+with governing [ordinary differential equation (ODE)](https://en.wikipedia.org/wiki/Ordinary_differential_equation)
 
 $$
- C_m \frac{\mathrm{d}V_m}{\mathrm{d}t} = g_K (E_K - V_m) + g_{Na}(E_{Na} - V_m) + g_L(E_l - V_m) - I_p.
+ C_m \frac{\mathrm{d}V_m}{\mathrm{d}t} = g_K (E_K - V_m) + g_{Na}(E_{Na} - V_m) + g_L(E_l - V_m) - I.
 $$
 
-Importantly the potassium and sodium channel conductances, $g_K$ and $g_{Na}$, are themselves time and voltage dependent variables. In Hodgkin and Huxley's experiments they used an ingenious [experimental protocol](https://en.wikipedia.org/wiki/Voltage_clamp) to allow measuring the evolution of the cell membrane's conductance over time for specific ion channels while the cell membrane is clamped to a specific depolarization voltage. By varying the extracellular ion concentrations, they were able to isolate the effects of the potassium and sodium channels. Here we will concentrate on the model and data specifically for $g_{K}$, the potassium channel conductance. 
+where 
 
-The potassium channel conductance is modeled as
+- $C_m$ is the membrane capacitance per unit area, 
+- $g_K$ is the potassium channel conductance, 
+- $E_k$ the potassium channel reversal potential,
+- $g_{Na}$ is the sodium channel conductance,
+- $E_{Na}$ is the sodium channel reversal potential,
+- $g_L$ is the leakage conductance,
+- $E_L$ is the leakage reversal potential,
+- and $I$ is the membrane current per unit area.
 
-$$g_{\textrm{K}}(t, v, \theta) = \bar{g}_{\textrm{K}} n(t, v, \theta)^4$$
+Importantly the potassium and sodium channel conductances, $g_K$ and $g_{Na}$, 
+are themselves time and voltage dependent variables. 
+In Hodgkin and Huxley's experiments they used an ingenious [experimental protocol](https://en.wikipedia.org/wiki/Voltage_clamp)
+to allow measuring the evolution of the cell membrane's conductance over time for specific ion channels
+while clamped to a specific depolarization voltage. 
+By varying the extracellular ion concentrations, 
+they were able to isolate the effects of the potassium and sodium channels. 
+Here we will concentrate on the model and data specifically for $g_{K}$, the potassium channel conductance. 
 
-where $\bar{g}_K$ is the maximum potassium channel conductance, $n$ is a time and voltage dependent subunit activation probability in $[0, 1]$, $v = V_{\text{rest}} - V_m$ is the depolarization from the resting potential $V_{\text{rest}}$ in mV and $\theta = (\bar{g}_K, k_{\alpha,1}, k_{\alpha, 2}, k_{\alpha, 3}, k_{\beta, 1}, k_{\beta,2})$ are a set of model parameters.
+The potassium channel conductance is modelled as
+
+$$g_{\textrm{K}}(t, v, \theta) = \bar{g}_{\textrm{K}} n(t, v, \theta)^4,$$
+
+where
+
+- $\bar{g}_K$ is the maximum potassium channel conductance, 
+- $n$ is a time and voltage dependent subunit activation probability in $[0, 1]$, 
+- $v = V_{\text{rest}} - V_m$ is the depolarization from the resting potential $V_{\text{rest}}$ in mV 
+- and $\theta = (\bar{g}_K, k_{\alpha,1}, k_{\alpha, 2}, k_{\alpha, 3}, k_{\beta, 1}, k_{\beta,2})$ are a set of model parameters.
 
 The potassium channel subunit activation $n$ is governed by a linear ODE
 
@@ -53,6 +86,7 @@ $$
   \tau(v, \theta) = \frac{1}{\alpha(v, \theta) + \beta(v, \theta)},\quad
   n_\infty(v, \theta) = \frac{\alpha(v, \theta)}{\alpha(v, \theta) + \beta(v, \theta)}.
 $$
+
 The rate constants $\alpha$ and $\beta$ are themselves defined respectively in terms of the model parameters as
 
 $$
@@ -60,7 +94,14 @@ $$
   \quad
   \beta(v, \boldsymbol{\theta}) = k_{\beta, 1} \exp(v / k_{\beta, 2}).
 $$
-Together these equations define a mathematical model for how the potassium conductance $g_K$ varies as a function of the applied depolarization and time, with six unknown model parameters $\theta = (k_{\alpha,1}, k_{\alpha,2}, k_{\alpha,3}, k_{\beta,1}, k_{\beta,2}, \bar{g}_K)$ that need to be inferred from the experimental data. In Hodgkin and Huxley's experiments, the potassium conductances were measured at regular time intervals for a series of applied depolarizations. We assume here that the recorded conductances are subject to independent zero-mean Gaussian noise with an unknown standard deviation $\sigma$, that is
+
+Together these equations define a mathematical model for how the potassium conductance $g_K$
+varies as a function of the applied depolarization and time, 
+with six unknown model parameters $\theta = (k_{\alpha,1}, k_{\alpha,2}, k_{\alpha,3}, k_{\beta,1}, k_{\beta,2}, \bar{g}_K)$
+that need to be inferred from the experimental data.
+In Hodgkin and Huxley's experiments,
+the potassium conductances were measured at regular time intervals for a series of applied depolarizations.
+We assume here that the recorded conductances are subject to independent zero-mean Gaussian noise with an unknown standard deviation $\sigma$, that is
 
 $$
   y_{n} \sim \mathsf{Normal}(g_K(t_n, v_n, \theta), \sigma) \quad \forall n \in 1{:}N,
@@ -68,7 +109,10 @@ $$
 
 where $t_n$ and $v_n$ are the pairs of measurement times and applied depolarization voltages for the measured potassium conductance $y_n$. 
 
-Altogether then we have seven parameters $(k_{\alpha,1}, k_{\alpha,2}, k_{\alpha,3}, k_{\beta,1}, k_{\beta,2}, \bar{g}_K, \sigma)$ to infer. All parameters here are constrained to be non-negative. We assume that they are apriori independent with weakly-informative log normal prior distributions that correspond to beliefs about the typical plausible magnitudes of these parameters:
+Altogether then we have seven parameters $(k_{\alpha,1}, k_{\alpha,2}, k_{\alpha,3}, k_{\beta,1}, k_{\beta,2}, \bar{g}_K, \sigma)$ to infer. 
+All parameters here are constrained to be non-negative.
+We assume that they are apriori independent with weakly-informative log normal prior distributions 
+that correspond to beliefs about the typical plausible magnitudes of these parameters:
 
 $$
 \begin{aligned}
@@ -84,27 +128,45 @@ $$
 
 ## Stan implementation
 
-[Stan's high-level modelling syntax](https://mc-stan.org/docs/reference-manual/) makes it easy to translate the above mathematical model to an efficient numerical implementation. Importantly for our purposes, due to Stan's support for algorithmic differentiation, we will be able to automatically compute derivatives for the resulting model function.
+[Stan's high-level modelling syntax](https://mc-stan.org/docs/reference-manual/)
+makes it easy to translate the above mathematical model to an efficient numerical implementation.
+Importantly for our purposes, due to Stan's support for algorithmic differentiation, 
+we will be able to automatically compute derivatives for the resulting model functions.
 
-We first declare a series of [user-defined functions](https://mc-stan.org/docs/reference-manual/user-functions.html) in the `functions` block of a Stan model file, corresponding to the various functions defined symbolically in the previous section.
+We first declare a series of [user-defined functions](https://mc-stan.org/docs/reference-manual/user-functions.html)
+in the `functions` block of a Stan model file,
+corresponding to the various functions defined symbolically in the previous section.
 
 ```{r, echo=FALSE, comment=""}
 cat(readLines("hodgkin-huxley-potassium-model.stan")[2:30], sep = "\n")
 ```
 
-In [the `data` block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-data)  we declare the names, types and dimensions of the data values that will be read from the passed data file. Here the data consists of three one-dimensional arrays (vectors) each of length $N = 136$, corresponding to the measurement times (`times`, unit _ms_), depolarizations applied to the axons (`depolarizations`, unit _mV_) and measured conductances (`conductances`, unit _mS cm^{-1}_).
+In [the `data` block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-data) 
+we declare the names, types and dimensions of the data values that will be read from the passed data file.
+Here the data consists of three one-dimensional arrays (vectors) each of length $N = 136$,
+corresponding to the measurement times (`times`, unit _ms_),
+depolarizations applied to the axons (`depolarizations`, unit _mV_)
+and measured conductances (`conductances`, unit _mS cm^{-1}_).
 
 ```{r, echo=FALSE, comment=""}
 cat(readLines("hodgkin-huxley-potassium-model.stan")[31:36], sep = "\n")
 ```
 
-In [the `parameter` block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-parameters) we declare the name, types, dimensions and any constraints on the model parameters that we will be inferring. Here the rate constant parameters $k_{\alpha}$ and $k_{\beta}$ are declared as vectors of dimension 3 and 2 respectively. All parameters here are non-negative and so a `lower=0` constraint is added to indicate to Stan to [transform these constrained parameters to an unconstrained representation suitable for sampling](https://mc-stan.org/docs/reference-manual/transforms.html).
+In [the `parameter` block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-parameters)
+we declare the name, types, dimensions and any constraints on the model parameters that we will be inferring.
+Here the rate constant parameters $k_{\alpha}$ and $k_{\beta}$ are declared as vectors of dimension 3 and 2 respectively.
+All parameters here are non-negative and so a `lower=0` constraint is added to indicate to Stan
+to [transform these constrained parameters to an unconstrained representation suitable for sampling](https://mc-stan.org/docs/reference-manual/transforms.html).
 
 ```{r, echo=FALSE, comment=""}
 cat(readLines("hodgkin-huxley-potassium-model.stan")[37:42], sep = "\n")
 ```
 
-We are now ready to put everything together in [the `model` block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-model). We first define the log-normal prior distributions on all the model parameters. We then call the earlier defined `potassium_conductance` function to compute the simulated potassium conductance values given the measurement times and depolarizations from the data and parameter values. Finally we specify that the observed conductance values are subject to independent normal observation noise. 
+We are now ready to put everything together in [the `model` block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-model).
+We first define the log-normal prior distributions on all the model parameters.
+We then call the earlier defined `potassium_conductance` function
+to compute the simulated potassium conductance values given the measurement times and depolarizations from the data and parameter values.
+Finally we specify that the observed conductance values are subject to independent normal observation noise. 
 
 ```{r, echo=FALSE, comment=""}
 cat(readLines("hodgkin-huxley-potassium-model.stan")[43:58], sep = "\n")
@@ -112,7 +174,8 @@ cat(readLines("hodgkin-huxley-potassium-model.stan")[43:58], sep = "\n")
 
 ## Data
 
-The data we will use to fit the model is a from a digitisation of the experimental data from @hodgkin1952currents due to @daly2015hodgkin. The data has been written in JSON format to a file `hodgkin-huxley-potassium-data.json`, with contents
+The data we will use to fit the model is a from a digitisation of the experimental data from @hodgkin1952currents due to @daly2015hodgkin.
+The data has been written in JSON format to a file `hodgkin-huxley-potassium-data.json`, with contents
 
 ```{r, echo=FALSE, comment=""}
 cat(readLines("hodgkin-huxley-potassium-data.json"), sep = "\n")
@@ -130,7 +193,8 @@ We first read the data from the JSON file in to a data frame.
 data <- data.frame(fromJSON(file = "hodgkin-huxley-potassium-data.json"))
 ```
 
-We then plot the conductances against measurement times, grouping by the depolarization level with a different colour for each level.
+We then plot the conductances against measurement times,
+grouping by the depolarization level with a different colour for each level.
 
 ```{r fig.width=7, fig.height=5}
 (
@@ -157,14 +221,17 @@ We will use BridgeStan to construct a `StanModel` object from the files defining
 library(bridgestan)
 ```
 
-Before creating the model object we set a fixed random seed and use it to seed the global R random number generator state. We will also use this seed for the (separate) random number generator state used by BridgeStan.
+Before creating the model object,
+we set a fixed random seed and use it to seed the global R random number generator state.
+We will also use this seed for the (separate) random number generator state used by BridgeStan.
 
 ```{r}
 seed <- 7861223L
 set.seed(seed)
 ```
 
-We now create our model object, passing the paths to the Stan model file and JSON data file respectively, as well as our integer seed for the internal Stan random number generator state.
+We now create our model object, passing the paths to the Stan model file and JSON data file respectively,
+as well as our integer seed for the internal Stan random number generator state.
 
 ```{r}
 model <- StanModel$new(
@@ -175,7 +242,9 @@ model <- StanModel$new(
 ```
 
 `rmcmc` requires the initial chain state to be explicitly specified.
-The `StanModel` object we just created includes a method `param_unc_num` which can be used to evaluate the dimension of the unconstrained model parameter space we will perform inference in. Here we use the arbitrary choice of initializing with random uniform values on (0, 1) in the unconstrained space.
+The `StanModel` object we just created includes a method `param_unc_num`
+which can be used to evaluate the dimension of the unconstrained model parameter space we will perform inference in.
+Here we use the arbitrary choice of initializing with random uniform values on (0, 1) in the unconstrained space.
 
 ```{r}
 initial_state <- runif(model$param_unc_num())
@@ -183,8 +252,22 @@ initial_state <- runif(model$param_unc_num())
 
 We now have all the components we need to sample a chain using `rmcmc`.
 The `sample_chain()` function is the main entry point to `rmcmc`.
-It takes several arguments, one of the most important of which is the `target_distribution` specifying the distribution to generate approximate samples for.
-This can be supplied in various formats; here we will exploit the ability to pass a BridgeStan `StanModel` instance directly, with this internally be mapped through the `target_distribution_from_stan_model()` function (which can be used for additional control, for example customizing whether values defined in the Stan generated quantities or transformed parameters blocks are included in the traced chain outputs). We also pass our sampled initial state and specify to use 100000 iterations for both the initial adaptive warm-up and main (non-adaptive) sampling stages, with a chain of this length taking around a minute to sample on a laptop. Finally we here explicitly specify the adaptation scheme used to learn the proposal scale and shape parameters, overriding the default choice of using a dense shape matrix based on the estimated covariances, to instead use a diagonal shape matrix based on just the estimated variances. This was found to give robuster sampling in practice here.
+It takes several arguments, one of the most important of which is the `target_distribution`
+specifying the distribution to generate approximate samples for.
+This can be supplied in various formats;
+here we will exploit the ability to pass a BridgeStan `StanModel` instance directly,
+with this internally be mapped through the `target_distribution_from_stan_model()` function.
+This function can be called explicitly for additional control,
+for example customizing whether values defined in the Stan generated quantities
+or transformed parameters blocks are included in the traced chain outputs.
+
+We also pass our sampled initial state and specify to use 100000 iterations
+for both the initial adaptive warm-up and main (non-adaptive) sampling stages.
+A chain of this length takes around a minute to sample on a laptop. 
+Finally we here explicitly specify the adaptation scheme used to learn the proposal scale and shape parameters.
+This overrides the default choice of using a dense shape matrix based on the estimated covariances,
+to instead use a diagonal shape matrix based on just the estimated variances.
+This was found to give robuster sampling in practice here.
 
 ```{r}
 results <- sample_chain(
@@ -204,14 +287,18 @@ We can use the `posterior` package to compute summary statistics and convergence
 library(posterior)
 ```
 
-While the `results$traces` matrix (with rows corresponding to the chain iterations and column the traced variables) can be passed directly to main of the functions in the `posterior` package, here we will explicitly create a draws object to allow using some of the functions for subsetting the draws.
+While the `results$traces` matrix (with rows corresponding to the chain iterations and column the traced variables)
+can be passed directly to main of the functions in the `posterior` package,
+here we will explicitly create a draws object to allow using some of the functions for subsetting the draws.
 
 
 ```{r}
 draws <- as_draws(results$traces)
 ```
 
-We first compute and display a series of convergence diagnostics, using the `subset_draws` function in posterior to filter only the traced variables corresponding to the model parameters (accessed using the `model$param_names()` method):
+We first compute and display a series of convergence diagnostics,
+using the `subset_draws` function in posterior to filter only the traced variables corresponding to the model parameters
+(accessed using the `model$param_names()` method):
 
 
 ```{r}
@@ -220,7 +307,10 @@ summarize_draws(
 )
 ```
 
-The rank-normalized $\hat{R}$ values are all close to 1 which is indicative of the chain having converged, though note as we have only sampled a single chain here the power of this diagnostic is more limited than for multiple chains. The effective sample size (ESS) estimates for both the bulk and tail suggest are on the low side but suggest we should be able to compute reasonably informative posterior estimates. 
+The rank-normalized $\hat{R}$ values are all close to 1 which is indicative of the chain having converged,
+though note as we have only sampled a single chain here the power of this diagnostic is limited.
+The effective sample size (ESS) estimates for both the bulk and tail are on the low side,
+but suggest we should be able to compute reasonably informative posterior estimates. 
 
 We can also compute summary statistics for the posterior distribution on the model parameters:
 
@@ -229,7 +319,8 @@ summarize_draws(subset_draws(draws, model$param_names()), default_summary_measur
 ```
 ## Visualising posterior with `bayesplot`
 
-As well as being able to compute diagnostics and statistics using the `posterior` package, the sampled chain can also be visualized using the `bayesplot` package.
+As well as being able to compute diagnostics and statistics using the `posterior` package,
+the sampled chain can also be visualized using the `bayesplot` package.
 
 ```{r}
 library(bayesplot)
@@ -245,6 +336,8 @@ mcmc_pairs(
 )
 ```
 
-Here we use the `thin_draws` function from the `posterior` package to thin the draws by a factor of 10 to reduce the number of points needing to be binned in the plots, with this having minimal effect on the variances of the plotted densities. We can see that the posterior exhibits some complex non-linear dependencies between the parameters.
+Here we use the `thin_draws` function from the `posterior` package
+to thin the draws by a factor of 10 to reduce the number of points needing to be binned in the plots. 
+This reduces the time required to produce to plot while having minimal effect on the variances of the plotted densities.
 
 ## References
