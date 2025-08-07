@@ -2,20 +2,12 @@
 # R specific hooks: https://github.com/lorenzwalthert/precommit
 repos:
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.4.3
+    rev: v0.4.3.9013
     hooks:
     -   id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
     -   id: roxygenize
-        # roxygen requires loading pkg -> add dependencies from DESCRIPTION
-        additional_dependencies:
-        -    Matrix
-        -    rlang
-        -    withr
     -   id: use-tidy-description
-    # disable lintr hook pending resolution of
-    # https://github.com/lorenzwalthert/precommit/issues/440
-    # -   id: lintr
     -   id: readme-rmd-rendered
     -   id: parsable-R
     -   id: no-browser-statement
