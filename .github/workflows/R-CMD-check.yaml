@@ -68,8 +68,9 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, github::roualdes/bridgestan/R@v2.5.0
-          needs: check
+          needs: |
+            bridgestan
+            check
 
       - uses: r-lib/actions/check-r-package@v2
         with:

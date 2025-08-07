@@ -46,7 +46,22 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Config/Needs/website: ggplot2, bayesplot
+Config/Needs/bridgestan:
+    bridgestan=url::https://community.r-multiverse.org/src/contrib/bridgestan_2.6.2.tar.gz
+Config/Needs/check:
+    any::rcmdcheck
+Config/Needs/coverage:
+     any::covr,
+     any::xml2
+Config/Needs/lint:
+    any::lintr,
+    any::cyclocomp
+Config/Needs/style:
+    any::styler
+Config/Needs/website:
+    any::pkgdown,
+    ggplot2,
+    bayesplot
 URL: https://github.com/UCL/rmcmc, http://github-pages.ucl.ac.uk/rmcmc/
 BugReports: https://github.com/UCL/rmcmc/issues
 Imports: 
