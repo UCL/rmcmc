@@ -24,6 +24,7 @@ jobs:
           extra-packages: local::.
           needs: |
             bridgestan
+            lint
             style
             website
 
