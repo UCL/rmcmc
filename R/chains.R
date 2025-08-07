@@ -104,37 +104,16 @@ sample_chain <- function(
     trace_warm_up = FALSE) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
-  if (is.vector(initial_state) && is.atomic(initial_state)) {
-    state <- chain_state(initial_state)
-  } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
-    state <- initial_state$copy()
-  } else {
-    stop("initial_state must be a vector or list with an entry named position.")
-  }
-  if (inherits(target_distribution, "formula")) {
-    target_distribution <- target_distribution_from_log_density_formula(
-      target_distribution
-    )
-  } else if (inherits(target_distribution, "StanModel")) {
-    target_distribution <- target_distribution_from_stan_model(
-      target_distribution
-    )
-  } else if (
-    !is.list(target_distribution) ||
-      !("log_density" %in% names(target_distribution))
-  ) {
-    stop("target_distribution invalid - see documentation for allowable types.")
-  }
-  if (is.null(target_distribution$trace_function)) {
-    trace_function <- default_trace_function(target_distribution)
-  } else {
-    trace_function <- target_distribution$trace_function
-  }
+  initial_state <- check_and_process_initial_state(initial_state)
+  target_distribution <- check_and_process_target_distribution(
+    target_distribution
+  )
+  trace_function <- get_trace_function(target_distribution)
   statistic_names <- list("accept_prob")
   warm_up_results <- chain_loop(
     stage_name = "Warm-up",
     n_iteration = n_warm_up_iteration,
-    state = state,
+    state = initial_state,
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = adapters,
@@ -143,11 +122,10 @@ sample_chain <- function(
     trace_function = trace_function,
     statistic_names = statistic_names
   )
-  state <- warm_up_results$final_state
   main_results <- chain_loop(
     stage_name = "Main",
     n_iteration = n_main_iteration,
-    state = state,
+    state = warm_up_results$final_state,
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = NULL,
@@ -160,6 +138,39 @@ sample_chain <- function(
     return(combine_stage_results(warm_up_results, main_results))
   } else {
     return(main_results)
+  }
+}
+
+check_and_process_initial_state <- function(initial_state) {
+  if (is.vector(initial_state) && is.atomic(initial_state)) {
+    chain_state(initial_state)
+  } else if (is.vector(initial_state) && "position" %in% names(initial_state)) {
+    initial_state$copy()
+  } else {
+    stop("initial_state must be a vector or list with an entry named position.")
+  }
+}
+
+check_and_process_target_distribution <- function(target_distribution) {
+  if (inherits(target_distribution, "formula")) {
+    target_distribution_from_log_density_formula(target_distribution)
+  } else if (inherits(target_distribution, "StanModel")) {
+    target_distribution_from_stan_model(target_distribution)
+  } else if (
+    !is.list(target_distribution) ||
+      !("log_density" %in% names(target_distribution))
+  ) {
+    stop("target_distribution invalid - see documentation for allowable types.")
+  } else {
+    target_distribution
+  }
+}
+
+get_trace_function <- function(target_distribution) {
+  if (is.null(target_distribution$trace_function)) {
+    default_trace_function(target_distribution)
+  } else {
+    target_distribution$trace_function
   }
 }
 
@@ -187,16 +198,41 @@ get_progress_bar <- function(use_progress_bar, n_iteration, label) {
   }
 }
 
-initialize_traces <- function(trace_names, n_iteration) {
+initialize_traces <- function(trace_function, state, n_iteration) {
+  trace_names <- names(unlist(trace_function(state)))
   traces <- matrix(ncol = length(trace_names), nrow = n_iteration)
   colnames(traces) <- trace_names
   traces
 }
 
-initialize_statistics <- function(statistic_names, n_iteration) {
+initialize_statistics <- function(statistic_names, adapters, n_iteration) {
+  adapter_statistics <- names(unlist(lapply(adapters, function(a) a$state())))
+  statistic_names <- c(statistic_names, adapter_statistics)
   statistics <- matrix(ncol = length(statistic_names), nrow = n_iteration)
   colnames(statistics) <- statistic_names
   statistics
+}
+
+initialize_adapters <- function(adapters, proposal, state) {
+  for (adapter in adapters) {
+    adapter$initialize(proposal, state)
+  }
+  invisible(adapters)
+}
+
+update_adapters <- function(
+    adapters, proposal, chain_iteration, state_and_statistics) {
+  for (adapter in adapters) {
+    adapter$update(proposal, chain_iteration, state_and_statistics)
+  }
+  invisible(adapters)
+}
+
+finalize_adapters <- function(adapters, proposal) {
+  for (adapter in adapters) {
+    if (!is.null(adapter$finalize)) adapter$finalize(proposal)
+  }
+  invisible(adapters)
 }
 
 chain_loop <- function(
@@ -214,16 +250,10 @@ chain_loop <- function(
   # Only show 10% increments in progress bar to avoid progress bar updates being
   # a bottleneck when chain iteration rate is high
   tick_amount <- max(n_iteration %/% 10, 1)
-  for (adapter in adapters) {
-    adapter$initialize(proposal, state)
-  }
+  initialize_adapters(adapters, proposal, state)
   if (record_traces_and_statistics) {
-    trace_names <- names(unlist(trace_function(state)))
-    traces <- initialize_traces(trace_names, n_iteration)
-    adapter_statistics <- names(unlist(lapply(adapters, function(a) a$state())))
-    statistics <- initialize_statistics(
-      c(statistic_names, adapter_statistics), n_iteration
-    )
+    traces <- initialize_traces(trace_function, state, n_iteration)
+    statistics <- initialize_statistics(statistic_names, adapters, n_iteration)
   } else {
     traces <- NULL
     statistics <- NULL
@@ -232,9 +262,7 @@ chain_loop <- function(
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
     )
-    for (adapter in adapters) {
-      adapter$update(proposal, chain_iteration, state_and_statistics)
-    }
+    update_adapters(adapters, proposal, chain_iteration, state_and_statistics)
     state <- state_and_statistics$state
     if (record_traces_and_statistics) {
       traces[chain_iteration, ] <- unlist(trace_function(state))
@@ -250,9 +278,7 @@ chain_loop <- function(
   # Ensure progress bar shows completed in cases tick_amount not a factor of
   # n_iteration
   if (!is.null(progress_bar) && !progress_bar$finished) progress_bar$update(1)
-  for (adapter in adapters) {
-    if (!is.null(adapter$finalize)) adapter$finalize(proposal)
-  }
+  finalize_adapters(adapters, proposal)
   list(final_state = state, traces = traces, statistics = statistics)
 }
 

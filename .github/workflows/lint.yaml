@@ -36,8 +36,10 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::lintr, any::cyclocomp, github::roualdes/bridgestan/R@v2.5.0, local::.
-          needs: lint
+          extra-packages: local::.
+          needs: |
+            bridgestan
+            lint
 
       - name: Lint
         run: lintr::lint_package()
