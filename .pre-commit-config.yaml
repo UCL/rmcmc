@@ -7,15 +7,10 @@ repos:
     -   id: style-files
         args: [--style_pkg=styler, --style_fun=tidyverse_style]
     -   id: roxygenize
-        # roxygen requires loading pkg -> add dependencies from DESCRIPTION
-        additional_dependencies:
-        -    Matrix
-        -    rlang
-        -    withr
     -   id: use-tidy-description
-    # disable lintr hook pending resolution of
-    # https://github.com/lorenzwalthert/precommit/issues/440
-    # -   id: lintr
+    -   id: lintr
+        args: [--warn_only]
+        verbose: true
     -   id: readme-rmd-rendered
     -   id: parsable-R
     -   id: no-browser-statement
