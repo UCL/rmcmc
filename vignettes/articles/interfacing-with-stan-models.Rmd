@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 The `rmcmc` package includes support for using the probabilistic programming language Stan 
 to define the target distribution for inference via the 
 [R interface of the excellent BridgeStan package](https://roualdes.us/bridgestan/latest/languages/r.html).
-This article illustrates how to the Stan modelling syntax to define a model to use with `rmcmc` 
+This article illustrates how to use the Stan modelling syntax to define a model to use with `rmcmc` 
 using an example model and data from computational neuroscience.
 
 
@@ -197,19 +197,14 @@ We then plot the conductances against measurement times,
 grouping by the depolarization level with a different colour for each level.
 
 ```{r fig.width=7, fig.height=5}
-(
-  ggplot(
-    data = data, aes(x = times, y = conductances, colour = factor(depolarizations))
+ggplot(
+  data = data, aes(x = times, y = conductances, colour = factor(depolarizations))
+) +
+  geom_line() +
+  geom_point() +
+  labs(
+    x = "Times / ms", y = "Conductances / mS cm-2", colour = "Depolarizations / mV"
   )
-  +
-    geom_line()
-    +
-    geom_point()
-    +
-    labs(
-      x = "Times / ms", y = "Conductances / mS cm-2", colour = "Depolarizations / mV"
-    )
-)
 ```
 
 ## Fitting model with `rmcmc`

@@ -38,8 +38,9 @@ proposal distributions, such as (Gaussian) random walk and Langevin
 proposals. Optionally, if [BridgeStan’s R
 interface](https://roualdes.github.io/bridgestan/latest/languages/r.html),
 available [on GitHub](https://github.com/roualdes/bridgestan), is
-installed, then BridgeStan can be used to specify the target
-distribution to sample from.
+installed, [then BridgeStan can be used to specify the target
+distribution to sample
+from](https://github-pages.ucl.ac.uk/rmcmc/articles/interfacing-with-stan-models.html).
 
 ## Installation
 
@@ -60,9 +61,9 @@ devtools::install_github("UCL/rmcmc")
 
 ## Examples
 
-The snippet belows shows a basic example of using the package to
-generate samples from a normal target distribution with random scales.
-Adapters are used to tune the proposal scale to achieve a target average
+The snippet below shows a basic example of using the package to generate
+samples from a normal target distribution with random scales. Adapters
+are used to tune the proposal scale to achieve a target average
 acceptance probability, and to tune the proposal shape with
 per-dimension scale factors based on online estimates of the target
 distribution variances.
