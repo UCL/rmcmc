@@ -408,3 +408,11 @@ test_that("sample_chain works with dummy adapter with required interface", {
     )
   )
 })
+
+test_that("Initialising scale_adapter with unrecognised algorithm gives error", {
+  expect_error(scale_adapter(algorithm = "foo"), "Unrecognized algorithm")
+})
+
+test_that("Initialising shape_adapter with unrecognised type gives error", {
+  expect_error(shape_adapter(type = "foo"), "Unrecognized type")
+})
