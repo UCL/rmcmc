@@ -41,10 +41,14 @@ target_distribution_from_stan_model <- function(
   trace_function <- function(state) {
     position <- state$position()
     trace_values <- model$param_constrain(
-      position, include_transformed_parameters, include_generated_quantities, rng
+      position,
+      include_tp = include_transformed_parameters,
+      include_gq = include_generated_quantities,
+      rng = rng
     )
     names(trace_values) <- model$param_names(
-      include_gq = include_generated_quantities, include_tp = include_transformed_parameters
+      include_tp = include_transformed_parameters,
+      include_gq = include_generated_quantities
     )
     if (include_log_density) {
       trace_values["log_density"] <- model$log_density(position)
