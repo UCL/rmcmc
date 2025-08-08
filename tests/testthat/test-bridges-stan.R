@@ -31,45 +31,69 @@ test_that("Creating target distribution from Stan model works", {
 })
 
 for (include_log_density in c(TRUE, FALSE)) {
-  test_that(
-    sprintf(
-      "Creating trace function from Stan model works (include_log_density = %i)",
-      include_log_density
-    ),
-    {
-      model <- cached_example_gaussian_stan_model()
-      trace_function <- target_distribution_from_stan_model(
-        model,
-        include_log_density = include_log_density
-      )$trace_function
-      expect_type(trace_function, "closure")
-      position <- rep(0, model$param_unc_num())
-      state <- chain_state(position)
-      trace_values <- trace_function(state)
-      if (include_log_density) {
-        expected_length <- model$param_num() + 1L
-      } else {
-        expected_length <- model$param_num()
-      }
-      expect_identical(length(trace_values), expected_length)
-      expected_parameter_values <- model$param_constrain(position)
-      expected_parameter_names <- model$param_names()
-      if (include_log_density) {
-        expected_names <- c(expected_parameter_names, "log_density")
-      } else {
-        expected_names <- expected_parameter_names
-      }
-      expect_named(trace_values, expected_names)
-      for (i in seq_along(expected_parameter_values)) {
-        name <- expected_parameter_names[[i]]
-        expect_identical(trace_values[[name]], expected_parameter_values[[i]])
-      }
-      if (include_log_density) {
-        expected_log_density <- model$log_density(position)
-        expect_identical(trace_values[["log_density"]], expected_log_density)
-      }
+  for (include_generated_quantities in c(TRUE, FALSE)) {
+    for (include_transformed_parameters in c(TRUE, FALSE)) {
+      test_that(
+        sprintf(
+          paste0(
+            "Creating trace function from Stan model works (",
+            "include_log_density = %i, ",
+            "include_generated_quantities = %i, ",
+            "include_transformed_parameters = %i)"
+          ),
+          include_log_density,
+          include_generated_quantities,
+          include_transformed_parameters
+        ),
+        {
+          model <- cached_example_gaussian_stan_model()
+          rng <- model$new_rng(1234L)
+          trace_function <- target_distribution_from_stan_model(
+            model,
+            include_log_density = include_log_density,
+            include_generated_quantities = include_generated_quantities,
+            include_transformed_parameters = include_transformed_parameters
+          )$trace_function
+          expect_type(trace_function, "closure")
+          position <- rep(0, model$param_unc_num())
+          state <- chain_state(position)
+          trace_values <- trace_function(state)
+          expected_length <- model$param_num(
+            include_tp = include_transformed_parameters,
+            include_gq = include_generated_quantities
+          )
+          if (include_log_density) {
+            expected_length <- expected_length + 1L
+          }
+          expect_identical(length(trace_values), expected_length)
+          expected_parameter_values <- model$param_constrain(
+            position,
+            include_tp = include_transformed_parameters,
+            include_gq = include_generated_quantities,
+            rng = rng
+          )
+          expected_parameter_names <- model$param_names(
+            include_tp = include_transformed_parameters,
+            include_gq = include_generated_quantities
+          )
+          if (include_log_density) {
+            expected_names <- c(expected_parameter_names, "log_density")
+          } else {
+            expected_names <- expected_parameter_names
+          }
+          expect_named(trace_values, expected_names)
+          for (i in seq_along(expected_parameter_values)) {
+            name <- expected_parameter_names[[i]]
+            expect_identical(trace_values[[name]], expected_parameter_values[[i]])
+          }
+          if (include_log_density) {
+            expected_log_density <- model$log_density(position)
+            expect_identical(trace_values[["log_density"]], expected_log_density)
+          }
+        }
+      )
     }
-  )
+  }
 }
 
 test_that("Using sample_chains with Stan model as target_distribution works", {
