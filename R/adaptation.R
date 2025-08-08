@@ -42,7 +42,7 @@ scale_adapter <- function(
   adapter_function <- switch(algorithm,
     dual_averaging = dual_averaging_scale_adapter,
     stochastic_approximation = stochastic_approximation_scale_adapter,
-    stop(sprintf("Unrecognized algorithm choice %s"), algorithm)
+    stop(sprintf("Unrecognized algorithm choice %s", algorithm))
   )
   adapter_function(initial_scale, target_accept_prob, ...)
 }
@@ -207,7 +207,7 @@ shape_adapter <- function(type = "covariance", kappa = 1) {
   adapter_function <- switch(type,
     covariance = covariance_shape_adapter,
     variance = variance_shape_adapter,
-    stop(sprintf("Unrecognized type choice %s"), type)
+    stop(sprintf("Unrecognized type choice %s", type))
   )
   adapter_function(kappa)
 }
