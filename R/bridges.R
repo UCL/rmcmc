@@ -8,6 +8,8 @@
 #'   in Stan model definition in values returned by trace function.
 #' @param include_transformed_parameters Whether to include transformed
 #'   parameters in Stan model definition in values returned by trace function.
+#' @param seed Seed to use for random number generator used to for any random numbers
+#'   generated as part of generated quantities block.
 #'
 #' @return A list with entries
 #' * `log_density`: A function to evaluate log density function for target
@@ -33,13 +35,21 @@ target_distribution_from_stan_model <- function(
     model,
     include_log_density = TRUE,
     include_generated_quantities = FALSE,
-    include_transformed_parameters = FALSE) {
+    include_transformed_parameters = FALSE,
+    seed = 1234L) {
+  rng <- model$new_rng(seed)
   trace_function <- function(state) {
     position <- state$position()
     trace_values <- model$param_constrain(
-      position, include_transformed_parameters, include_generated_quantities
+      position,
+      include_tp = include_transformed_parameters,
+      include_gq = include_generated_quantities,
+      rng = rng
     )
-    names(trace_values) <- model$param_names()
+    names(trace_values) <- model$param_names(
+      include_tp = include_transformed_parameters,
+      include_gq = include_generated_quantities
+    )
     if (include_log_density) {
       trace_values["log_density"] <- model$log_density(position)
     }
@@ -84,10 +94,18 @@ example_gaussian_stan_model <- function(n_data = 50, seed = 1234L) {
     real mu;
     real<lower=0> sigma;
   }
+  transformed parameters {
+    // Adding an arbitrary entry here to allow testing for inclusion of transformed
+    // parameters in output - not needed in practice
+    real log_sigma = log(sigma);
+  }
   model {
     mu ~ normal(0, 3);
     sigma ~ normal(0, 3);
     y ~ normal(mu, sigma);
+  }
+  generated quantities {
+    real y_pred = normal_rng(mu, sigma);
   }"
   withr::with_seed(seed, y <- stats::rnorm(n_data))
   data_string <- sprintf('{"N": %i, "y": [%s]}', n_data, toString(y))
