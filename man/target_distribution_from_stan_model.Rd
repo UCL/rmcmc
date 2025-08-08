@@ -8,7 +8,8 @@ target_distribution_from_stan_model(
   model,
   include_log_density = TRUE,
   include_generated_quantities = FALSE,
-  include_transformed_parameters = FALSE
+  include_transformed_parameters = FALSE,
+  seed = 1234L
 )
 }
 \arguments{
@@ -23,6 +24,9 @@ in Stan model definition in values returned by trace function.}
 
 \item{include_transformed_parameters}{Whether to include transformed
 parameters in Stan model definition in values returned by trace function.}
+
+\item{seed}{Seed to use for random number generator used to for any random numbers
+generated as part of generated quantities block.}
 }
 \value{
 A list with entries

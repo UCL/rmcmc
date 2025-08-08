@@ -8,6 +8,8 @@
 #'   in Stan model definition in values returned by trace function.
 #' @param include_transformed_parameters Whether to include transformed
 #'   parameters in Stan model definition in values returned by trace function.
+#' @param seed Seed to use for random number generator used to for any random numbers
+#'   generated as part of generated quantities block.
 #'
 #' @return A list with entries
 #' * `log_density`: A function to evaluate log density function for target
