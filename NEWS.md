@@ -1,3 +1,5 @@
+# rmcmc (development version)
+
 # rmcmc 0.1.2
 
 * In `scale_adapter()` and `shape_adapter()`, setting `algorithm` and `type`
