@@ -1,6 +1,6 @@
 Package: rmcmc
 Title: Robust Markov Chain Monte Carlo Methods
-Version: 0.1.1.9000
+Version: 0.1.2.9000
 Authors@R: c(
     person(c("Matthew", "M."), "Graham", , "m.graham@ucl.ac.uk",
            role = c("aut", "cre"),
@@ -29,7 +29,7 @@ Description: Functions for simulating Markov chains using the Barker proposal
     distribution. As well as the default Barker proposal, the package also
     provides implementations of alternative proposal distributions, such as
     (Gaussian) random walk and Langevin proposals. Optionally, if 'BridgeStan's
-    R interface <https://roualdes.github.io/bridgestan/latest/languages/r.html>,
+    R interface <https://roualdes.us/bridgestan/latest/languages/r.html>,
     available on GitHub <https://github.com/roualdes/bridgestan>, is installed,
     then 'BridgeStan' can be used to specify the target distribution to sample
     from.
@@ -47,7 +47,7 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Config/Needs/bridgestan:
-    bridgestan=url::https://community.r-multiverse.org/src/contrib/bridgestan_2.6.2.tar.gz
+    bridgestan=url::https://community.r-multiverse.org/src/contrib/bridgestan_2.7.0.tar.gz
 Config/Needs/check:
     any::rcmdcheck
 Config/Needs/coverage:
