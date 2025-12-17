@@ -109,20 +109,26 @@ sample_chain <- function(
   target_distribution <- check_and_process_target_distribution(
     target_distribution
   )
+  adapters <- check_and_process_adapters(adapters, n_warm_up_iteration)
   trace_function <- get_trace_function(target_distribution)
   statistic_names <- list("accept_prob")
-  warm_up_results <- chain_loop(
-    stage_name = "Warm-up",
-    n_iteration = n_warm_up_iteration,
-    state = initial_state,
-    target_distribution = target_distribution,
-    proposal = proposal,
-    adapters = adapters,
-    use_progress_bar = use_progress_bar,
-    record_traces_and_statistics = trace_warm_up,
-    trace_function = trace_function,
-    statistic_names = statistic_names
-  )
+  warm_up_results <- list(state = initial_state)
+  for (stage_index in seq_along(adapters)) {
+    stage_adapters <- adapters[[stage_index]]
+    stage_warm_up_results <- chain_loop(
+      stage_name = "Warm-up",
+      n_iteration = n_warm_up_iteration,
+      state = warm_up_results$state,
+      target_distribution = target_distribution,
+      proposal = proposal,
+      adapters = adapters[[stage_index]],
+      use_progress_bar = use_progress_bar,
+      record_traces_and_statistics = trace_warm_up,
+      trace_function = trace_function,
+      statistic_names = statistic_names
+    )
+    warm_up_results <- combine_warm_up_results(warm_up_results, stage_warm_up_results)
+  }
   main_results <- chain_loop(
     stage_name = "Main",
     n_iteration = n_main_iteration,
@@ -164,6 +170,23 @@ check_and_process_target_distribution <- function(target_distribution) {
     stop("target_distribution invalid - see documentation for allowable types.")
   } else {
     target_distribution
+  }
+}
+
+check_and_process_adapters <- function(adapters, n_warm_up_iteration) {
+  error_message <- "adapters invalid - see documentation for allowable types"
+  if (is.list(adapters)) {
+    if (all(sapply(adapters, is_adapter))) {
+      list(c(adapters, list(n_iteration = n_warm_up_iteration)))
+    } else if (all(sapply(adapters, is.list)) && all(sapply(adapters, function(a) "n_iteration" %in% names(a)))) {
+      adapters
+    } else {
+      stop(error_message)
+    }
+  } else if (is.function(adapters)) {
+    adapters(n_warm_up_iteration)
+  } else {
+    stop(error_message)
   }
 }
 
@@ -283,6 +306,18 @@ chain_loop <- function(
   if (!is.null(progress_bar) && !progress_bar$finished) progress_bar$update(1)
   finalize_adapters(adapters, proposal)
   list(final_state = state, traces = traces, statistics = statistics)
+}
+
+combine_warm_up_results <- function(warm_up_results_1, warm_up_results_2) {
+  if (is.null(warm_up_results_1)) {
+    warm_up_results_2
+  } else {
+    list(
+      state = warm_up_results_2$state,
+      traces = mapply(c, warm_up_results_1$traces, warm_up_results_2$traces),
+      statistics = mapply(c, warm_up_results_1$statistics, warm_up_results_2$statistics)
+    )
+  }
 }
 
 combine_stage_results <- function(warm_up_results, main_results) {
