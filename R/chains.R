@@ -135,9 +135,9 @@ sample_chain <- function(
     statistic_names = statistic_names
   )
   if (trace_warm_up) {
-    return(combine_stage_results(warm_up_results, main_results))
+    combine_stage_results(warm_up_results, main_results)
   } else {
-    return(main_results)
+    main_results
   }
 }
 
