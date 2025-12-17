@@ -373,3 +373,8 @@ robust_shape_adapter <- function(
     state = function() list(shape = shape)
   )
 }
+
+is_adapter <- function(object) {
+  is.list(object) &&
+    all(c("initialize", "update", "finalize", "state") %in% names(object))
+}
