@@ -37,10 +37,11 @@ chain_state <- function(position, momentum = NULL) {
 }
 
 new_chain_state <- function(
-    position,
-    momentum = NULL,
-    cached_log_density = NULL,
-    cached_gradient_log_density = NULL) {
+  position,
+  momentum = NULL,
+  cached_log_density = NULL,
+  cached_gradient_log_density = NULL
+) {
   log_density <- function(target_distribution) {
     if (is.null(cached_log_density)) {
       cached_log_density <<- target_distribution$log_density(position)

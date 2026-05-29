@@ -21,7 +21,7 @@ be of the form \code{y ~ normal(mu, sigma)} for unknown \code{mu ~ normal(0, 3)}
 \code{sigma ~ half_normal(0, 3)}.
 }
 \examples{
-\dontshow{if (requireNamespace("bridgestan", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("bridgestan", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 model <- example_gaussian_stan_model(n_data = 5)
 model$param_names()
 \dontshow{\}) # examplesIf}

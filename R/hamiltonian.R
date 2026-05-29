@@ -2,12 +2,13 @@
 #'
 #' @keywords internal
 sample_hamiltonian <- function(
-    state,
-    target_distribution,
-    n_step,
-    scale_and_shape,
-    sample_auxiliary,
-    sample_n_step) {
+  state,
+  target_distribution,
+  n_step,
+  scale_and_shape,
+  sample_auxiliary,
+  sample_n_step
+) {
   state$update(momentum = sample_auxiliary(state))
   if (!is.null(sample_n_step)) {
     n_step <- sample_n_step(n_step)
@@ -23,7 +24,8 @@ sample_hamiltonian <- function(
 #'
 #' @keywords internal
 involution_hamiltonian <- function(
-    state, n_step, scale_and_shape, target_distribution) {
+  state, n_step, scale_and_shape, target_distribution
+) {
   # Initial half-step
   gradient <- state$gradient_log_density(target_distribution)
   momentum <- state$momentum() + (gradient %@% scale_and_shape) / 2
@@ -50,10 +52,11 @@ involution_hamiltonian <- function(
 #'
 #' @keywords internal
 log_density_ratio_hamiltonian <- function(
-    state,
-    proposed_state,
-    target_distribution,
-    scale_and_shape) {
+  state,
+  proposed_state,
+  target_distribution,
+  scale_and_shape
+) {
   sum(state$momentum()^2 - proposed_state$momentum()^2) / 2
 }
 
@@ -141,11 +144,12 @@ log_density_ratio_hamiltonian <- function(
 #'   876287L, proposed_state <- proposal$sample(state, target_distribution)
 #' )
 hamiltonian_proposal <- function(
-    n_step,
-    scale = NULL,
-    shape = NULL,
-    sample_auxiliary = function(state) stats::rnorm(state$dimension()),
-    sample_n_step = NULL) {
+  n_step,
+  scale = NULL,
+  shape = NULL,
+  sample_auxiliary = function(state) stats::rnorm(state$dimension()),
+  sample_n_step = NULL
+) {
   scale_and_shape_proposal(
     sample = function(state, target_distribution, scale_and_shape) {
       sample_hamiltonian(

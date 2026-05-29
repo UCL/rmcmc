@@ -94,14 +94,15 @@
 #'   )
 #' })
 sample_chain <- function(
-    target_distribution,
-    initial_state,
-    n_warm_up_iteration,
-    n_main_iteration,
-    proposal = barker_proposal(),
-    adapters = list(scale_adapter(), shape_adapter()),
-    show_progress_bar = TRUE,
-    trace_warm_up = FALSE) {
+  target_distribution,
+  initial_state,
+  n_warm_up_iteration,
+  n_main_iteration,
+  proposal = barker_proposal(),
+  adapters = list(scale_adapter(), shape_adapter()),
+  show_progress_bar = TRUE,
+  trace_warm_up = FALSE
+) {
   progress_available <- requireNamespace("progress", quietly = TRUE)
   use_progress_bar <- progress_available && show_progress_bar
   initial_state <- check_and_process_initial_state(initial_state)
@@ -221,7 +222,8 @@ initialize_adapters <- function(adapters, proposal, state) {
 }
 
 update_adapters <- function(
-    adapters, proposal, chain_iteration, state_and_statistics) {
+  adapters, proposal, chain_iteration, state_and_statistics
+) {
   for (adapter in adapters) {
     adapter$update(proposal, chain_iteration, state_and_statistics)
   }
@@ -236,16 +238,17 @@ finalize_adapters <- function(adapters, proposal) {
 }
 
 chain_loop <- function(
-    stage_name,
-    n_iteration,
-    state,
-    target_distribution,
-    proposal,
-    adapters,
-    use_progress_bar,
-    record_traces_and_statistics,
-    trace_function,
-    statistic_names) {
+  stage_name,
+  n_iteration,
+  state,
+  target_distribution,
+  proposal,
+  adapters,
+  use_progress_bar,
+  record_traces_and_statistics,
+  trace_function,
+  statistic_names
+) {
   progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
   # Only show 10% increments in progress bar to avoid progress bar updates being
   # a bottleneck when chain iteration rate is high

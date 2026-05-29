@@ -31,7 +31,8 @@ dummy_proposal_with_shape_parameter <- function(shape = NULL) {
 }
 
 check_scale_adapter_coerces_to_target_accept_prob <- function(
-    adapter, proposal, target_accept_prob, initial_scale) {
+  adapter, proposal, target_accept_prob, initial_scale
+) {
   # For a smooth decreasing relation between accept probability and
   # scale should adapt over long run to give close to target accept
   # probability
@@ -53,7 +54,8 @@ check_scale_adapter_coerces_to_target_accept_prob <- function(
 }
 
 check_scale_adapter_with_default_args_works <- function(
-    adapter, dimension, check_adapter_state) {
+  adapter, dimension, check_adapter_state
+) {
   check_adapter(adapter)
   proposal <- dummy_proposal_with_scale_parameter()
   adapter$initialize(proposal, chain_state(rep(0, dimension)))

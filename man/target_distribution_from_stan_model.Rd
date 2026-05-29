@@ -45,7 +45,7 @@ values of model will always be included.
 Construct target distribution from a BridgeStan \code{StanModel} object.
 }
 \examples{
-\dontshow{if (requireNamespace("bridgestan", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("bridgestan", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 model <- example_gaussian_stan_model()
 target_distribution <- target_distribution_from_stan_model(model)
 withr::with_seed(
