@@ -4,28 +4,34 @@ The Barker proposal implementation in the `rmcmc` package in
 [`barker_proposal()`](http://github-pages.ucl.ac.uk/rmcmc/reference/barker_proposal.md)
 by default uses a standard normal distribution for the auxiliary noise
 variables generated in the proposal, as suggested by Livingstone and
-Zanella ([2022](#ref-livingstone2022barker)). The analysis in Vogrinc,
-Livingstone, and Zanella ([2023](#ref-vogrinc2023optimal)) however
-implies that alternative choices of noise distribution can give improved
-performance in some situations. This vignette demonstrates how to adjust
-the Barker proposal noise distribution.
+Zanella ([2022](#ref-livingstone2022barker)). The analysis in Vogrinc et
+al. ([2023](#ref-vogrinc2023optimal)) however implies that alternative
+choices of noise distribution can give improved performance in some
+situations. This vignette demonstrates how to adjust the Barker proposal
+noise distribution.
 
 ``` r
+
 library(rmcmc)
 ```
 
 ## Example target distribution
 
 As a simple example of a target distribution, we consider a
-$D$-dimensional distribution with product form (independent dimensions)
-and ‘hyperbolic’ marginals
+$`D`$-dimensional distribution with product form (independent
+dimensions) and ‘hyperbolic’ marginals
 
-$$\pi(x) \propto \exp\left( - \sum\limits_{d = 1}^{D}\left( \delta^{2} + x_{d}^{2} \right)^{\frac{1}{2}} \right).$$
+``` math
+\pi(x) \propto \exp\left(-\sum_{d=1}^D(\delta^2 + x_d^2)^{\frac{1}{2}}\right).
+```
 The gradient of the corresponding log density function can be derived as
-$$\nabla\left( \log\pi \right)(x)_{d} = - x_{d}/\left( \delta^{2} + x_{d}^{2} \right)^{\frac{1}{2}}.$$
+``` math
+\nabla(\log \pi)(x)_d = -x_d / (\delta^2 + x_d^2)^{\frac{1}{2}}.
+```
 This can be implemented in R as
 
 ``` r
+
 delta_sq <- 0.1
 target_distribution <- list(
   log_density = function(x) -sum(sqrt(delta_sq + x^2)),
@@ -33,8 +39,8 @@ target_distribution <- list(
 )
 ```
 
-Here we use $\delta^{2} = 0.1$, corresponding to Example 4 in Vogrinc,
-Livingstone, and Zanella ([2023](#ref-vogrinc2023optimal)).
+Here we use $`\delta^2 = 0.1`$, corresponding to Example 4 in Vogrinc et
+al. ([2023](#ref-vogrinc2023optimal)).
 
 ## Creating Barker proposal with a custom noise distribution
 
@@ -51,10 +57,10 @@ independent standard normal variates for the auxiliary noise variables.
 
 Below we create a function `sample_bimodal` which instead samples from a
 bimodal normal mixture, with two equally-weighted normal components with
-means $\pm \left( 1 - \sigma^{2} \right)$ and common variance
-$\sigma^{2} = 0.01$.
+means $`\pm (1 - \sigma^2)`$ and common variance $`\sigma^2 = 0.01`$.
 
 ``` r
+
 sample_bimodal <- function(dimension) {
   sigma <- 0.1
   (
@@ -65,7 +71,7 @@ sample_bimodal <- function(dimension) {
 ```
 
 This choice of bimodal distribution for the auxiliary noise variables is
-motivated by the analysis in Vogrinc, Livingstone, and Zanella
+motivated by the analysis in Vogrinc et al.
 ([2023](#ref-vogrinc2023optimal)), which shows that for target
 distributions of product form and using a Barker proposal, the
 asymptotic *expect squared jump distance* (ESJD) a measure of chain
@@ -73,16 +79,17 @@ sampling performance, is maximised when the auxiliary noise distribution
 is chosen to be the Rademacher distribution (the distribution with half
 of its mass in atoms at -1 and +1). The Rademacher distribution itself
 does not give a practical sampling algorithm, as the resulting Markov
-kernel will not be irreducible. As a more practical alternative Vogrinc,
-Livingstone, and Zanella ([2023](#ref-vogrinc2023optimal)) therefore
-suggests using the above normal mixture bimodal distribution, which can
-be considered a relaxation of the Rademacher distribution.
+kernel will not be irreducible. As a more practical alternative Vogrinc
+et al. ([2023](#ref-vogrinc2023optimal)) therefore suggests using the
+above normal mixture bimodal distribution, which can be considered a
+relaxation of the Rademacher distribution.
 
 We now create two instances of the the Barker proposal, the first using
 the default of a standard normal distribution for the auxiliary noise
 variables, and the second using the bimodal distribution.
 
 ``` r
+
 normal_noise_proposal <- barker_proposal()
 bimodal_noise_proposal <- barker_proposal(sample_auxiliary = sample_bimodal)
 ```
@@ -102,6 +109,7 @@ Now that we have the target distribution and two proposals specified, we
 can sample chains to compare their performance.
 
 ``` r
+
 set.seed(7861932L)
 dimension <- 100
 initial_state <- rnorm(dimension)
@@ -121,6 +129,7 @@ chain iterations.
 We can now sample a chain using the bimodal noise proposal variant
 
 ``` r
+
 bimodal_noise_results <- sample_chain(
   target_distribution = target_distribution,
   proposal = bimodal_noise_proposal,
@@ -134,6 +143,7 @@ bimodal_noise_results <- sample_chain(
 and similarly using the default normal noise proposal
 
 ``` r
+
 normal_noise_results <- sample_chain(
   target_distribution = target_distribution,
   proposal = normal_noise_proposal,
@@ -146,15 +156,17 @@ normal_noise_results <- sample_chain(
 
 ## Comparing performance of proposals
 
-For a realisation of a Markov chain $X_{1:N}$, the ESJD metric used to
-define the notion of sampling efficiency optimized over in Vogrinc,
-Livingstone, and Zanella ([2023](#ref-vogrinc2023optimal)), can be
-estimated as
+For a realisation of a Markov chain $`X_{1:N}`$, the ESJD metric used to
+define the notion of sampling efficiency optimized over in Vogrinc et
+al. ([2023](#ref-vogrinc2023optimal)), can be estimated as
 
-$$\widehat{\textsf{𝖤𝖲𝖩𝖣}}\left( X_{1:N} \right) = \frac{1}{N - 1}\sum\limits_{n = 1}^{N - 1}\| X_{n + 1} - X_{n}\|^{2}$$
+``` math
+  \widehat{\textsf{ESJD}}(X_{1:N}) = \frac{1}{N - 1} \sum_{n=1}^{N-1} \Vert X_{n+1} - X_n \Vert^2
+```
 with corresponding R implementation as below
 
 ``` r
+
 expected_square_jumping_distance <- function(traces) {
   n_iteration <- nrow(traces)
   mean(rowSums(traces[2:n_iteration, ] - traces[1:n_iteration - 1, ])^2)
@@ -165,6 +177,7 @@ Applying this function to the chain traces generated using the Barker
 proposal with bimodal noise,
 
 ``` r
+
 cat(
   sprintf(
     "Expected square jumping distance using normal noise is %.2f",
@@ -177,6 +190,7 @@ cat(
 and Barker proposal with normal noise,
 
 ``` r
+
 cat(
   sprintf(
     "Expected square jumping distance using bimodal noise is %.2f",
@@ -189,12 +203,13 @@ cat(
 in both cases selecting columns `1:dimension` to exclude the traced log
 density values, we find that the proposal with bimodal noise gives
 roughly a factor two improvement in ESJD compared to using normal noise,
-correlating with the results in Vogrinc, Livingstone, and Zanella
+correlating with the results in Vogrinc et al.
 ([2023](#ref-vogrinc2023optimal)).
 
 ``` r
+
 library(posterior)
-#> This is posterior version 1.6.1
+#> This is posterior version 1.7.0
 #> 
 #> Attaching package: 'posterior'
 #> The following objects are masked from 'package:stats':
@@ -212,6 +227,7 @@ estimate of the mean of the target log density.
 First considering the chain using the Barker proposal with bimodal noise
 
 ``` r
+
 cat(
   sprintf(
     "Estimated ESS of mean(target_log_density) using bimodal noise is %.0f",
@@ -228,6 +244,7 @@ cat(
 and similarly for the Barker proposal with normal noise
 
 ``` r
+
 cat(
   sprintf(
     "Estimated ESS of mean(target_log_density) using normal noise is %.0f",

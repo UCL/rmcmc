@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Robust gradient-based MCMC with the Barker proposal • rmcmc</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Robust gradient-based MCMC with the Barker proposal">
 </head>
@@ -161,12 +161,12 @@ distribution.</p>
 <span>  <span class="fu"><a href="../reference/shape_adapter.html">shape_adapter</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"variance"</span>, kappa <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Here we set the initial scale to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mrow><mo stretchy="true" form="prefix">(</mo><msup><mtext mathvariant="normal">dimension</mtext><mrow><mo>−</mo><mfrac><mn>1</mn><mn>6</mn></mfrac></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{O}(\text{dimension}^{-\frac{1}{6}})</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒪</mi><mo stretchy="false" form="prefix">(</mo><msup><mtext mathvariant="normal">dimension</mtext><mrow><mi>−</mi><mfrac><mn>1</mn><mn>6</mn></mfrac></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{O}(\text{dimension}^{-\frac{1}{6}})</annotation></semantics></math>
 and the target acceptance probability to 0.574 following the guidelines
-in <span class="citation">Vogrinc, Livingstone, and Zanella (<a href="#ref-vogrinc2023optimal">2023</a>)</span>. This is equivalent to
+in <span class="citation">Vogrinc et al. (<a href="#ref-vogrinc2023optimal">2023</a>)</span>. This is equivalent to
 the default behaviour when not specifying the <code>initial_scale</code>
 and <code>target_accept_prob</code> arguments, in which case proposal
-and dimension dependent values following the guidelines in <span class="citation">Vogrinc, Livingstone, and Zanella (<a href="#ref-vogrinc2023optimal">2023</a>)</span> will be used. Both
+and dimension dependent values following the guidelines in <span class="citation">Vogrinc et al. (<a href="#ref-vogrinc2023optimal">2023</a>)</span> will be used. Both
 adapters have an optional <code>kappa</code> argument which can be used
 to set the decay rate exponent for the adaptation learning rate. We set
 this to 0.6, following the recommendation in <span class="citation">Livingstone and Zanella (<a href="#ref-livingstone2022barker">2022</a>)</span>, in both cases.</p>
@@ -270,7 +270,7 @@ package</a> provides implementations of various inference diagnostic and
 functions for manipulating, subsetting and summarizing MCMC outputs.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/posterior/" class="external-link">posterior</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is posterior version 1.6.1</span></span>
+<span><span class="co">#&gt; This is posterior version 1.7.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'posterior'</span></span>
 <span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
@@ -439,7 +439,7 @@ behaviour in the adapted scale.</p>
 <code class="sourceCode R"><span><span class="fu">visualize_scale_adaptation</span><span class="op">(</span><span class="va">mala_results</span><span class="op">$</span><span class="va">warm_up_statistics</span>, <span class="st">"Langevin proposal"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="barker-proposal_files/figure-html/unnamed-chunk-20-1.png" class="r-plt" alt="" width="672"></p>
 <p>Now we consider the adaptation of the diagonal shape matrix
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\Sigma_t</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\Sigma_t</annotation></semantics></math>,
 based on estimates of the per-coordinate variances.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">visualize_shape_adaptation</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">warm_up_statistics</span>, <span class="va">dimensions</span>, <span class="va">label</span><span class="op">)</span> <span class="op">{</span></span>
@@ -517,7 +517,7 @@ in less stable and robust adaptive tuning.</p>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-barker1965monte" class="csl-entry">
 Barker, Anthony Alfred. 1965. <span>“<span class="nocase">Monte Carlo
 calculations of the radial distribution functions for a proton electron

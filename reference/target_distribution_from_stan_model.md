@@ -66,8 +66,8 @@ withr::with_seed(
   876287L, state <- chain_state(stats::rnorm(model$param_unc_num()))
 )
 state$log_density(target_distribution)
-#> [1] -18.93961
+#> [1] -37.68319
 target_distribution$trace_function(state)
 #>          mu       sigma log_density 
-#>  -0.5220125   0.9487576 -18.9396077 
+#>   -1.400044    1.290871  -37.683193 
 ```

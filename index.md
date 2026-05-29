@@ -36,6 +36,7 @@ The latest published release version of `rmcmc` on CRAN can be installed
 using
 
 ``` r
+
 install.packages("rmcmc")
 ```
 
@@ -43,6 +44,7 @@ Alternatively, the current development version of `rmcmc` can be
 installed using
 
 ``` r
+
 # install.packages("devtools")
 devtools::install_github("UCL/rmcmc")
 ```
@@ -57,6 +59,7 @@ per-dimension scale factors based on online estimates of the target
 distribution variances.
 
 ``` r
+
 library(rmcmc)
 
 set.seed(876287L)
@@ -108,6 +111,7 @@ to construct necessary functions, using
 compute derivatives.
 
 ``` r
+
 library(rmcmc)
 
 set.seed(651239L)

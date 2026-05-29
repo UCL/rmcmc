@@ -9,6 +9,7 @@ model to use with `rmcmc` using an example model and data from
 computational neuroscience.
 
 ``` r
+
 library(rmcmc)
 ```
 
@@ -25,101 +26,122 @@ received the Nobel Prize in Physiology or Medicine for their work in
 original experiments from Daly et al. ([2015](#ref-daly2015hodgkin)).
 
 The [cell membrane voltage
-$V_{m}$](https://en.wikipedia.org/wiki/Membrane_potential) is modelled
+$`V_m`$](https://en.wikipedia.org/wiki/Membrane_potential) is modelled
 as being controlled by [voltage-gated ion
 channels](https://en.wikipedia.org/wiki/Voltage-gated_ion_channel), with
 governing [ordinary differential equation
 (ODE)](https://en.wikipedia.org/wiki/Ordinary_differential_equation)
 
-$$C_{m}\frac{dV_{m}}{dt} = g_{K}\left( E_{K} - V_{m} \right) + g_{Na}\left( E_{Na} - V_{m} \right) + g_{L}\left( E_{l} - V_{m} \right) - I.$$
+``` math
+ C_m \frac{\mathrm{d}V_m}{\mathrm{d}t} = g_K (E_K - V_m) + g_{Na}(E_{Na} - V_m) + g_L(E_l - V_m) - I.
+```
 
 where
 
-- $C_{m}$ is the membrane capacitance per unit area,
-- $g_{K}$ is the potassium channel conductance,
-- $E_{k}$ the potassium channel reversal potential,
-- $g_{Na}$ is the sodium channel conductance,
-- $E_{Na}$ is the sodium channel reversal potential,
-- $g_{L}$ is the leakage conductance,
-- $E_{L}$ is the leakage reversal potential,
-- and $I$ is the membrane current per unit area.
+- $`C_m`$ is the membrane capacitance per unit area,
+- $`g_K`$ is the potassium channel conductance,
+- $`E_k`$ the potassium channel reversal potential,
+- $`g_{Na}`$ is the sodium channel conductance,
+- $`E_{Na}`$ is the sodium channel reversal potential,
+- $`g_L`$ is the leakage conductance,
+- $`E_L`$ is the leakage reversal potential,
+- and $`I`$ is the membrane current per unit area.
 
-Importantly the potassium and sodium channel conductances, $g_{K}$ and
-$g_{Na}$, are themselves time and voltage dependent variables. In
+Importantly the potassium and sodium channel conductances, $`g_K`$ and
+$`g_{Na}`$, are themselves time and voltage dependent variables. In
 Hodgkin and Huxley’s experiments they used an ingenious [experimental
 protocol](https://en.wikipedia.org/wiki/Voltage_clamp) to allow
 measuring the evolution of the cell membrane’s conductance over time for
 specific ion channels while clamped to a specific depolarization
 voltage. By varying the extracellular ion concentrations, they were able
 to isolate the effects of the potassium and sodium channels. Here we
-will concentrate on the model and data specifically for $g_{K}$, the
+will concentrate on the model and data specifically for $`g_{K}`$, the
 potassium channel conductance.
 
 The potassium channel conductance is modelled as
 
-$$g_{\text{K}}(t,v,\theta) = {\bar{g}}_{\text{K}}n(t,v,\theta)^{4},$$
+``` math
+g_{\textrm{K}}(t, v, \theta) = \bar{g}_{\textrm{K}} n(t, v, \theta)^4,
+```
 
 where
 
-- ${\bar{g}}_{K}$ is the maximum potassium channel conductance,
-- $n$ is a time and voltage dependent subunit activation probability in
-  $\lbrack 0,1\rbrack$,
-- $v = V_{\text{rest}} - V_{m}$ is the depolarization from the resting
-  potential $V_{\text{rest}}$ in mV
+- $`\bar{g}_K`$ is the maximum potassium channel conductance,
+- $`n`$ is a time and voltage dependent subunit activation probability
+  in $`[0, 1]`$,
+- $`v = V_{\text{rest}} - V_m`$ is the depolarization from the resting
+  potential $`V_{\text{rest}}`$ in mV
 - and
-  $\theta = \left( {\bar{g}}_{K},k_{\alpha,1},k_{\alpha,2},k_{\alpha,3},k_{\beta,1},k_{\beta,2} \right)$
+  $`\theta = (\bar{g}_K, k_{\alpha,1}, k_{\alpha, 2}, k_{\alpha, 3}, k_{\beta, 1}, k_{\beta,2})`$
   are a set of model parameters.
 
-The potassium channel subunit activation $n$ is governed by a linear ODE
+The potassium channel subunit activation $`n`$ is governed by a linear
+ODE
 
-$$\frac{dn(t,v,\theta)}{dt} = \frac{n_{\infty}(v,\theta) - n(t,v,\theta)}{\tau(v,\theta)}$$
+``` math
+\frac{\mathrm{d} n(t, v, \theta)}{\mathrm{d} t} = \frac{n_\infty(v, \theta) - n(t, v, \theta)}{\tau(v, \theta)}
+```
 
 which has the analytic solution
 
-$$n(t,v,\theta) = n(0,v,\theta) + \left( n_{\infty}(v,\theta) - n(0,v,\theta) \right)\left( 1 - \exp\left( - t/\tau(v,\theta) \right) \right).$$
+``` math
+  n(t, v, \theta) = n(0, v, \theta) + \left(n_\infty(v, \theta) - n(0, v, \theta)\right) \left(1 - \exp(-t / \tau(v, \theta)) \right).
+```
 
-The time constant $\tau$ and equilibrium value $n_{\infty}$ are defined
-respectively in terms of rate constant functions $\alpha$ and $\beta$ as
+The time constant $`\tau`$ and equilibrium value $`n_\infty`$ are
+defined respectively in terms of rate constant functions $`\alpha`$ and
+$`\beta`$ as
 
-$$\tau(v,\theta) = \frac{1}{\alpha(v,\theta) + \beta(v,\theta)},\quad n_{\infty}(v,\theta) = \frac{\alpha(v,\theta)}{\alpha(v,\theta) + \beta(v,\theta)}.$$
+``` math
+  \tau(v, \theta) = \frac{1}{\alpha(v, \theta) + \beta(v, \theta)},\quad
+  n_\infty(v, \theta) = \frac{\alpha(v, \theta)}{\alpha(v, \theta) + \beta(v, \theta)}.
+```
 
-The rate constants $\alpha$ and $\beta$ are themselves defined
+The rate constants $`\alpha`$ and $`\beta`$ are themselves defined
 respectively in terms of the model parameters as
 
-$$\alpha(v,{\mathbf{θ}}) = \frac{k_{\alpha,1}\left( v + k_{\alpha,2} \right)}{\exp\left( \left( v + k_{\alpha,2} \right)/k_{\alpha,3} \right) - 1},\quad\beta(v,{\mathbf{θ}}) = k_{\beta,1}\exp\left( v/k_{\beta,2} \right).$$
+``` math
+  \alpha(v, \boldsymbol{\theta}) =  \frac{k_{\alpha, 1}(v + k_{\alpha, 2})}{\exp((v + k_{\alpha, 2}) / k_{\alpha, 3}) - 1},
+  \quad
+  \beta(v, \boldsymbol{\theta}) = k_{\beta, 1} \exp(v / k_{\beta, 2}).
+```
 
 Together these equations define a mathematical model for how the
-potassium conductance $g_{K}$ varies as a function of the applied
+potassium conductance $`g_K`$ varies as a function of the applied
 depolarization and time, with six unknown model parameters
-$\theta = \left( k_{\alpha,1},k_{\alpha,2},k_{\alpha,3},k_{\beta,1},k_{\beta,2},{\bar{g}}_{K} \right)$
+$`\theta = (k_{\alpha,1}, k_{\alpha,2}, k_{\alpha,3}, k_{\beta,1}, k_{\beta,2}, \bar{g}_K)`$
 that need to be inferred from the experimental data. In Hodgkin and
 Huxley’s experiments, the potassium conductances were measured at
 regular time intervals for a series of applied depolarizations. We
 assume here that the recorded conductances are subject to independent
-zero-mean Gaussian noise with an unknown standard deviation $\sigma$,
+zero-mean Gaussian noise with an unknown standard deviation $`\sigma`$,
 that is
 
-$$y_{n} \sim {\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}\left( g_{K}\left( t_{n},v_{n},\theta \right),\sigma \right)\quad\forall n \in 1:N,$$
+``` math
+  y_{n} \sim \mathsf{Normal}(g_K(t_n, v_n, \theta), \sigma) \quad \forall n \in 1{:}N,
+```
 
-where $t_{n}$ and $v_{n}$ are the pairs of measurement times and applied
-depolarization voltages for the measured potassium conductance $y_{n}$.
+where $`t_n`$ and $`v_n`$ are the pairs of measurement times and applied
+depolarization voltages for the measured potassium conductance $`y_n`$.
 
 Altogether then we have seven parameters
-$\left( k_{\alpha,1},k_{\alpha,2},k_{\alpha,3},k_{\beta,1},k_{\beta,2},{\bar{g}}_{K},\sigma \right)$
+$`(k_{\alpha,1}, k_{\alpha,2}, k_{\alpha,3}, k_{\beta,1}, k_{\beta,2}, \bar{g}_K, \sigma)`$
 to infer. All parameters here are constrained to be non-negative. We
 assume that they are apriori independent with weakly-informative log
 normal prior distributions that correspond to beliefs about the typical
 plausible magnitudes of these parameters:
 
-$$\begin{aligned}
-k_{\alpha,1} & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}( - 3,1),} \\
-k_{\alpha,2} & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}(2,1),} \\
-k_{\alpha,3} & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}(2,1),} \\
-k_{\beta,1} & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}( - 3,1),} \\
-k_{\beta,2} & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}(2,1),} \\
-{\bar{g}}_{K} & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}(2,1),} \\
-\sigma & {\sim {\mathsf{L}\mathsf{o}\mathsf{g}\mathsf{N}\mathsf{o}\mathsf{r}\mathsf{m}\mathsf{a}\mathsf{l}}(0,1).}
-\end{aligned}$$
+``` math
+\begin{aligned}
+  k_{\alpha,1} &\sim \mathsf{LogNormal}(-3, 1),\\
+  k_{\alpha,2} &\sim \mathsf{LogNormal}(2, 1),\\
+  k_{\alpha,3} &\sim \mathsf{LogNormal}(2, 1),\\
+  k_{\beta,1} &\sim \mathsf{LogNormal}(-3, 1),\\
+  k_{\beta,2} &\sim \mathsf{LogNormal}(2, 1),\\
+  \bar{g}_K &\sim \mathsf{LogNormal}(2, 1),\\
+  \sigma &\sim \mathsf{LogNormal}(0, 1).
+\end{aligned}
+```
 
 ## Stan implementation
 
@@ -169,10 +191,10 @@ In [the `data`
 block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-data)
 we declare the names, types and dimensions of the data values that will
 be read from the passed data file. Here the data consists of three
-one-dimensional arrays (vectors) each of length $N = 136$, corresponding
-to the measurement times (`times`, unit *ms*), depolarizations applied
-to the axons (`depolarizations`, unit *mV*) and measured conductances
-(`conductances`, unit *mS cm^{-1}*).
+one-dimensional arrays (vectors) each of length $`N = 136`$,
+corresponding to the measurement times (`times`, unit *ms*),
+depolarizations applied to the axons (`depolarizations`, unit *mV*) and
+measured conductances (`conductances`, unit *mS cm^{-1}*).
 
     data {
       int<lower=1> N;
@@ -185,10 +207,10 @@ In [the `parameter`
 block](https://mc-stan.org/docs/reference-manual/blocks.html#program-block-parameters)
 we declare the name, types, dimensions and any constraints on the model
 parameters that we will be inferring. Here the rate constant parameters
-$k_{\alpha}$ and $k_{\beta}$ are declared as vectors of dimension 3 and
-2 respectively. All parameters here are non-negative and so a `lower=0`
-constraint is added to indicate to Stan to [transform these constrained
-parameters to an unconstrained representation suitable for
+$`k_{\alpha}`$ and $`k_{\beta}`$ are declared as vectors of dimension 3
+and 2 respectively. All parameters here are non-negative and so a
+`lower=0` constraint is added to indicate to Stan to [transform these
+constrained parameters to an unconstrained representation suitable for
 sampling](https://mc-stan.org/docs/reference-manual/transforms.html).
 
     parameters {
@@ -312,6 +334,7 @@ Using the `rjson` and `ggplot2` package we can visualize this
 conductance data.
 
 ``` r
+
 library(rjson)
 library(ggplot2)
 ```
@@ -319,6 +342,7 @@ library(ggplot2)
 We first read the data from the JSON file in to a data frame.
 
 ``` r
+
 data <- data.frame(fromJSON(file = "hodgkin-huxley-potassium-data.json"))
 ```
 
@@ -326,6 +350,7 @@ We then plot the conductances against measurement times, grouping by the
 depolarization level with a different colour for each level.
 
 ``` r
+
 ggplot(
   data = data, aes(x = times, y = conductances, colour = factor(depolarizations))
 ) +
@@ -345,6 +370,7 @@ We are now ready to sample from the model’s posterior distribution using
 the files defining the Stan model and data.
 
 ``` r
+
 library(bridgestan)
 ```
 
@@ -354,6 +380,7 @@ this seed for the (separate) random number generator state used by
 BridgeStan.
 
 ``` r
+
 seed <- 7861223L
 set.seed(seed)
 ```
@@ -363,6 +390,7 @@ and JSON data file respectively, as well as our integer seed for the
 internal Stan random number generator state.
 
 ``` r
+
 model <- StanModel$new(
   "hodgkin-huxley-potassium-model.stan",
   "hodgkin-huxley-potassium-data.json",
@@ -378,6 +406,7 @@ choice of initializing with random uniform values on (0, 1) in the
 unconstrained space.
 
 ``` r
+
 initial_state <- runif(model$param_unc_num())
 ```
 
@@ -407,6 +436,7 @@ estimated variances. This was found to give robuster sampling in
 practice here.
 
 ``` r
+
 results <- sample_chain(
   target_distribution = model,
   initial_state = initial_state,
@@ -422,8 +452,9 @@ We can use the `posterior` package to compute summary statistics and
 convergence diagnostics for the sampled chain.
 
 ``` r
+
 library(posterior)
-#> This is posterior version 1.6.1
+#> This is posterior version 1.7.0
 #> 
 #> Attaching package: 'posterior'
 #> The following objects are masked from 'package:stats':
@@ -441,6 +472,7 @@ explicitly create a draws object to allow using some of the functions
 for subsetting the draws.
 
 ``` r
+
 draws <- as_draws(results$traces)
 ```
 
@@ -450,6 +482,7 @@ variables corresponding to the model parameters (accessed using the
 `model$param_names()` method):
 
 ``` r
+
 summarize_draws(
   subset_draws(draws, model$param_names()), default_convergence_measures()
 )
@@ -465,7 +498,7 @@ summarize_draws(
 #> 7 sigma      1.01    231.     583.
 ```
 
-The rank-normalized $\widehat{R}$ values are all close to 1 which is
+The rank-normalized $`\hat{R}`$ values are all close to 1 which is
 indicative of the chain having converged, though note as we have only
 sampled a single chain here the power of this diagnostic is limited. The
 effective sample size (ESS) estimates for both the bulk and tail are on
@@ -476,6 +509,7 @@ We can also compute summary statistics for the posterior distribution on
 the model parameters:
 
 ``` r
+
 summarize_draws(subset_draws(draws, model$param_names()), default_summary_measures())
 #> # A tibble: 7 × 7
 #>   variable       mean    median         sd        mad        q5       q95
@@ -496,6 +530,7 @@ As well as being able to compute diagnostics and statistics using the
 `bayesplot` package.
 
 ``` r
+
 library(bayesplot)
 #> This is bayesplot version 1.15.0
 #> - Online documentation and vignettes at mc-stan.org/bayesplot
@@ -513,6 +548,7 @@ For example, we can plot a pair plot of the univariate and bivariate
 marginal posterior distributions on the parameters as follows:
 
 ``` r
+
 mcmc_pairs(
   thin_draws(subset_draws(draws, model$param_names()), 10),
   diag_fun = "dens",
