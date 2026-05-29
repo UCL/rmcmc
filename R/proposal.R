@@ -14,11 +14,12 @@ get_shape_matrix <- function(scale, shape) {
 }
 
 scale_and_shape_proposal <- function(
-    sample,
-    log_density_ratio,
-    scale, shape,
-    default_target_accept_prob,
-    default_initial_scale) {
+  sample,
+  log_density_ratio,
+  scale, shape,
+  default_target_accept_prob,
+  default_initial_scale
+) {
   scale <- scale
   shape <- shape
   list(

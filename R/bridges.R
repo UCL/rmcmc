@@ -32,11 +32,12 @@
 #' state$log_density(target_distribution)
 #' target_distribution$trace_function(state)
 target_distribution_from_stan_model <- function(
-    model,
-    include_log_density = TRUE,
-    include_generated_quantities = FALSE,
-    include_transformed_parameters = FALSE,
-    seed = 1234L) {
+  model,
+  include_log_density = TRUE,
+  include_generated_quantities = FALSE,
+  include_transformed_parameters = FALSE,
+  seed = 1234L
+) {
   rng <- model$new_rng(seed)
   trace_function <- function(state) {
     position <- state$position()

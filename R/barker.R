@@ -20,11 +20,12 @@
 #'
 #' @keywords internal
 sample_barker <- function(
-    state,
-    target_distribution,
-    scale_and_shape,
-    sample_auxiliary = stats::rnorm,
-    sample_uniform = stats::runif) {
+  state,
+  target_distribution,
+  scale_and_shape,
+  sample_auxiliary = stats::rnorm,
+  sample_uniform = stats::runif
+) {
   grad <- state$gradient_log_density(target_distribution)
   dim <- state$dimension()
   auxiliary <- sample_auxiliary(dim)
@@ -45,10 +46,11 @@ sample_barker <- function(
 #'
 #' @keywords internal
 log_density_ratio_barker <- function(
-    state,
-    proposed_state,
-    target_distribution,
-    scale_and_shape) {
+  state,
+  proposed_state,
+  target_distribution,
+  scale_and_shape
+) {
   sum(
     log1p_exp(
       -state$momentum() * (
@@ -113,10 +115,11 @@ log_density_ratio_barker <- function(
 #' )
 #' proposal$update(scale = 0.5)
 barker_proposal <- function(
-    scale = NULL,
-    shape = NULL,
-    sample_auxiliary = stats::rnorm,
-    sample_uniform = stats::runif) {
+  scale = NULL,
+  shape = NULL,
+  sample_auxiliary = stats::rnorm,
+  sample_uniform = stats::runif
+) {
   scale_and_shape_proposal(
     sample = function(state, target_distribution, scale_and_shape) {
       sample_barker(
@@ -173,10 +176,11 @@ barker_proposal <- function(
 #' )
 #' proposal$update(scale = 0.5)
 bimodal_barker_proposal <- function(
-    sigma = 0.1,
-    scale = NULL,
-    shape = NULL,
-    sample_uniform = stats::runif) {
+  sigma = 0.1,
+  scale = NULL,
+  shape = NULL,
+  sample_uniform = stats::runif
+) {
   sample_bimodal <- function(dimension) {
     (
       sample(c(-1, 1), dimension, TRUE) * sqrt(1 - sigma^2) +

@@ -17,10 +17,11 @@ get_scale_and_shape_from_case <- function(case, scale, dimension) {
 }
 
 test_that_no_change_when_proposal_sampling_with_zero_scale <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions
+) {
   for (dimension in dimensions) {
     test_that(
       sprintf(
@@ -40,11 +41,12 @@ test_that_no_change_when_proposal_sampling_with_zero_scale <- function(
 }
 
 test_that_proposal_sampling_generates_valid_state <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
@@ -66,11 +68,12 @@ test_that_proposal_sampling_generates_valid_state <- function(
 }
 
 test_that_inital_state_unchanged_by_proposal_sampling <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
@@ -93,11 +96,12 @@ test_that_inital_state_unchanged_by_proposal_sampling <- function(
 }
 
 test_that_proposal_sampling_changes_states <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
@@ -119,11 +123,12 @@ test_that_proposal_sampling_changes_states <- function(
 }
 
 test_that_proposal_sampling_with_same_seed_gives_same_state <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
@@ -153,11 +158,12 @@ test_that_proposal_sampling_with_same_seed_gives_same_state <- function(
 }
 
 test_that_proposal_sampling_with_different_seed_changes_state <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
@@ -184,11 +190,12 @@ test_that_proposal_sampling_with_different_seed_changes_state <- function(
 }
 
 test_that_proposal_log_density_ratio_valid <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       test_that(
@@ -219,11 +226,12 @@ test_that_proposal_log_density_ratio_valid <- function(
 }
 
 test_that_proposal_with_scaled_identity_shape_equivalent_to_scale <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   for (dimension in dimensions) {
     for (scale in scales) {
       for (case in c("matrix_shape_null_scale", "vector_shape_null_scale")) {
@@ -273,11 +281,12 @@ test_that_proposal_with_scaled_identity_shape_equivalent_to_scale <- function(
 }
 
 test_scale_and_shape_proposal <- function(
-    proposal_function,
-    proposal_name,
-    target_distribution,
-    dimensions,
-    scales) {
+  proposal_function,
+  proposal_name,
+  target_distribution,
+  dimensions,
+  scales
+) {
   test_that_no_change_when_proposal_sampling_with_zero_scale(
     proposal_function,
     proposal_name = proposal_name,

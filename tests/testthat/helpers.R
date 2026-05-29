@@ -123,7 +123,8 @@ check_target_distribution <- function(target_distribution) {
 }
 
 check_log_density_and_gradient <- function(
-    position, target_distribution, true_log_density) {
+  position, target_distribution, true_log_density
+) {
   log_density <- target_distribution$log_density(position)
   value_and_gradient_log_density <- (
     target_distribution$value_and_gradient_log_density(position)

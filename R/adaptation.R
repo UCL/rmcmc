@@ -35,10 +35,11 @@
 #' adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 scale_adapter <- function(
-    algorithm = "dual_averaging",
-    initial_scale = NULL,
-    target_accept_prob = NULL,
-    ...) {
+  algorithm = "dual_averaging",
+  initial_scale = NULL,
+  target_accept_prob = NULL,
+  ...
+) {
   adapter_function <- switch(algorithm,
     dual_averaging = dual_averaging_scale_adapter,
     stochastic_approximation = stochastic_approximation_scale_adapter,
@@ -71,7 +72,8 @@ scale_adapter <- function(
 #' )
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 stochastic_approximation_scale_adapter <- function(
-    initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
+  initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6
+) {
   log_scale <- NULL
   initialize <- function(proposal, initial_state) {
     if (is.null(initial_scale)) {
@@ -132,12 +134,13 @@ stochastic_approximation_scale_adapter <- function(
 #' )
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 dual_averaging_scale_adapter <- function(
-    initial_scale = NULL,
-    target_accept_prob = NULL,
-    kappa = 0.75,
-    gamma = 0.05,
-    iteration_offset = 10,
-    mu = NULL) {
+  initial_scale = NULL,
+  target_accept_prob = NULL,
+  kappa = 0.75,
+  gamma = 0.05,
+  iteration_offset = 10,
+  mu = NULL
+) {
   log_scale <- NULL
   smoothed_log_scale <- 0
   accept_prob_error <- 0
@@ -341,7 +344,8 @@ covariance_shape_adapter <- function(kappa = 1) {
 #' adapter <- robust_shape_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 robust_shape_adapter <- function(
-    initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6) {
+  initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6
+) {
   rlang::check_installed("ramcmc", reason = "to use this function")
   shape <- NULL
   initialize <- function(proposal, initial_state) {

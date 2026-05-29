@@ -26,10 +26,11 @@
 #'
 #' @keywords internal
 sample_metropolis_hastings <- function(
-    state,
-    target_distribution,
-    proposal,
-    sample_uniform = stats::runif) {
+  state,
+  target_distribution,
+  proposal,
+  sample_uniform = stats::runif
+) {
   proposed_state <- proposal$sample(state, target_distribution)
   log_accept_ratio <- (
     proposed_state$log_density(target_distribution) -
