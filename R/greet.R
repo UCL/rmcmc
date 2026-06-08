@@ -7,5 +7,5 @@
 #'
 #' @examples
 greet <- function(name) {
-  cat(paste0("Hello", name))
+  cat(paste0("Hello ", name))
 }
