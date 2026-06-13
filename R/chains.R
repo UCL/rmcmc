@@ -56,8 +56,9 @@
 #'   coerce the average acceptance rate to a target value using a dual-averaging
 #'   algorithm, and adapting the shape to an estimate of the covariance of the
 #'   target distribution.
-#' @param show_progress_bar Whether to show progress bars during sampling.
-#'   Requires `progress` package to be installed to have an effect.
+#' @param show_progress_bar Whether to show progress bars during sampling. If the
+#'   `progress` package is installed, displays a progress bar; otherwise prints
+#'   periodic progress messages to the console.
 #' @param trace_warm_up Whether to record chain traces and adaptation /
 #'   transition statistics during (adaptive) warm-up iterations in addition to
 #'   (non-adaptive) main chain iterations.
@@ -103,8 +104,12 @@ sample_chain <- function(
   show_progress_bar = TRUE,
   trace_warm_up = FALSE
 ) {
-  progress_available <- requireNamespace("progress", quietly = TRUE)
-  use_progress_bar <- progress_available && show_progress_bar
+  progress_available <- is_package_available("progress")
+  if (show_progress_bar && !progress_available) {
+    message(
+      "progress package is not installed, so will print progress updates below."
+    )
+  }
   initial_state <- check_and_process_initial_state(initial_state)
   target_distribution <- check_and_process_target_distribution(
     target_distribution
@@ -118,7 +123,8 @@ sample_chain <- function(
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = adapters,
-    use_progress_bar = use_progress_bar,
+    show_progress_bar = show_progress_bar,
+    progress_available = progress_available,
     record_traces_and_statistics = trace_warm_up,
     trace_function = trace_function,
     statistic_names = statistic_names
@@ -130,7 +136,8 @@ sample_chain <- function(
     target_distribution = target_distribution,
     proposal = proposal,
     adapters = NULL,
-    use_progress_bar = use_progress_bar,
+    show_progress_bar = show_progress_bar,
+    progress_available = progress_available,
     record_traces_and_statistics = TRUE,
     trace_function = trace_function,
     statistic_names = statistic_names
@@ -184,11 +191,13 @@ default_trace_function <- function(target_distribution) {
   }
 }
 
-get_progress_bar <- function(use_progress_bar, n_iteration, label) {
+is_package_available <- function(pkg) requireNamespace(pkg, quietly = TRUE)
+
+get_progress_bar <- function(show_progress_bar, progress_available, n_iteration, label) {
   progress_bar_format <- (
     "%s :percent |:bar| :current/:total [:elapsed<:eta] :tick_rate it/s"
   )
-  if (use_progress_bar) {
+  if (show_progress_bar && progress_available) {
     progress::progress_bar$new(
       format = sprintf(progress_bar_format, label),
       total = n_iteration,
@@ -244,12 +253,15 @@ chain_loop <- function(
   target_distribution,
   proposal,
   adapters,
-  use_progress_bar,
+  show_progress_bar,
+  progress_available,
   record_traces_and_statistics,
   trace_function,
   statistic_names
 ) {
-  progress_bar <- get_progress_bar(use_progress_bar, n_iteration, stage_name)
+  progress_bar <- get_progress_bar(
+    show_progress_bar, progress_available, n_iteration, stage_name
+  )
   # Only show 10% increments in progress bar to avoid progress bar updates being
   # a bottleneck when chain iteration rate is high
   tick_amount <- max(n_iteration %/% 10, 1)
@@ -261,6 +273,7 @@ chain_loop <- function(
     traces <- NULL
     statistics <- NULL
   }
+  start_time <- proc.time()[["elapsed"]]
   for (chain_iteration in seq_len(n_iteration)) {
     state_and_statistics <- sample_metropolis_hastings(
       state, target_distribution, proposal
@@ -276,11 +289,28 @@ chain_loop <- function(
     }
     if (!is.null(progress_bar) && (chain_iteration %% tick_amount == 0)) {
       progress_bar$tick(tick_amount)
+    } else if (   # fallback: manual progress updates
+      show_progress_bar && !progress_available &&
+      (chain_iteration %% tick_amount == 0)
+    ) {
+      elapsed <- proc.time()[["elapsed"]] - start_time
+      pct <- round(100 * chain_iteration / n_iteration)
+      message(sprintf(
+        "%s: %d%% done (%d/%d iterations) | elapsed: %.1fs",
+        stage_name, pct, chain_iteration, n_iteration, elapsed
+      ))
     }
   }
   # Ensure progress bar shows completed in cases tick_amount not a factor of
   # n_iteration
   if (!is.null(progress_bar) && !progress_bar$finished) progress_bar$update(1)
+  if (show_progress_bar && !progress_available && n_iteration > 0 && (n_iteration %% tick_amount != 0)) {
+    elapsed <- proc.time()[["elapsed"]] - start_time
+    message(sprintf(
+      "%s: 100%% done (%d/%d iterations) | elapsed: %.1fs",
+      stage_name, n_iteration, n_iteration, elapsed
+    ))
+  }
   finalize_adapters(adapters, proposal)
   list(final_state = state, traces = traces, statistics = statistics)
 }

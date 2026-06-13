@@ -113,3 +113,63 @@ test_that("Sample chains with invalid target_distribution raises error", {
     "target_distribution"
   )
 })
+
+make_fallback_test_inputs <- function() {
+  target_distribution <- standard_normal_target_distribution()
+  adapters <- list(scale_adapter("stochastic_approximation", initial_scale = 1.))
+  withr::with_seed(default_seed(), {
+    position <- rnorm(2)
+  })
+  list(
+    target_distribution = target_distribution,
+    adapters = adapters,
+    position = position
+  )
+}
+
+test_that("Manual progress fallback prints messages when progress unavailable", {
+  inputs <- make_fallback_test_inputs()
+  # Simulate progress package being unavailable by mocking requireNamespace
+  with_mocked_bindings(
+    is_package_available = function(pkg) FALSE,
+    .package = "rmcmc",
+    {
+      msgs <- capture_messages(
+        sample_chain(
+          target_distribution = inputs$target_distribution,
+          initial_state = inputs$position,
+          n_warm_up_iteration = 10,
+          n_main_iteration = 10,
+          adapters = inputs$adapters,
+          show_progress_bar = TRUE
+        )
+      )
+    }
+  )
+  # 1 upfront warning + 10 interval messages per stage (warm-up + main)
+  # = 1 + 10 + 10 = 21 messages total
+  expect_length(msgs, 21)
+  expect_true(any(grepl("progress package is not installed", msgs)))
+  expect_true(any(grepl("10%", msgs)))
+  expect_true(any(grepl("100%", msgs)))
+})
+
+test_that("No manual progress output when show_progress_bar is FALSE", {
+  inputs <- make_fallback_test_inputs()
+  with_mocked_bindings(
+    is_package_available = function(pkg) FALSE,
+    .package = "rmcmc",
+    {
+      expect_no_message(
+        sample_chain(
+          target_distribution = inputs$target_distribution,
+          initial_state = inputs$position,
+          n_warm_up_iteration = 10,
+          n_main_iteration = 10,
+          adapters = inputs$adapters,
+          show_progress_bar = FALSE
+        )
+      )
+    }
+  )
+})
