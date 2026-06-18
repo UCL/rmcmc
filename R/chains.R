@@ -316,7 +316,7 @@ chain_loop <- function(  # nolint: cyclocomp_linter
   progress_unfinished <- n_iteration > 0 && (n_iteration %% tick_amount != 0)
   if (!is.null(progress_bar) && progress_unfinished) {
     progress_bar$update(1)
-  } else if (show_progress_bar && !progress_available && progress_unfinished) {
+  } else if (show_progress_bar && progress_unfinished) {
     print_fallback_progress(stage_name, n_iteration, n_iteration, start_time)
   }
   finalize_adapters(adapters, proposal)
