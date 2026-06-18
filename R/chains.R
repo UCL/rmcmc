@@ -104,7 +104,7 @@ sample_chain <- function(
   show_progress_bar = TRUE,
   trace_warm_up = FALSE
 ) {
-  progress_available <- is_package_available("progress")
+  progress_available <- is_progress_package_available()
   if (show_progress_bar && !progress_available) {
     message(
       "progress package is not installed, so will print progress updates below."
@@ -192,6 +192,19 @@ default_trace_function <- function(target_distribution) {
 }
 
 is_package_available <- function(pkg) requireNamespace(pkg, quietly = TRUE)
+
+is_progress_package_available <- function() is_package_available("progress")
+
+print_fallback_progress <- function(
+  stage_name, chain_iteration, n_iteration, start_time
+) {
+  elapsed <- proc.time()[["elapsed"]] - start_time
+  pct <- round(100 * chain_iteration / n_iteration)
+  message(sprintf(
+    "%s: %d%% done (%d/%d iterations) | elapsed: %.1fs",
+    stage_name, pct, chain_iteration, n_iteration, elapsed
+  ))
+}
 
 get_progress_bar <- function(
   show_progress_bar, progress_available, n_iteration, label
@@ -292,13 +305,10 @@ chain_loop <- function(
     do_tick <- chain_iteration %% tick_amount == 0
     if (!is.null(progress_bar) && do_tick) {
       progress_bar$tick(tick_amount)
-    } else if (show_progress_bar && do_tick) {  # fallback progress updates
-      elapsed <- proc.time()[["elapsed"]] - start_time
-      pct <- round(100 * chain_iteration / n_iteration)
-      message(sprintf(
-        "%s: %d%% done (%d/%d iterations) | elapsed: %.1fs",
-        stage_name, pct, chain_iteration, n_iteration, elapsed
-      ))
+    } else if (show_progress_bar && do_tick) { # fallback progress updates
+      print_fallback_progress(
+        stage_name, chain_iteration, n_iteration, start_time
+      )
     }
   }
   # Ensure progress bar shows completed in cases tick_amount not a factor of
@@ -307,11 +317,7 @@ chain_loop <- function(
   if (!is.null(progress_bar) && progress_unfinished) {
     progress_bar$update(1)
   } else if (show_progress_bar && !progress_available && progress_unfinished) {
-    elapsed <- proc.time()[["elapsed"]] - start_time
-    message(sprintf(
-      "%s: 100%% done (%d/%d iterations) | elapsed: %.1fs",
-      stage_name, n_iteration, n_iteration, elapsed
-    ))
+    print_fallback_progress(stage_name, n_iteration, n_iteration, start_time)
   }
   finalize_adapters(adapters, proposal)
   list(final_state = state, traces = traces, statistics = statistics)

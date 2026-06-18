@@ -129,9 +129,9 @@ make_fallback_test_inputs <- function() {
 
 test_that("Manual progress fallback prints messages when progress unavailable", {
   inputs <- make_fallback_test_inputs()
-  # Simulate progress package being unavailable by mocking requireNamespace
+  # Simulate progress package being unavailable by mocking
   with_mocked_bindings(
-    is_package_available = function(pkg) FALSE,
+    is_progress_package_available = function() FALSE,
     .package = "rmcmc",
     {
       msgs <- capture_messages(
@@ -157,7 +157,7 @@ test_that("Manual progress fallback prints messages when progress unavailable", 
 test_that("No manual progress output when show_progress_bar is FALSE", {
   inputs <- make_fallback_test_inputs()
   with_mocked_bindings(
-    is_package_available = function(pkg) FALSE,
+    is_progress_package_available = function() FALSE,
     .package = "rmcmc",
     {
       expect_no_message(
