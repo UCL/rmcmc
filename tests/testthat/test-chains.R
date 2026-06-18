@@ -129,6 +129,9 @@ make_fallback_test_inputs <- function() {
 
 test_that("Manual progress fallback prints messages when progress unavailable", {
   inputs <- make_fallback_test_inputs()
+  n_warm_up_iteration <- 10
+  # use non-multiple of 10 to test finalisation of progress updates
+  n_main_iteration <- 11
   # Simulate progress package being unavailable by mocking
   with_mocked_bindings(
     is_progress_package_available = function() FALSE,
@@ -138,17 +141,16 @@ test_that("Manual progress fallback prints messages when progress unavailable", 
         sample_chain(
           target_distribution = inputs$target_distribution,
           initial_state = inputs$position,
-          n_warm_up_iteration = 10,
-          n_main_iteration = 10,
+          n_warm_up_iteration = n_warm_up_iteration,
+          n_main_iteration = n_main_iteration,
           adapters = inputs$adapters,
           show_progress_bar = TRUE
         )
       )
     }
   )
-  # 1 upfront warning + 10 interval messages per stage (warm-up + main)
-  # = 1 + 10 + 10 = 21 messages total
-  expect_length(msgs, 21)
+  # 1 upfront warning + 1 messages per iteration (warm-up + main)
+  expect_length(msgs, 1 + n_warm_up_iteration + n_main_iteration)
   expect_true(any(grepl("progress package is not installed", msgs)))
   expect_true(any(grepl("10%", msgs)))
   expect_true(any(grepl("100%", msgs)))
