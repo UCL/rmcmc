@@ -303,8 +303,10 @@ chain_loop <- function(
   }
   # Ensure progress bar shows completed in cases tick_amount not a factor of
   # n_iteration
-  if (!is.null(progress_bar) && !progress_bar$finished) progress_bar$update(1)
-  if (show_progress_bar && !progress_available && n_iteration > 0 && (n_iteration %% tick_amount != 0)) {
+  progress_unfinished <- n_iteration > 0 && (n_iteration %% tick_amount != 0)
+  if (!is.null(progress_bar) && progress_unfinished) {
+    progress_bar$update(1)
+  } else if (show_progress_bar && !progress_available && progress_unfinished) {
     elapsed <- proc.time()[["elapsed"]] - start_time
     message(sprintf(
       "%s: 100%% done (%d/%d iterations) | elapsed: %.1fs",
