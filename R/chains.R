@@ -193,7 +193,9 @@ default_trace_function <- function(target_distribution) {
 
 is_package_available <- function(pkg) requireNamespace(pkg, quietly = TRUE)
 
-get_progress_bar <- function(show_progress_bar, progress_available, n_iteration, label) {
+get_progress_bar <- function(
+  show_progress_bar, progress_available, n_iteration, label
+) {
   progress_bar_format <- (
     "%s :percent |:bar| :current/:total [:elapsed<:eta] :tick_rate it/s"
   )
