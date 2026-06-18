@@ -287,12 +287,10 @@ chain_loop <- function(
         c(state_and_statistics$statistics, adapter_states)
       )
     }
-    if (!is.null(progress_bar) && (chain_iteration %% tick_amount == 0)) {
+    do_tick <- chain_iteration %% tick_amount == 0
+    if (!is.null(progress_bar) && do_tick) {
       progress_bar$tick(tick_amount)
-    } else if (   # fallback: manual progress updates
-      show_progress_bar && !progress_available &&
-      (chain_iteration %% tick_amount == 0)
-    ) {
+    } else if (show_progress_bar && do_tick) {  # fallback progress updates
       elapsed <- proc.time()[["elapsed"]] - start_time
       pct <- round(100 * chain_iteration / n_iteration)
       message(sprintf(
