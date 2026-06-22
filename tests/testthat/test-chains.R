@@ -1,5 +1,5 @@
 for (n_warm_up_iteration in c(0, 1, 10)) {
-  for (n_main_iteration in c(0, 1, 10)) {
+  for (n_main_iteration in c(0, 1, 10, 21)) {
     for (dimension in c(1, 2)) {
       for (trace_warm_up in c(TRUE, FALSE)) {
         for (show_progress_bar in c(TRUE, FALSE)) {
