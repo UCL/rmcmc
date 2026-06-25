@@ -69,12 +69,30 @@ default target acceptance probability for scale adaptation and
 \code{default_initial_scale} a function for getting proposal and dimension
 dependent default initial value for scale parameter.}
 
-\item{adapters}{List of adapters to tune proposal parameters during warm-up.
-Defaults to using list with instances of \code{\link[=scale_adapter]{scale_adapter()}} and
-\code{\link[=shape_adapter]{shape_adapter()}}, corresponding to respectively, adapting the scale to
-coerce the average acceptance rate to a target value using a dual-averaging
-algorithm, and adapting the shape to an estimate of the covariance of the
-target distribution.}
+\item{adapters}{Specifies adapters to tune proposal parameters during
+warm-up. One of:
+\itemize{
+\item A flat list of adapter objects (e.g. \code{list(scale_adapter(), shape_adapter())}), in which case all adapters are active for the full
+warm-up period.
+\item A list of stage specifications, where each stage is itself a list
+containing adapter objects and optionally a final integer element giving
+the number of iterations for that stage. The last stage may omit the
+iteration count, in which case it runs for the remaining warm-up
+iterations. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{list(
+  list(scale_adapter(), 50),
+  list(scale_adapter(), shape_adapter("variance"), 50),
+  list(scale_adapter(), shape_adapter("covariance"))
+)
+}\if{html}{\out{</div>}}
+\item A function that accepts \code{n_warm_up_iteration} as its sole argument and
+returns a staged list as above. This is useful for convenience schedule
+constructors such as \code{\link[=progressive_adaptation_schedule]{progressive_adaptation_schedule()}}.
+}
+
+Defaults to \code{list(scale_adapter(), shape_adapter())}, which adapts both
+scale and covariance shape for the full warm-up period.}
 
 \item{show_progress_bar}{Whether to show progress bars during sampling.
 Requires \code{progress} package to be installed to have an effect.}
