@@ -261,8 +261,7 @@ finalize_adapters <- function(adapters, proposal) {
   invisible(adapters)
 }
 
-chain_loop <- function(
-  # nolint: cyclocomp_linter
+chain_loop <- function(  # nolint: cyclocomp_linter. styler: off
   stage_name,
   n_iteration,
   state,
