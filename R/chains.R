@@ -182,7 +182,7 @@ check_and_process_target_distribution <- function(target_distribution) {
     target_distribution_from_stan_model(target_distribution)
   } else if (
     !is.list(target_distribution) ||
-    !("log_density" %in% names(target_distribution))
+      !("log_density" %in% names(target_distribution))
   ) {
     stop("target_distribution invalid - see documentation for allowable types.")
   } else {

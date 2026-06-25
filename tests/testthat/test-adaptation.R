@@ -31,7 +31,7 @@ dummy_proposal_with_shape_parameter <- function(shape = NULL) {
 }
 
 check_scale_adapter_coerces_to_target_accept_prob <- function(
-    adapter, proposal, target_accept_prob, initial_scale
+  adapter, proposal, target_accept_prob, initial_scale
 ) {
   # For a smooth decreasing relation between accept probability and
   # scale should adapt over long run to give close to target accept
@@ -54,7 +54,7 @@ check_scale_adapter_coerces_to_target_accept_prob <- function(
 }
 
 check_scale_adapter_with_default_args_works <- function(
-    adapter, dimension, check_adapter_state
+  adapter, dimension, check_adapter_state
 ) {
   check_adapter(adapter)
   proposal <- dummy_proposal_with_scale_parameter()
@@ -245,7 +245,7 @@ for (dimension in c(1L, 2L, 5L)) {
             # zero-mean normal with standard deviations equal to target scales
             position <- (
               correlation * position
-              + sqrt(1 - correlation^2) * target_scales * rnorm(dimension)
+                + sqrt(1 - correlation^2) * target_scales * rnorm(dimension)
             )
             state$update(position = position)
             adapter$update(proposal, s, list(state = state))
@@ -508,7 +508,7 @@ test_that(
 test_that(
   "variance_shape_adapter falls back to unit variances when no current proposal shape and no initial_shape",
   {
-    proposal <- dummy_proposal_with_shape_parameter()  # shape starts as NULL
+    proposal <- dummy_proposal_with_shape_parameter() # shape starts as NULL
     adapter <- variance_shape_adapter()
     adapter$initialize(proposal, chain_state(rep(0, 2)))
     expect_equal(adapter$state()$variance_estimate, rep(1., 2))
@@ -521,7 +521,7 @@ test_that(
     # A matrix-valued shape (from covariance adapter) cannot be used as a
     # diagonal variance initialisation — should fall back to identity
     proposal <- dummy_proposal_with_shape_parameter()
-    proposal$update(shape = diag(2))  # matrix, not a vector
+    proposal$update(shape = diag(2)) # matrix, not a vector
     adapter <- variance_shape_adapter()
     adapter$initialize(proposal, chain_state(rep(0, 2)))
     expect_equal(adapter$state()$variance_estimate, rep(1., 2))
@@ -556,7 +556,7 @@ test_that(
 test_that(
   "covariance_shape_adapter falls back to identity when no current proposal shape and no initial_shape",
   {
-    proposal <- dummy_proposal_with_shape_parameter()  # shape starts as NULL
+    proposal <- dummy_proposal_with_shape_parameter() # shape starts as NULL
     adapter <- covariance_shape_adapter()
     adapter$initialize(proposal, chain_state(rep(0, 2)))
     expect_equal(adapter$state()$chol_covariance_estimate, diag(1., 2))
@@ -569,7 +569,7 @@ test_that(
     # A vector shape (from variance adapter) cannot be used as a Cholesky
     # factor — should fall back to identity
     proposal <- dummy_proposal_with_shape_parameter()
-    proposal$update(shape = c(2., 0.5))  # vector, not a matrix
+    proposal$update(shape = c(2., 0.5)) # vector, not a matrix
     adapter <- covariance_shape_adapter()
     adapter$initialize(proposal, chain_state(rep(0, 2)))
     expect_equal(adapter$state()$chol_covariance_estimate, diag(1., 2))
@@ -589,7 +589,7 @@ test_that(
       barker_proposal()$default_initial_scale(dimension)
     )
     s1 <- stochastic_approximation_scale_adapter(initial_scale = 1.)
-    s2 <- stochastic_approximation_scale_adapter()  # no explicit initial_scale
+    s2 <- stochastic_approximation_scale_adapter() # no explicit initial_scale
     withr::with_seed(default_seed(), {
       results <- sample_chain(
         target_distribution = target_distribution,

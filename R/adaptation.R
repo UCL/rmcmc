@@ -35,16 +35,16 @@
 #' adapter <- scale_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 scale_adapter <- function(
-    algorithm = "dual_averaging",
-    initial_scale = NULL,
-    target_accept_prob = NULL,
-    ...
+  algorithm = "dual_averaging",
+  initial_scale = NULL,
+  target_accept_prob = NULL,
+  ...
 ) {
   adapter_function <-
     switch(algorithm,
-           dual_averaging = dual_averaging_scale_adapter,
-           stochastic_approximation = stochastic_approximation_scale_adapter,
-           stop(sprintf("Unrecognized algorithm choice %s", algorithm))
+      dual_averaging = dual_averaging_scale_adapter,
+      stochastic_approximation = stochastic_approximation_scale_adapter,
+      stop(sprintf("Unrecognized algorithm choice %s", algorithm))
     )
   adapter_function(initial_scale, target_accept_prob, ...)
 }
@@ -73,7 +73,7 @@ scale_adapter <- function(
 #' )
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 stochastic_approximation_scale_adapter <- function(
-    initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6
+  initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6
 ) {
   log_scale <- NULL
   initialize <- function(proposal, initial_state) {
@@ -81,8 +81,11 @@ stochastic_approximation_scale_adapter <- function(
       # Prefer the current proposal scale (e.g. carried over from a previous
       # warm-up stage) over the proposal/dimension-dependent default.
       current_scale <- proposal$parameters()$scale
-      initial_scale <- if (!is.null(current_scale)) current_scale
-      else proposal$default_initial_scale(initial_state$dimension())
+      initial_scale <- if (!is.null(current_scale)) {
+        current_scale
+      } else {
+        proposal$default_initial_scale(initial_state$dimension())
+      }
     }
     log_scale <<- log(initial_scale)
     proposal$update(scale = initial_scale)
@@ -139,12 +142,12 @@ stochastic_approximation_scale_adapter <- function(
 #' )
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 dual_averaging_scale_adapter <- function(
-    initial_scale = NULL,
-    target_accept_prob = NULL,
-    kappa = 0.75,
-    gamma = 0.05,
-    iteration_offset = 10,
-    mu = NULL
+  initial_scale = NULL,
+  target_accept_prob = NULL,
+  kappa = 0.75,
+  gamma = 0.05,
+  iteration_offset = 10,
+  mu = NULL
 ) {
   log_scale <- NULL
   smoothed_log_scale <- 0
@@ -154,8 +157,11 @@ dual_averaging_scale_adapter <- function(
       # Prefer the current proposal scale (e.g. carried over from a previous
       # warm-up stage) over the proposal/dimension-dependent default.
       current_scale <- proposal$parameters()$scale
-      initial_scale <- if (!is.null(current_scale)) current_scale
-      else proposal$default_initial_scale(initial_state$dimension())
+      initial_scale <- if (!is.null(current_scale)) {
+        current_scale
+      } else {
+        proposal$default_initial_scale(initial_state$dimension())
+      }
     }
     if (is.null(mu)) {
       mu <<- log(10 * initial_scale)
@@ -217,9 +223,9 @@ dual_averaging_scale_adapter <- function(
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 shape_adapter <- function(type = "covariance", kappa = 1) {
   adapter_function <- switch(type,
-                             covariance = covariance_shape_adapter,
-                             variance = variance_shape_adapter,
-                             stop(sprintf("Unrecognized type choice %s", type))
+    covariance = covariance_shape_adapter,
+    variance = variance_shape_adapter,
+    stop(sprintf("Unrecognized type choice %s", type))
   )
   adapter_function(kappa)
 }
@@ -264,16 +270,18 @@ variance_shape_adapter <- function(kappa = 1, initial_shape = NULL) {
       variance_estimate <<- initial_shape^2
     } else {
       # Priority 2: current proposal shape, if it is a vector of the right
-        # length (i.e. from a previous variance_shape_adapter stage).
-        # The length(current_shape) == dim guard is important:
-        # if the previous stage used a covariance_shape_adapter, the
-        # proposal's shape is a matrix, not a vector.
-        # Squaring a matrix is meaningless here so we fall back to identity.
+      # length (i.e. from a previous variance_shape_adapter stage).
+      # The length(current_shape) == dim guard is important:
+      # if the previous stage used a covariance_shape_adapter, the
+      # proposal's shape is a matrix, not a vector.
+      # Squaring a matrix is meaningless here so we fall back to identity.
       # Priority 3: fall back to unit variances.
       current_shape <- proposal$parameters()$shape
-      variance_estimate <<- if (!is.null(current_shape) && length(current_shape) == dim)
+      variance_estimate <<- if (!is.null(current_shape) && length(current_shape) == dim) {
         current_shape^2
-      else rep(1., dim)
+      } else {
+        rep(1., dim)
+      }
     }
   }
   update <- function(proposal, sample_index, state_and_statistics) {
@@ -343,14 +351,16 @@ covariance_shape_adapter <- function(kappa = 1, initial_shape = NULL) {
       chol_covariance_estimate <<- initial_shape
     } else {
       # Priority 2: current proposal shape, if it is a square matrix of the
-        # right dimension (i.e. from a previous shape adapter stage).
+      # right dimension (i.e. from a previous shape adapter stage).
       # Priority 3: fall back to identity matrix.
       current_shape <- proposal$parameters()$shape
       chol_covariance_estimate <<- if (!is.null(current_shape) &&
-                                       is.matrix(current_shape) &&
-                                       nrow(current_shape) == dim)
+        is.matrix(current_shape) &&
+        nrow(current_shape) == dim) {
         current_shape
-      else diag(1., dim)
+      } else {
+        diag(1., dim)
+      }
     }
   }
   update <- function(proposal, sample_index, state_and_statistics) {
@@ -398,7 +408,7 @@ covariance_shape_adapter <- function(kappa = 1, initial_shape = NULL) {
 #' adapter <- robust_shape_adapter(initial_scale = 1., target_accept_prob = 0.4)
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 robust_shape_adapter <- function(
-    initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6
+  initial_scale = NULL, target_accept_prob = NULL, kappa = 0.6
 ) {
   rlang::check_installed("ramcmc", reason = "to use this function")
   shape <- NULL
@@ -482,11 +492,11 @@ is_adapter <- function(object) {
 #'   )
 #' })
 progressive_adaptation_schedule <- function(
-    n_fixed_shape_iteration = 50L, # L enforces integer rather than floating-point
-    n_diagonal_shape_iteration = 50L,
-    scale_adapter_ = scale_adapter(),
-    diagonal_shape_adapter_ = shape_adapter("variance"),
-    dense_shape_adapter_ = shape_adapter("covariance")
+  n_fixed_shape_iteration = 50L, # L enforces integer rather than floating-point
+  n_diagonal_shape_iteration = 50L,
+  scale_adapter_ = scale_adapter(),
+  diagonal_shape_adapter_ = shape_adapter("variance"),
+  dense_shape_adapter_ = shape_adapter("covariance")
 ) {
   function(n_warm_up_iteration) {
     # If the two early stages together exceed available iterations, share them
