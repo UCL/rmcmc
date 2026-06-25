@@ -41,9 +41,9 @@ scale_adapter <- function(
   ...
 ) {
   adapter_function <- switch(algorithm,
-    dual_averaging = dual_averaging_scale_adapter,
-    stochastic_approximation = stochastic_approximation_scale_adapter,
-    stop(sprintf("Unrecognized algorithm choice %s", algorithm))
+     dual_averaging = dual_averaging_scale_adapter,
+     stochastic_approximation = stochastic_approximation_scale_adapter,
+     stop(sprintf("Unrecognized algorithm choice %s", algorithm))
   )
   adapter_function(initial_scale, target_accept_prob, ...)
 }
@@ -208,9 +208,9 @@ dual_averaging_scale_adapter <- function(
 #' adapter$initialize(proposal, chain_state(c(0, 0)))
 shape_adapter <- function(type = "covariance", kappa = 1) {
   adapter_function <- switch(type,
-    covariance = covariance_shape_adapter,
-    variance = variance_shape_adapter,
-    stop(sprintf("Unrecognized type choice %s", type))
+                             covariance = covariance_shape_adapter,
+                             variance = variance_shape_adapter,
+                             stop(sprintf("Unrecognized type choice %s", type))
   )
   adapter_function(kappa)
 }
@@ -377,4 +377,80 @@ robust_shape_adapter <- function(
 is_adapter <- function(object) {
   is.list(object) &&
     all(c("initialize", "update", "finalize", "state") %in% names(object))
+}
+
+#' Create a progressive adaptation schedule for use with [sample_chain()].
+#'
+#' Returns a function (a schedule constructor) that, given the total number of
+#' warm-up iterations, produces a three-stage adaptation schedule:
+#'
+#' * **Stage 1** (`n_fixed_shape_iteration` iterations): adapt scale only,
+#'   keeping the proposal shape fixed at the identity. This lets the step size
+#'   stabilise before any covariance estimation begins.
+#' * **Stage 2** (`n_diagonal_shape_iteration` iterations): adapt scale and
+#'   learn a diagonal proposal shape (per-dimension variances).
+#' * **Stage 3** (remaining iterations): adapt scale and learn a dense
+#'   proposal shape (full covariance matrix).
+#'
+#' If the sum of `n_fixed_shape_iteration` and `n_diagonal_shape_iteration`
+#' exceeds the total number of warm-up iterations, the two counts are reduced
+#' proportionally so that each gets half of the available iterations and Stage 3
+#' is skipped.
+#'
+#' @param n_fixed_shape_iteration Number of iterations in Stage 1 (scale only).
+#'   Default 50.
+#' @param n_diagonal_shape_iteration Number of iterations in Stage 2 (scale +
+#'   diagonal shape). Default 50.
+#' @param scale_adapter_ Adapter object for the scale. Defaults to
+#'   [scale_adapter()].
+#' @param diagonal_shape_adapter_ Adapter object for the diagonal shape stage.
+#'   Defaults to `shape_adapter("variance")`.
+#' @param dense_shape_adapter_ Adapter object for the dense shape stage.
+#'   Defaults to `shape_adapter("covariance")`.
+#'
+#' @return A function that accepts `n_warm_up_iteration` and returns a staged
+#'   adapter list suitable for the `adapters` argument of [sample_chain()].
+#'
+#' @export
+#'
+#' @examples
+#' target_distribution <- list(
+#'   log_density = function(x) -sum(x^2) / 2,
+#'   gradient_log_density = function(x) -x
+#' )
+#' withr::with_seed(876287L, {
+#'   results <- sample_chain(
+#'     target_distribution,
+#'     initial_state = stats::rnorm(2),
+#'     n_warm_up_iteration = 1000,
+#'     n_main_iteration = 1000,
+#'     adapters = progressive_adaptation_schedule()
+#'   )
+#' })
+progressive_adaptation_schedule <- function(
+    n_fixed_shape_iteration = 50L, # L enforces integer rather than floating-point
+    n_diagonal_shape_iteration = 50L,
+    scale_adapter_ = scale_adapter(),
+    diagonal_shape_adapter_ = shape_adapter("variance"),
+    dense_shape_adapter_ = shape_adapter("covariance")
+) {
+  function(n_warm_up_iteration) {
+    # If the two early stages together exceed available iterations, share them
+    # equally and skip the dense stage entirely.
+    if (n_fixed_shape_iteration + n_diagonal_shape_iteration > n_warm_up_iteration) {
+      n_fixed_shape_iteration <- n_warm_up_iteration %/% 2L
+      n_diagonal_shape_iteration <- n_warm_up_iteration - n_fixed_shape_iteration
+    }
+    n_dense_shape_iteration <- (
+      n_warm_up_iteration - n_fixed_shape_iteration - n_diagonal_shape_iteration
+    )
+    stages <- list(
+      list(scale_adapter_, n_fixed_shape_iteration),
+      list(scale_adapter_, diagonal_shape_adapter_, n_diagonal_shape_iteration)
+    )
+    if (n_dense_shape_iteration > 0L) {
+      stages <- c(stages, list(list(scale_adapter_, dense_shape_adapter_)))
+    }
+    stages
+  }
 }
