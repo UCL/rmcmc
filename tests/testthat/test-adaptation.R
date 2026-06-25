@@ -31,7 +31,7 @@ dummy_proposal_with_shape_parameter <- function(shape = NULL) {
 }
 
 check_scale_adapter_coerces_to_target_accept_prob <- function(
-  adapter, proposal, target_accept_prob, initial_scale
+    adapter, proposal, target_accept_prob, initial_scale
 ) {
   # For a smooth decreasing relation between accept probability and
   # scale should adapt over long run to give close to target accept
@@ -54,7 +54,7 @@ check_scale_adapter_coerces_to_target_accept_prob <- function(
 }
 
 check_scale_adapter_with_default_args_works <- function(
-  adapter, dimension, check_adapter_state
+    adapter, dimension, check_adapter_state
 ) {
   check_adapter(adapter)
   proposal <- dummy_proposal_with_scale_parameter()
@@ -245,7 +245,7 @@ for (dimension in c(1L, 2L, 5L)) {
             # zero-mean normal with standard deviations equal to target scales
             position <- (
               correlation * position
-                + sqrt(1 - correlation^2) * target_scales * rnorm(dimension)
+              + sqrt(1 - correlation^2) * target_scales * rnorm(dimension)
             )
             state$update(position = position)
             adapter$update(proposal, s, list(state = state))
@@ -418,3 +418,185 @@ test_that("Initialising scale_adapter with unrecognised algorithm gives error", 
 test_that("Initialising shape_adapter with unrecognised type gives error", {
   expect_error(shape_adapter(type = "foo"), "Unrecognized type")
 })
+
+# ── progressive_adaptation_schedule tests ─────────────────────────────────────
+
+test_that("progressive_adaptation_schedule returns a function", {
+  schedule <- progressive_adaptation_schedule()
+  expect_type(schedule, "closure")
+})
+
+test_that(
+  "progressive_adaptation_schedule with n_warm_up_iteration > n_fixed + n_diagonal produces three stages",
+  {
+    # Default n_fixed=50, n_diagonal=50; 200 > 100 so dense stage gets remainder
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(200L)
+    expect_length(stages, 3L)
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage iteration counts are correct when three stages produced",
+  {
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(200L)
+    # Extract the trailing integer from each stage spec
+    iter_counts <- sapply(stages, function(s) s[[length(s)]])
+    expect_equal(iter_counts[[1]], 50L)
+    expect_equal(iter_counts[[2]], 50L)
+    # Last stage has no trailing integer (it is the remainder stage passed
+    # as a no-count stage to check_and_process_adapters), so verify via
+    # parsing the full staged list
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    expect_equal(parsed[[1]]$n_iteration, 50L)
+    expect_equal(parsed[[2]]$n_iteration, 50L)
+    expect_equal(parsed[[3]]$n_iteration, 100L)
+  }
+)
+
+test_that(
+  paste0(
+    "progressive_adaptation_schedule with n_warm_up_iteration = n_fixed + n_diagonal ",
+    "produces two stages with no dense stage"
+  ),
+  {
+    # n_dense = 100 - 50 - 50 = 0 -> dense stage is skipped
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(100L)
+    expect_length(stages, 2L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 100L)
+    expect_equal(parsed[[1]]$n_iteration, 50L)
+    expect_equal(parsed[[2]]$n_iteration, 50L)
+  }
+)
+
+test_that(
+  paste0(
+    "progressive_adaptation_schedule with n_warm_up_iteration < n_fixed + n_diagonal ",
+    "falls back to two stages splitting iterations equally"
+  ),
+  {
+    # 60 < 50 + 50 = 100, so fallback: stage1 = 60 %/% 2 = 30, stage2 = 30
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(60L)
+    expect_length(stages, 2L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 60L)
+    expect_equal(parsed[[1]]$n_iteration, 30L)
+    expect_equal(parsed[[2]]$n_iteration, 30L)
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule with n_warm_up_iteration = 1 does not error",
+  {
+    schedule <- progressive_adaptation_schedule()
+    expect_no_error(schedule(1L))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule respects custom n_fixed_shape_iteration and n_diagonal_shape_iteration",
+  {
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 20L,
+      n_diagonal_shape_iteration = 30L
+    )
+    parsed <- rmcmc:::check_and_process_adapters(schedule(100L), 100L)
+    expect_equal(parsed[[1]]$n_iteration, 20L)
+    expect_equal(parsed[[2]]$n_iteration, 30L)
+    expect_equal(parsed[[3]]$n_iteration, 50L)
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage 1 contains only a scale adapter",
+  {
+    schedule <- progressive_adaptation_schedule()
+    stages <- schedule(200L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    # Stage 1 should have exactly one adapter (the scale adapter)
+    expect_length(parsed[[1]]$adapters, 1L)
+    expect_true(rmcmc:::is_adapter(parsed[[1]]$adapters[[1]]))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage 2 contains scale and diagonal shape adapters",
+  {
+    schedule <- progressive_adaptation_schedule()
+    stages <- schedule(200L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    # Stage 2 should have exactly two adapters
+    expect_length(parsed[[2]]$adapters, 2L)
+    expect_true(rmcmc:::is_adapter(parsed[[2]]$adapters[[1]]))
+    expect_true(rmcmc:::is_adapter(parsed[[2]]$adapters[[2]]))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage 3 contains scale and dense shape adapters",
+  {
+    schedule <- progressive_adaptation_schedule()
+    stages <- schedule(200L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    # Stage 3 should have exactly two adapters
+    expect_length(parsed[[3]]$adapters, 2L)
+    expect_true(rmcmc:::is_adapter(parsed[[3]]$adapters[[1]]))
+    expect_true(rmcmc:::is_adapter(parsed[[3]]$adapters[[2]]))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule result passes through check_and_process_adapters without error",
+  {
+    for (n in c(1L, 50L, 100L, 200L, 500L)) {
+      schedule <- progressive_adaptation_schedule()
+      expect_no_error(
+        rmcmc:::check_and_process_adapters(schedule(n), n)
+      )
+    }
+  }
+)
+
+test_that(
+  "sample_chain with progressive_adaptation_schedule() runs without error and returns correct structure",
+  {
+    target_distribution <- standard_normal_target_distribution()
+    n_warm_up <- 120L
+    n_main <- 10L
+    withr::with_seed(default_seed(), {
+      results <- sample_chain(
+        target_distribution = target_distribution,
+        initial_state = rnorm(2),
+        n_warm_up_iteration = n_warm_up,
+        n_main_iteration = n_main,
+        adapters = progressive_adaptation_schedule(
+          n_fixed_shape_iteration = 40L,
+          n_diagonal_shape_iteration = 40L
+        ),
+        trace_warm_up = FALSE,
+        show_progress_bar = FALSE
+      )
+    })
+    expect_named(
+      results,
+      c("final_state", "traces", "statistics"),
+      ignore.order = TRUE
+    )
+    expect_nrow(results$traces, n_main)
+    expect_nrow(results$statistics, n_main)
+  }
+)
