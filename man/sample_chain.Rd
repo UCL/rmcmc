@@ -76,8 +76,9 @@ coerce the average acceptance rate to a target value using a dual-averaging
 algorithm, and adapting the shape to an estimate of the covariance of the
 target distribution.}
 
-\item{show_progress_bar}{Whether to show progress bars during sampling.
-Requires \code{progress} package to be installed to have an effect.}
+\item{show_progress_bar}{Whether to show progress bars during sampling. If the
+\code{progress} package is installed, displays a progress bar; otherwise prints
+periodic progress messages to the console.}
 
 \item{trace_warm_up}{Whether to record chain traces and adaptation /
 transition statistics during (adaptive) warm-up iterations in addition to
