@@ -104,8 +104,9 @@ sample_chain(
 
 - show_progress_bar:
 
-  Whether to show progress bars during sampling. Requires `progress`
-  package to be installed to have an effect.
+  Whether to show progress bars during sampling. If the `progress`
+  package is installed, displays a progress bar; otherwise prints
+  periodic progress messages to the console.
 
 - trace_warm_up:
 
