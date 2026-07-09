@@ -243,6 +243,7 @@ check_and_process_adapters <- function(adapters, n_warm_up_iteration) {
         ))
       }
       stage_n_iter <- n_warm_up_iteration - n_allocated
+      if (state_n_iter < 0) stop("Per-stage iteration counts exceeds n_warm_up_iteration")
       stage_adapters <- stage_spec
     }
     if (!all(sapply(stage_adapters, is_adapter))) stop(error_message)
