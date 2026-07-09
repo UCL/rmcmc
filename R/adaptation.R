@@ -49,6 +49,17 @@ scale_adapter <- function(
   adapter_function(initial_scale, target_accept_prob, ...)
 }
 
+get_initial_scale <- function(proposal, initial_state) {
+  # Prefer the current proposal scale (e.g. carried over from a previous
+  # warm-up stage) over the proposal/dimension-dependent default.
+  current_scale <- proposal$parameters()$scale
+  if (!is.null(current_scale)) {
+    current_scale
+  } else {
+    proposal$default_initial_scale(initial_state$dimension())
+  }
+}
+
 #' Create object to adapt proposal scale to coerce average acceptance rate using
 #' a Robbins and Monro (1951) scheme.
 #'
@@ -78,14 +89,7 @@ stochastic_approximation_scale_adapter <- function(
   log_scale <- NULL
   initialize <- function(proposal, initial_state) {
     if (is.null(initial_scale)) {
-      # Prefer the current proposal scale (e.g. carried over from a previous
-      # warm-up stage) over the proposal/dimension-dependent default.
-      current_scale <- proposal$parameters()$scale
-      initial_scale <- if (!is.null(current_scale)) {
-        current_scale
-      } else {
-        proposal$default_initial_scale(initial_state$dimension())
-      }
+      initial_scale <- get_initial_scale(proposal, initial_state)
     }
     log_scale <<- log(initial_scale)
     proposal$update(scale = initial_scale)
@@ -154,14 +158,7 @@ dual_averaging_scale_adapter <- function(
   accept_prob_error <- 0
   initialize <- function(proposal, initial_state) {
     if (is.null(initial_scale)) {
-      # Prefer the current proposal scale (e.g. carried over from a previous
-      # warm-up stage) over the proposal/dimension-dependent default.
-      current_scale <- proposal$parameters()$scale
-      initial_scale <- if (!is.null(current_scale)) {
-        current_scale
-      } else {
-        proposal$default_initial_scale(initial_state$dimension())
-      }
+      initial_scale <- get_initial_scale(proposal, initial_state)
     }
     if (is.null(mu)) {
       mu <<- log(10 * initial_scale)
