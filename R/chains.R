@@ -381,7 +381,7 @@ chain_loop <- function(
 }
 
 combine_warm_up_results <- function(warm_up_results_1, warm_up_results_2) {
-  # warm_up_results_1$traces and $statistics are NULL either because this is
+  # warm_up_results_1$traces and $statistics may be NULL either because this is
   # the first call (initial list(final_state = initial_state)) or because
   # trace_warm_up = FALSE. rbind handles both by treating NULL as empty.
   # 'row bind' stacks matrices on top of each other.
