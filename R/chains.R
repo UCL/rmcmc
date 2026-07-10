@@ -134,19 +134,24 @@ sample_chain <- function(
   stages <- check_and_process_adapters(adapters, n_warm_up_iteration)
   trace_function <- get_trace_function(target_distribution)
   statistic_names <- list("accept_prob")
-  warm_up_results <- chain_loop(
-    stage_name = "Warm-up",
-    n_iteration = n_warm_up_iteration,
-    state = initial_state,
-    target_distribution = target_distribution,
-    proposal = proposal,
-    adapters = adapters,
-    show_progress_bar = show_progress_bar,
-    progress_available = progress_available,
-    record_traces_and_statistics = trace_warm_up,
-    trace_function = trace_function,
-    statistic_names = statistic_names
-  )
+  warm_up_results <- list(final_state = initial_state)
+  for (stage_index in seq_along(stages)) {
+    stage <- stages[[stage_index]]
+    stage_warm_up_results <- chain_loop(
+      stage_name = sprintf("Warm-up (stage %d/%d)", stage_index, length(stages)),
+      n_iteration = stage$n_iteration,
+      state = warm_up_results$final_state,
+      target_distribution = target_distribution,
+      proposal = proposal,
+      adapters = stage$adapters,
+      show_progress_bar = show_progress_bar,
+      progress_available = progress_available,
+      record_traces_and_statistics = trace_warm_up,
+      trace_function = trace_function,
+      statistic_names = statistic_names
+    )
+    warm_up_results <- combine_warm_up_results(warm_up_results, stage_warm_up_results)
+  }
   main_results <- chain_loop(
     stage_name = "Main",
     n_iteration = n_main_iteration,
