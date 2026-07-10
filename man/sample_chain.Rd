@@ -94,8 +94,9 @@ constructors such as \code{\link[=progressive_adaptation_schedule]{progressive_a
 Defaults to \code{list(scale_adapter(), shape_adapter())}, which adapts both
 scale and covariance shape for the full warm-up period.}
 
-\item{show_progress_bar}{Whether to show progress bars during sampling.
-Requires \code{progress} package to be installed to have an effect.}
+\item{show_progress_bar}{Whether to show progress bars during sampling. If the
+\code{progress} package is installed, displays a progress bar; otherwise prints
+periodic progress messages to the console.}
 
 \item{trace_warm_up}{Whether to record chain traces and adaptation /
 transition statistics during (adaptive) warm-up iterations in addition to
