@@ -352,7 +352,7 @@ covariance_shape_adapter <- function(kappa = 1, initial_shape = NULL) {
       # right dimension (i.e. from a previous shape adapter stage).
       # Priority 3: fall back to identity matrix.
       current_shape <- proposal$parameters()$shape
-      current_shape_valid <- is.matrix(current_shape)  && nrow(current_shape) == dim)
+      current_shape_valid <- is.matrix(current_shape) && nrow(current_shape) == dim
       chol_covariance_estimate <<- if (!is.null(current_shape) && current_shape_valid) {
         current_shape
       } else {
