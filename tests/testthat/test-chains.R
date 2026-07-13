@@ -1,5 +1,5 @@
 for (n_warm_up_iteration in c(0, 1, 10)) {
-  for (n_main_iteration in c(0, 1, 10)) {
+  for (n_main_iteration in c(0, 1, 10, 21)) {
     for (dimension in c(1, 2)) {
       for (trace_warm_up in c(TRUE, FALSE)) {
         for (show_progress_bar in c(TRUE, FALSE)) {
@@ -382,3 +382,72 @@ test_that(
     )
   }
 )
+make_fallback_test_inputs <- function() {
+  target_distribution <- standard_normal_target_distribution()
+  adapters <- list(scale_adapter("stochastic_approximation", initial_scale = 1.))
+  withr::with_seed(default_seed(), {
+    position <- rnorm(2)
+  })
+  list(
+    target_distribution = target_distribution,
+    adapters = adapters,
+    position = position
+  )
+}
+
+test_that("Manual progress fallback prints messages when progress unavailable", {
+  inputs <- make_fallback_test_inputs()
+  n_warm_up_iteration <- 10
+  # use non-multiple of 10 to test finalisation of progress updates
+  n_main_iteration <- 21
+  # Simulate progress package being unavailable by mocking
+  with_mocked_bindings(
+    is_progress_package_available = function() FALSE,
+    .package = "rmcmc",
+    {
+      msgs <- capture_messages(
+        sample_chain(
+          target_distribution = inputs$target_distribution,
+          initial_state = inputs$position,
+          n_warm_up_iteration = n_warm_up_iteration,
+          n_main_iteration = n_main_iteration,
+          adapters = inputs$adapters,
+          show_progress_bar = TRUE
+        )
+      )
+    }
+  )
+  expected_n_progress_messages <- function(n_iteration) {
+    tick_amount <- max(n_iteration %/% 10, 1)
+    n_iteration %/% tick_amount + (n_iteration %% tick_amount != 0)
+  }
+  # 1 upfront warning + n_iteration dependent number of messages (warm-up + main)
+  expect_length(
+    msgs,
+    1 + expected_n_progress_messages(n_warm_up_iteration)
+      + expected_n_progress_messages(n_main_iteration)
+  )
+  expect_true(any(grepl("progress package is not installed", msgs)))
+  expect_true(any(grepl("10%", msgs)))
+  expect_true(any(grepl("100%", msgs)))
+})
+
+test_that("No manual progress output when show_progress_bar is FALSE", {
+  inputs <- make_fallback_test_inputs()
+  with_mocked_bindings(
+    is_progress_package_available = function() FALSE,
+    .package = "rmcmc",
+    {
+      expect_no_message(
+        sample_chain(
+          target_distribution = inputs$target_distribution,
+          initial_state = inputs$position,
+          n_warm_up_iteration = 10,
+          n_main_iteration = 10,
+          adapters = inputs$adapters,
+          show_progress_bar = FALSE
+        )
+      )
+    }
+  )
+})
