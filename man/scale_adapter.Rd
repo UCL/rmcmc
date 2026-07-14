@@ -16,6 +16,9 @@ scale_adapter(
 \itemize{
 \item "stochastic_approximation" to use a Robbins-Monro (1951) based scheme,
 \item "dual_averaging" to use dual-averaging scheme of Nesterov (2009).
+\item "adam" to use the Adam optimizer of Kingma and Ba (2014) applied to the
+acceptance-rate residual, following the implementation in the \code{walnuts}
+library.
 }}
 
 \item{initial_scale}{Initial value to use for scale parameter. If not set
@@ -25,7 +28,11 @@ explicitly a proposal and dimension dependent default will be used.}
 chain. If not set a proposal dependent default will be used.}
 
 \item{...}{Any additional algorithmic parameters to pass through to
-\code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}} or \code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}}.}
+\code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}}, \code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}}
+or \code{\link[=adam_scale_adapter]{adam_scale_adapter()}}. Note that when \code{algorithm = "adam"} the
+high-level wrapper only exposes \code{learning_rate} here; to tune the Adam
+moment-decay parameters \code{beta_1}, \code{beta_2}, \code{epsilon} or \code{learn_rate_decay}
+call \code{\link[=adam_scale_adapter]{adam_scale_adapter()}} directly.}
 }
 \value{
 List of functions with entries
@@ -55,7 +62,11 @@ problems. \emph{Mathematical Programming}, 120(1), 221-259.
 
 Robbins, H., & Monro, S. (1951). A stochastic approximation
 method. \emph{The Annals of Mathematical Statistics}, 400-407.
+
+Kingma, D. P., & Ba, J. (2014). Adam: A method for stochastic
+optimization. \emph{arXiv preprint} arXiv:1412.6980.
 }
 \seealso{
-\code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}}, \code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}}
+\code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}},
+\code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}}, \code{\link[=adam_scale_adapter]{adam_scale_adapter()}}
 }
