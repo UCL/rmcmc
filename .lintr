@@ -1,7 +1,8 @@
 linters: linters_with_defaults(
     line_length_linter = line_length_linter(88L),
     object_length_linter = object_length_linter(length=50L),
-    cyclocomp_linter = cyclocomp_linter(complexity_limit = 15L)
+    cyclocomp_linter = cyclocomp_linter(complexity_limit = 15L),
+    assignment_linter = assignment_linter(operator = c("<-", "<<-"))
   )
 encoding: "UTF-8"
 exclusions: list(
