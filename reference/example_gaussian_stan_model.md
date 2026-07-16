@@ -29,7 +29,7 @@ BridgeStan StanModel object.
 
 ``` r
 model <- example_gaussian_stan_model(n_data = 5)
-#> [1] "BridgeStan not found at location specified by $BRIDGESTAN environment variable, downloading version 2.8.0 to /home/runner/.bridgestan/bridgestan-2.8.0"
+#> [1] "BridgeStan not found at location specified by $BRIDGESTAN environment variable, downloading version 2.9.0 to /home/runner/.bridgestan/bridgestan-2.9.0"
 #> [1] "Done!"
 model$param_names()
 #> [1] "mu"    "sigma"

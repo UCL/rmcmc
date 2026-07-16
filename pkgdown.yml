@@ -1,11 +1,11 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   adjusting-noise-distribution: adjusting-noise-distribution.html
   barker-proposal: barker-proposal.html
   articles/interfacing-with-stan-models: interfacing-with-stan-models.html
-last_built: 2026-06-25T16:18Z
+last_built: 2026-07-16T08:36Z
 urls:
   reference: http://github-pages.ucl.ac.uk/rmcmc/reference
   article: http://github-pages.ucl.ac.uk/rmcmc/articles
