@@ -10,12 +10,13 @@
 #'   explicitly a proposal and dimension dependent default will be used.
 #' @param target_accept_prob Target value for average accept probability for
 #'   chain. If not set a proposal dependent default will be used.
-#' @param ... Any additional algorithmic parameters to pass through to
-#'   [dual_averaging_scale_adapter()], [stochastic_approximation_scale_adapter()]
-#'   or [adam_scale_adapter()]. Note that when `algorithm = "adam"` the
-#'   high-level wrapper only exposes `learning_rate` here; to tune the Adam
-#'   moment-decay parameters `beta_1`, `beta_2`, `epsilon` or `learn_rate_decay`
-#'   call [adam_scale_adapter()] directly.
+#' @param ... Any additional algorithmic parameters to pass through to the
+#'   selected adapter constructor: see [dual_averaging_scale_adapter()],
+#'   [stochastic_approximation_scale_adapter()] or [adam_scale_adapter()] for
+#'   the full list of parameters accepted by each. In practice, most users
+#'   tuning the Adam adapter only need to adjust `learning_rate`; the
+#'   moment-decay parameters `beta_1`, `beta_2`, `epsilon` and
+#'   `learn_rate_decay` have sensible defaults that rarely need adjustment.
 #'
 #' @return List of functions with entries
 #' * `initialize`, a function for initializing adapter state and proposal

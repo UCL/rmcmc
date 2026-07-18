@@ -27,12 +27,13 @@ explicitly a proposal and dimension dependent default will be used.}
 \item{target_accept_prob}{Target value for average accept probability for
 chain. If not set a proposal dependent default will be used.}
 
-\item{...}{Any additional algorithmic parameters to pass through to
-\code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}}, \code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}}
-or \code{\link[=adam_scale_adapter]{adam_scale_adapter()}}. Note that when \code{algorithm = "adam"} the
-high-level wrapper only exposes \code{learning_rate} here; to tune the Adam
-moment-decay parameters \code{beta_1}, \code{beta_2}, \code{epsilon} or \code{learn_rate_decay}
-call \code{\link[=adam_scale_adapter]{adam_scale_adapter()}} directly.}
+\item{...}{Any additional algorithmic parameters to pass through to the
+selected adapter constructor: see \code{\link[=dual_averaging_scale_adapter]{dual_averaging_scale_adapter()}},
+\code{\link[=stochastic_approximation_scale_adapter]{stochastic_approximation_scale_adapter()}} or \code{\link[=adam_scale_adapter]{adam_scale_adapter()}} for
+the full list of parameters accepted by each. In practice, most users
+tuning the Adam adapter only need to adjust \code{learning_rate}; the
+moment-decay parameters \code{beta_1}, \code{beta_2}, \code{epsilon} and
+\code{learn_rate_decay} have sensible defaults that rarely need adjustment.}
 }
 \value{
 List of functions with entries
