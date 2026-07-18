@@ -11,7 +11,7 @@ jobs:
     name: Paper draft
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Build draft paper PDF
         uses: openjournals/openjournals-draft-action@master
         with:
