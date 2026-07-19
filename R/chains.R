@@ -220,18 +220,38 @@ check_and_process_adapters <- function(adapters, n_warm_up_iteration) {
     "stage specifications (each a list of adapters with an optional trailing",
     "integer iteration count), or a function accepting n_warm_up_iteration."
   )
-  if (is.function(adapters)) {
+  adapter_stages <- if (is.list(adapters) && all(sapply(adapters, is_adapter))) {
+    # Form 1: flat list of adapter objects — wrap as a single stage spec with
+    # a trailing iteration count of n_warm_up_iteration
+    list(c(adapters, list(n_warm_up_iteration)))
+  } else if (is.list(adapters) && all(sapply(adapters, is.list))) {
+    # Form 2: list of stage specifications
+    adapters
+  } else if (is.function(adapters)) {
     # Form 3: schedule constructor function
-    stages <- adapters(n_warm_up_iteration)
-    return(check_and_process_adapters(stages, n_warm_up_iteration))
+    adapters(n_warm_up_iteration)
+  } else {
+    stop(error_message)
   }
-  if (!is.list(adapters)) stop(error_message)
-  # Form 1: flat list of adapter objects
-  if (all(sapply(adapters, is_adapter))) {
-    return(list(list(adapters = adapters, n_iteration = n_warm_up_iteration)))
-  }
-  # Form 2: list of stage specifications
-  if (!all(sapply(adapters, is.list))) stop(error_message)
+  # `adapter_stages` is a list of stage specifications in
+  # the *input* shape expected by `process_stage_specifications`
+  process_stage_specifications(
+    adapter_stages, n_warm_up_iteration, error_message
+  )
+}
+
+# Walk a list of stage specifications, extracting the (optional) trailing
+# iteration count from each and validating that every remaining element is an
+# adapter. Returns a list of stages, each a named list with entries $adapters
+# and $n_iteration. Stage specifications with no trailing count are only valid
+# as the final stage, in which case that stage receives the remainder of the
+# warm-up iterations. The sum of the stage iteration counts must equal
+# n_warm_up_iteration; otherwise an informative error is raised.
+#
+# @noRd
+process_stage_specifications <- function(
+  adapters, n_warm_up_iteration, error_message
+) {
   stages <- vector("list", length(adapters))
   n_allocated <- 0L
   for (i in seq_along(adapters)) {
@@ -250,7 +270,9 @@ check_and_process_adapters <- function(adapters, n_warm_up_iteration) {
         ))
       }
       stage_n_iter <- n_warm_up_iteration - n_allocated
-      if (stage_n_iter < 0) stop("Per-stage iteration counts exceeds n_warm_up_iteration")
+      if (stage_n_iter < 0) {
+        stop("Per-stage iteration counts exceeds n_warm_up_iteration")
+      }
       stage_adapters <- stage_spec
     }
     if (!all(sapply(stage_adapters, is_adapter))) stop(error_message)
