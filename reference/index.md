@@ -2,6 +2,10 @@
 
 ## All functions
 
+- [`adam_scale_adapter()`](http://github-pages.ucl.ac.uk/rmcmc/reference/adam_scale_adapter.md)
+  : Create object to adapt proposal scale to coerce average acceptance
+  rate using the Adam optimizer of Kingma and Ba (2014).
+
 - [`barker_proposal()`](http://github-pages.ucl.ac.uk/rmcmc/reference/barker_proposal.md)
   : Create a new Barker proposal object.
 

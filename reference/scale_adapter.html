@@ -60,6 +60,9 @@
 <dl><dt id="arg-algorithm">algorithm<a class="anchor" aria-label="anchor" href="#arg-algorithm"></a></dt>
 <dd><p>String specifying algorithm to use. One of:</p><ul><li><p>"stochastic_approximation" to use a Robbins-Monro (1951) based scheme,</p></li>
 <li><p>"dual_averaging" to use dual-averaging scheme of Nesterov (2009).</p></li>
+<li><p>"adam" to use the Adam optimizer of Kingma and Ba (2014) applied to the
+acceptance-rate residual, following the implementation in the <code>walnuts</code>
+library.</p></li>
 </ul></dd>
 
 
@@ -74,8 +77,13 @@ chain. If not set a proposal dependent default will be used.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Any additional algorithmic parameters to pass through to
-<code><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter()</a></code> or <code><a href="stochastic_approximation_scale_adapter.html">stochastic_approximation_scale_adapter()</a></code>.</p></dd>
+<dd><p>Any additional algorithmic parameters to pass through to the
+selected adapter constructor: see <code><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter()</a></code>,
+<code><a href="stochastic_approximation_scale_adapter.html">stochastic_approximation_scale_adapter()</a></code> or <code><a href="adam_scale_adapter.html">adam_scale_adapter()</a></code> for
+the full list of parameters accepted by each. In practice, most users
+tuning the Adam adapter only need to adjust <code>learning_rate</code>; the
+moment-decay parameters <code>beta_1</code>, <code>beta_2</code>, <code>epsilon</code> and
+<code>learn_rate_decay</code> have sensible defaults that rarely need adjustment.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -96,10 +104,13 @@ state variables.</p></li>
 problems. <em>Mathematical Programming</em>, 120(1), 221-259.</p>
 <p>Robbins, H., &amp; Monro, S. (1951). A stochastic approximation
 method. <em>The Annals of Mathematical Statistics</em>, 400-407.</p>
+<p>Kingma, D. P., &amp; Ba, J. (2014). Adam: A method for stochastic
+optimization. <em>arXiv preprint</em> arXiv:1412.6980.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter()</a></code>, <code><a href="stochastic_approximation_scale_adapter.html">stochastic_approximation_scale_adapter()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="dual_averaging_scale_adapter.html">dual_averaging_scale_adapter()</a></code>,
+<code><a href="stochastic_approximation_scale_adapter.html">stochastic_approximation_scale_adapter()</a></code>, <code><a href="adam_scale_adapter.html">adam_scale_adapter()</a></code></p></div>
     </div>
 
     <div class="section level2">
