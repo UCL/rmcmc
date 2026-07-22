@@ -210,6 +210,83 @@ for (dimension in c(1L, 2L, 5L)) {
   )
 }
 
+check_adam_scale_adapter_state <- function(adapter_state) {
+  expect_named(adapter_state, c("log_scale", "m", "v"), ignore.order = TRUE)
+  expect_length(adapter_state$log_scale, 1)
+  expect_length(adapter_state$m, 1)
+  expect_length(adapter_state$v, 1)
+}
+
+for (target_accept_prob in c(0.2, 0.4, 0.6)) {
+  for (initial_scale in c(0.5, 1., 2.)) {
+    for (learning_rate in c(0.05, 0.1)) {
+      test_that(
+        sprintf(
+          paste0(
+            "Adam scale adapter works with target_accept_prob %.1f ",
+            "initial_scale %.1f learning_rate %.2f"
+          ),
+          target_accept_prob, initial_scale, learning_rate
+        ),
+        {
+          adapter <- scale_adapter(
+            algorithm = "adam",
+            initial_scale = initial_scale,
+            target_accept_prob = target_accept_prob,
+            learning_rate = learning_rate
+          )
+          check_adapter(adapter)
+          proposal <- dummy_proposal_with_scale_parameter()
+          adapter$initialize(proposal, chain_state(rep(0, dimension)))
+          adapter_state <- adapter$state()
+          check_adam_scale_adapter_state(adapter_state)
+          # After a fresh initialisation, one update with accept_prob higher
+          # than target should push the scale up (m_hat = grad, v_hat = grad^2
+          # at t = 1, so the update is deterministic in sign).
+          adapter$update(
+            proposal,
+            1,
+            list(statistics = list(accept_prob = target_accept_prob + 0.1))
+          )
+          expect_type(adapter$state(), "list")
+          expect_gt(proposal$parameters()$scale, initial_scale)
+          # After re-initialisation, one update with accept_prob lower than
+          # target should push the scale down.
+          adapter$initialize(proposal, chain_state(rep(0, dimension)))
+          adapter$update(
+            proposal,
+            1,
+            list(statistics = list(accept_prob = target_accept_prob - 0.1))
+          )
+          expect_lt(proposal$parameters()$scale, initial_scale)
+          # Long-run convergence: reuse shared helper. Re-initialise so the
+          # convergence run starts from a clean adapter state.
+          adapter$initialize(proposal, chain_state(rep(0, dimension)))
+          check_scale_adapter_coerces_to_target_accept_prob(
+            adapter, proposal, target_accept_prob, initial_scale
+          )
+        }
+      )
+    }
+  }
+}
+
+for (dimension in c(1L, 2L, 5L)) {
+  test_that(
+    sprintf(
+      "Adam scale adapter with default args works in dimension %i",
+      dimension
+    ),
+    {
+      check_scale_adapter_with_default_args_works(
+        scale_adapter(algorithm = "adam"),
+        dimension,
+        check_adam_scale_adapter_state
+      )
+    }
+  )
+}
+
 for (dimension in c(1L, 2L, 5L)) {
   for (kappa in c(0.5, 0.6, 0.8)) {
     for (correlation in c(0.0, 0.5, 0.8)) {
