@@ -395,7 +395,7 @@ variance_shape_adapter <- function(kappa = 1, initial_shape = NULL) {
       # Squaring a matrix is meaningless here so we fall back to identity.
       # Priority 3: fall back to unit variances.
       current_shape <- proposal$parameters()$shape
-      current_shape_is_vector = length(current_shape) == dim
+      current_shape_is_vector <- length(current_shape) == dim
       variance_estimate <<- if (!is.null(current_shape) && current_shape_is_vector) {
         current_shape^2
       } else {
