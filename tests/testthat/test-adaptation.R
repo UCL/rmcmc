@@ -495,3 +495,377 @@ test_that("Initialising scale_adapter with unrecognised algorithm gives error", 
 test_that("Initialising shape_adapter with unrecognised type gives error", {
   expect_error(shape_adapter(type = "foo"), "Unrecognized type")
 })
+
+# ── Adapter state carry-over between stages ───────────────────────────────────
+
+test_that(
+  "stochastic_approximation_scale_adapter initialize reads current proposal scale when initial_scale not specified",
+  {
+    proposal <- dummy_proposal_with_scale_parameter()
+    adapter <- stochastic_approximation_scale_adapter()
+    # First initialise normally so the proposal acquires a default scale
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    default_log_scale <- adapter$state()$log_scale
+    # Manually set proposal to a different scale to simulate end of a prior stage
+    carried_scale <- exp(default_log_scale) * 3.7
+    proposal$update(scale = carried_scale)
+    # Re-initialise (as happens at the start of a new stage): should pick up
+    # the carried scale, not reset to the default
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$log_scale, log(carried_scale))
+  }
+)
+
+test_that(
+  "stochastic_approximation_scale_adapter explicit initial_scale overrides current proposal scale",
+  {
+    explicit_scale <- 5.
+    proposal <- dummy_proposal_with_scale_parameter()
+    adapter <- stochastic_approximation_scale_adapter(initial_scale = explicit_scale)
+    # Set a different scale on the proposal to confirm it is ignored
+    proposal$update(scale = 99.)
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$log_scale, log(explicit_scale))
+  }
+)
+
+test_that(
+  "dual_averaging_scale_adapter initialize reads current proposal scale when initial_scale not specified",
+  {
+    proposal <- dummy_proposal_with_scale_parameter()
+    adapter <- dual_averaging_scale_adapter()
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    default_log_scale <- adapter$state()$log_scale
+    carried_scale <- exp(default_log_scale) * 2.5
+    proposal$update(scale = carried_scale)
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$log_scale, log(carried_scale))
+  }
+)
+
+test_that(
+  "dual_averaging_scale_adapter explicit initial_scale overrides current proposal scale",
+  {
+    explicit_scale <- 3.
+    proposal <- dummy_proposal_with_scale_parameter()
+    adapter <- dual_averaging_scale_adapter(initial_scale = explicit_scale)
+    proposal$update(scale = 99.)
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$log_scale, log(explicit_scale))
+  }
+)
+
+test_that(
+  "variance_shape_adapter initialize reads current proposal shape when initial_shape not specified",
+  {
+    proposal <- dummy_proposal_with_shape_parameter()
+    adapter <- variance_shape_adapter()
+    # Simulate end of a prior adaptation stage: proposal has a non-unit shape
+    carried_shape <- c(2., 0.5)
+    proposal$update(shape = carried_shape)
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    # variance_estimate should be carried_shape^2, not rep(1, 2)
+    expect_equal(adapter$state()$variance_estimate, carried_shape^2)
+  }
+)
+
+test_that(
+  "variance_shape_adapter explicit initial_shape overrides current proposal shape",
+  {
+    explicit_shape <- c(3., 0.1)
+    proposal <- dummy_proposal_with_shape_parameter()
+    adapter <- variance_shape_adapter(initial_shape = explicit_shape)
+    # Set a different shape on the proposal to confirm it is ignored
+    proposal$update(shape = c(99., 99.))
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$variance_estimate, explicit_shape^2)
+  }
+)
+
+test_that(
+  "variance_shape_adapter falls back to unit variances when no current proposal shape and no initial_shape",
+  {
+    proposal <- dummy_proposal_with_shape_parameter() # shape starts as NULL
+    adapter <- variance_shape_adapter()
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$variance_estimate, rep(1., 2))
+  }
+)
+
+test_that(
+  "variance_shape_adapter falls back to unit variances when current proposal shape is matrix-valued",
+  {
+    # A matrix-valued shape (from covariance adapter) cannot be used as a
+    # diagonal variance initialisation — should fall back to identity
+    proposal <- dummy_proposal_with_shape_parameter()
+    proposal$update(shape = diag(2)) # matrix, not a vector
+    adapter <- variance_shape_adapter()
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$variance_estimate, rep(1., 2))
+  }
+)
+
+test_that(
+  "covariance_shape_adapter initialize reads current proposal shape when initial_shape not specified",
+  {
+    proposal <- dummy_proposal_with_shape_parameter()
+    adapter <- covariance_shape_adapter()
+    # Simulate end of a prior stage: proposal has a non-identity Cholesky shape
+    carried_shape <- matrix(c(2., 0., 0.5, 1.), nrow = 2)
+    proposal$update(shape = carried_shape)
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$chol_covariance_estimate, carried_shape)
+  }
+)
+
+test_that(
+  "covariance_shape_adapter explicit initial_shape overrides current proposal shape",
+  {
+    explicit_shape <- matrix(c(3., 0., 0.2, 0.8), nrow = 2)
+    proposal <- dummy_proposal_with_shape_parameter()
+    adapter <- covariance_shape_adapter(initial_shape = explicit_shape)
+    proposal$update(shape = diag(99., 2))
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$chol_covariance_estimate, explicit_shape)
+  }
+)
+
+test_that(
+  "covariance_shape_adapter falls back to identity when no current proposal shape and no initial_shape",
+  {
+    proposal <- dummy_proposal_with_shape_parameter() # shape starts as NULL
+    adapter <- covariance_shape_adapter()
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$chol_covariance_estimate, diag(1., 2))
+  }
+)
+
+test_that(
+  "covariance_shape_adapter falls back to identity when current proposal shape is a vector",
+  {
+    # A vector shape (from variance adapter) cannot be used as a Cholesky
+    # factor — should fall back to identity
+    proposal <- dummy_proposal_with_shape_parameter()
+    proposal$update(shape = c(2., 0.5)) # vector, not a matrix
+    adapter <- covariance_shape_adapter()
+    adapter$initialize(proposal, chain_state(rep(0, 2)))
+    expect_equal(adapter$state()$chol_covariance_estimate, diag(1., 2))
+  }
+)
+
+test_that(
+  "scale adapter log_scale does not reset to default at stage boundary in two-stage sample_chain",
+  {
+    # Run a two-stage chain where the first stage has enough iterations for the
+    # scale adapter to move away from its default. Check that warm_up_statistics
+    # shows the log_scale does NOT jump back to the default value at the stage
+    # boundary (iteration 51 vs 50).
+    target_distribution <- standard_normal_target_distribution()
+    dimension <- 2L
+    default_log_scale <- log(
+      barker_proposal()$default_initial_scale(dimension)
+    )
+    s1 <- stochastic_approximation_scale_adapter(initial_scale = 1.)
+    s2 <- stochastic_approximation_scale_adapter() # no explicit initial_scale
+    withr::with_seed(default_seed(), {
+      results <- sample_chain(
+        target_distribution = target_distribution,
+        initial_state = rnorm(dimension),
+        n_warm_up_iteration = 100L,
+        n_main_iteration = 1L,
+        adapters = list(list(s1, 50L), list(s2)),
+        trace_warm_up = TRUE,
+        show_progress_bar = FALSE
+      )
+    })
+    log_scale_col <- results$warm_up_statistics[, "log_scale"]
+    # At the stage boundary (row 51) the log_scale should be close to row 50,
+    # not jump back to the default value
+    jump_at_boundary <- abs(log_scale_col[51] - log_scale_col[50])
+    reset_to_default <- abs(log_scale_col[51] - default_log_scale)
+    # If carry-over works, jump_at_boundary << reset_to_default
+    expect_lt(jump_at_boundary, reset_to_default)
+  }
+)
+
+# ── progressive_adaptation_schedule tests ─────────────────────────────────────
+
+test_that("progressive_adaptation_schedule returns a function", {
+  schedule <- progressive_adaptation_schedule()
+  expect_type(schedule, "closure")
+})
+
+test_that(
+  "progressive_adaptation_schedule with n_warm_up_iteration > n_fixed + n_diagonal produces three stages",
+  {
+    # Default n_fixed=50, n_diagonal=50; 200 > 100 so dense stage gets remainder
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(200L)
+    expect_length(stages, 3L)
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage iteration counts are correct when three stages produced",
+  {
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(200L)
+    # Extract the trailing integer from each stage spec
+    iter_counts <- sapply(stages, function(s) s[[length(s)]])
+    expect_equal(iter_counts[[1]], 50L)
+    expect_equal(iter_counts[[2]], 50L)
+    # Last stage has no trailing integer (it is the remainder stage passed
+    # as a no-count stage to check_and_process_adapters), so verify via
+    # parsing the full staged list
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    expect_equal(parsed[[1]]$n_iteration, 50L)
+    expect_equal(parsed[[2]]$n_iteration, 50L)
+    expect_equal(parsed[[3]]$n_iteration, 100L)
+  }
+)
+
+test_that(
+  paste0(
+    "progressive_adaptation_schedule with n_warm_up_iteration = n_fixed + n_diagonal ",
+    "produces two stages with no dense stage"
+  ),
+  {
+    # n_dense = 100 - 50 - 50 = 0 -> dense stage is skipped
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(100L)
+    expect_length(stages, 2L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 100L)
+    expect_equal(parsed[[1]]$n_iteration, 50L)
+    expect_equal(parsed[[2]]$n_iteration, 50L)
+  }
+)
+
+test_that(
+  paste0(
+    "progressive_adaptation_schedule with n_warm_up_iteration < n_fixed + n_diagonal ",
+    "falls back to two stages splitting iterations equally"
+  ),
+  {
+    # 60 < 50 + 50 = 100, so fallback: stage1 = 60 %/% 2 = 30, stage2 = 30
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 50L,
+      n_diagonal_shape_iteration = 50L
+    )
+    stages <- schedule(60L)
+    expect_length(stages, 2L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 60L)
+    expect_equal(parsed[[1]]$n_iteration, 30L)
+    expect_equal(parsed[[2]]$n_iteration, 30L)
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule with n_warm_up_iteration = 1 does not error",
+  {
+    schedule <- progressive_adaptation_schedule()
+    expect_no_error(schedule(1L))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule respects custom n_fixed_shape_iteration and n_diagonal_shape_iteration",
+  {
+    schedule <- progressive_adaptation_schedule(
+      n_fixed_shape_iteration = 20L,
+      n_diagonal_shape_iteration = 30L
+    )
+    parsed <- rmcmc:::check_and_process_adapters(schedule(100L), 100L)
+    expect_equal(parsed[[1]]$n_iteration, 20L)
+    expect_equal(parsed[[2]]$n_iteration, 30L)
+    expect_equal(parsed[[3]]$n_iteration, 50L)
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage 1 contains only a scale adapter",
+  {
+    schedule <- progressive_adaptation_schedule()
+    stages <- schedule(200L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    # Stage 1 should have exactly one adapter (the scale adapter)
+    expect_length(parsed[[1]]$adapters, 1L)
+    expect_true(rmcmc:::is_adapter(parsed[[1]]$adapters[[1]]))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage 2 contains scale and diagonal shape adapters",
+  {
+    schedule <- progressive_adaptation_schedule()
+    stages <- schedule(200L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    # Stage 2 should have exactly two adapters
+    expect_length(parsed[[2]]$adapters, 2L)
+    expect_true(rmcmc:::is_adapter(parsed[[2]]$adapters[[1]]))
+    expect_true(rmcmc:::is_adapter(parsed[[2]]$adapters[[2]]))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule stage 3 contains scale and dense shape adapters",
+  {
+    schedule <- progressive_adaptation_schedule()
+    stages <- schedule(200L)
+    parsed <- rmcmc:::check_and_process_adapters(stages, 200L)
+    # Stage 3 should have exactly two adapters
+    expect_length(parsed[[3]]$adapters, 2L)
+    expect_true(rmcmc:::is_adapter(parsed[[3]]$adapters[[1]]))
+    expect_true(rmcmc:::is_adapter(parsed[[3]]$adapters[[2]]))
+  }
+)
+
+test_that(
+  "progressive_adaptation_schedule result passes through check_and_process_adapters without error",
+  {
+    for (n in c(1L, 50L, 100L, 200L, 500L)) {
+      schedule <- progressive_adaptation_schedule()
+      expect_no_error(
+        rmcmc:::check_and_process_adapters(schedule(n), n)
+      )
+    }
+  }
+)
+
+test_that(
+  "sample_chain with progressive_adaptation_schedule() runs without error and returns correct structure",
+  {
+    target_distribution <- standard_normal_target_distribution()
+    n_warm_up <- 120L
+    n_main <- 10L
+    withr::with_seed(default_seed(), {
+      results <- sample_chain(
+        target_distribution = target_distribution,
+        initial_state = rnorm(2),
+        n_warm_up_iteration = n_warm_up,
+        n_main_iteration = n_main,
+        adapters = progressive_adaptation_schedule(
+          n_fixed_shape_iteration = 40L,
+          n_diagonal_shape_iteration = 40L
+        ),
+        trace_warm_up = FALSE,
+        show_progress_bar = FALSE
+      )
+    })
+    expect_named(
+      results,
+      c("final_state", "traces", "statistics"),
+      ignore.order = TRUE
+    )
+    expect_nrow(results$traces, n_main)
+    expect_nrow(results$statistics, n_main)
+  }
+)

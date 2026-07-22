@@ -5,11 +5,20 @@
 \title{Create object to adapt proposal with shape based on estimate of target
 distribution covariance matrix.}
 \usage{
-covariance_shape_adapter(kappa = 1)
+covariance_shape_adapter(kappa = 1, initial_shape = NULL)
 }
 \arguments{
 \item{kappa}{Decay rate exponent in \verb{[0.5, 1]} for adaptation learning rate.
 Value of 1 (default) corresponds to computing empirical covariance matrix.}
+
+\item{initial_shape}{Optional lower-triangular matrix with the same
+dimensions as the target distribution, specifying the Cholesky factor of
+the proposal covariance to use as the initial estimate. When supplied,
+takes precedence over both any current proposal shape and the default
+identity initialisation. When \code{NULL} (default), the adapter reads the
+current proposal shape at initialisation time (to carry over state from a
+previous warm-up stage) and falls back to the identity matrix if no
+current shape is available.}
 }
 \value{
 List of functions with entries

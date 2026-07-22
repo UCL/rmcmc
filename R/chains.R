@@ -50,12 +50,29 @@
 #'   default target acceptance probability for scale adaptation and
 #'   `default_initial_scale` a function for getting proposal and dimension
 #'   dependent default initial value for scale parameter.
-#' @param adapters List of adapters to tune proposal parameters during warm-up.
-#'   Defaults to using list with instances of [scale_adapter()] and
-#'   [shape_adapter()], corresponding to respectively, adapting the scale to
-#'   coerce the average acceptance rate to a target value using a dual-averaging
-#'   algorithm, and adapting the shape to an estimate of the covariance of the
-#'   target distribution.
+#' @param adapters Specifies adapters to tune proposal parameters during
+#'   warm-up. One of:
+#'   * A flat list of adapter objects (e.g. `list(scale_adapter(),
+#'     shape_adapter())`), in which case all adapters are active for the full
+#'     warm-up period.
+#'   * A list of stage specifications, where each stage is itself a list
+#'     containing adapter objects and optionally a final integer element giving
+#'     the number of iterations for that stage. The last stage may omit the
+#'     iteration count, in which case it runs for the remaining warm-up
+#'     iterations. For example:
+#'     ```
+#'     list(
+#'       list(scale_adapter(), 50),
+#'       list(scale_adapter(), shape_adapter("variance"), 50),
+#'       list(scale_adapter(), shape_adapter("covariance"))
+#'     )
+#'     ```
+#'   * A function that accepts `n_warm_up_iteration` as its sole argument and
+#'     returns a staged list as above. This is useful for convenience schedule
+#'     constructors such as [progressive_adaptation_schedule()].
+#'
+#'   Defaults to `list(scale_adapter(), shape_adapter())`, which adapts both
+#'   scale and covariance shape for the full warm-up period.
 #' @param show_progress_bar Whether to show progress bars during sampling. If the
 #'   `progress` package is installed, displays a progress bar; otherwise prints
 #'   periodic progress messages to the console.
@@ -114,21 +131,27 @@ sample_chain <- function(
   target_distribution <- check_and_process_target_distribution(
     target_distribution
   )
+  stages <- check_and_process_adapters(adapters, n_warm_up_iteration)
   trace_function <- get_trace_function(target_distribution)
   statistic_names <- list("accept_prob")
-  warm_up_results <- chain_loop(
-    stage_name = "Warm-up",
-    n_iteration = n_warm_up_iteration,
-    state = initial_state,
-    target_distribution = target_distribution,
-    proposal = proposal,
-    adapters = adapters,
-    show_progress_bar = show_progress_bar,
-    progress_available = progress_available,
-    record_traces_and_statistics = trace_warm_up,
-    trace_function = trace_function,
-    statistic_names = statistic_names
-  )
+  warm_up_results <- list(final_state = initial_state)
+  for (stage_index in seq_along(stages)) {
+    stage <- stages[[stage_index]]
+    stage_warm_up_results <- chain_loop(
+      stage_name = sprintf("Warm-up (stage %d/%d)", stage_index, length(stages)),
+      n_iteration = stage$n_iteration,
+      state = warm_up_results$final_state,
+      target_distribution = target_distribution,
+      proposal = proposal,
+      adapters = stage$adapters,
+      show_progress_bar = show_progress_bar,
+      progress_available = progress_available,
+      record_traces_and_statistics = trace_warm_up,
+      trace_function = trace_function,
+      statistic_names = statistic_names
+    )
+    warm_up_results <- combine_warm_up_results(warm_up_results, stage_warm_up_results)
+  }
   main_results <- chain_loop(
     stage_name = "Main",
     n_iteration = n_main_iteration,
@@ -172,6 +195,100 @@ check_and_process_target_distribution <- function(target_distribution) {
   } else {
     target_distribution
   }
+}
+
+#' Parse and normalise the adapters argument into a canonical staged list.
+#'
+#' This internal helper translates flexible user inputs into the strict format
+#' required by `chain_loop()`. The `adapters` argument accepts three forms:
+#'
+#' 1. A flat list of adapter objects -> wraps into a single stage using all
+#'    n_warm_up_iteration iterations.
+#' 2. A staged list where each element is a list of adapters with an optional
+#'    trailing integer giving the stage iteration count. The last stage may
+#'    omit the count and will receive the remaining warm-up iterations.
+#' 3. A function that accepts n_warm_up_iteration and returns form (2).
+#'
+#' Returns a list of stages, each a named list with entries:
+#'   $adapters    - list of adapter objects for that stage
+#'   $n_iteration - integer number of iterations for that stage
+#'
+#' @noRd
+check_and_process_adapters <- function(adapters, n_warm_up_iteration) {
+  error_message <- paste(
+    "adapters invalid - must be a flat list of adapter objects, a list of",
+    "stage specifications (each a list of adapters with an optional trailing",
+    "integer iteration count), or a function accepting n_warm_up_iteration."
+  )
+  adapter_stages <- if (is.list(adapters) && all(sapply(adapters, is_adapter))) {
+    # Form 1: flat list of adapter objects — wrap as a single stage spec with
+    # a trailing iteration count of n_warm_up_iteration
+    list(c(adapters, list(n_warm_up_iteration)))
+  } else if (is.list(adapters) && all(sapply(adapters, is.list))) {
+    # Form 2: list of stage specifications
+    adapters
+  } else if (is.function(adapters)) {
+    # Form 3: schedule constructor function
+    adapters(n_warm_up_iteration)
+  } else {
+    stop(error_message)
+  }
+  # `adapter_stages` is a list of stage specifications in
+  # the *input* shape expected by `process_stage_specifications`
+  process_stage_specifications(
+    adapter_stages, n_warm_up_iteration, error_message
+  )
+}
+
+# Walk a list of stage specifications, extracting the (optional) trailing
+# iteration count from each and validating that every remaining element is an
+# adapter. Returns a list of stages, each a named list with entries $adapters
+# and $n_iteration. Stage specifications with no trailing count are only valid
+# as the final stage, in which case that stage receives the remainder of the
+# warm-up iterations. The sum of the stage iteration counts must equal
+# n_warm_up_iteration; otherwise an informative error is raised.
+#
+# @noRd
+process_stage_specifications <- function(
+  adapters, n_warm_up_iteration, error_message
+) {
+  stages <- vector("list", length(adapters))
+  n_allocated <- 0L
+  for (i in seq_along(adapters)) {
+    stage_spec <- adapters[[i]]
+    # The last element of a stage spec may be an integer giving n_iteration
+    last <- stage_spec[[length(stage_spec)]]
+    if (is.numeric(last) && length(last) == 1L && !is_adapter(last)) {
+      stage_n_iter <- as.integer(last)
+      stage_adapters <- stage_spec[-length(stage_spec)]
+    } else {
+      # No iteration count supplied — only valid for the last stage
+      if (i < length(adapters)) {
+        stop(paste(
+          "Only the last stage may omit an iteration count.",
+          sprintf("Stage %d has no iteration count.", i)
+        ))
+      }
+      stage_n_iter <- n_warm_up_iteration - n_allocated
+      if (stage_n_iter < 0) {
+        stop("Per-stage iteration counts exceeds n_warm_up_iteration")
+      }
+      stage_adapters <- stage_spec
+    }
+    if (!all(sapply(stage_adapters, is_adapter))) stop(error_message)
+    n_allocated <- n_allocated + stage_n_iter
+    stages[[i]] <- list(adapters = stage_adapters, n_iteration = stage_n_iter)
+  }
+  if (n_allocated != n_warm_up_iteration) {
+    stop(sprintf(
+      paste(
+        "Sum of stage iteration counts (%d) does not equal",
+        "n_warm_up_iteration (%d)."
+      ),
+      n_allocated, n_warm_up_iteration
+    ))
+  }
+  stages
 }
 
 get_trace_function <- function(target_distribution) {
@@ -323,9 +440,22 @@ chain_loop <- function(  # nolint: cyclocomp_linter. styler: off
   list(final_state = state, traces = traces, statistics = statistics)
 }
 
+combine_warm_up_results <- function(warm_up_results_1, warm_up_results_2) {
+  # warm_up_results_1$traces and $statistics may be NULL either because this is
+  # the first call (initial list(final_state = initial_state)) or because
+  # trace_warm_up = FALSE. rbind handles both by treating NULL as empty.
+  # 'row bind' stacks matrices on top of each other.
+  # rbind(NULL, matrix) just returns the matrix unchanged.
+  list(
+    final_state = warm_up_results_2$final_state,
+    traces = rbind(warm_up_results_1$traces, warm_up_results_2$traces),
+    statistics = rbind(warm_up_results_1$statistics, warm_up_results_2$statistics)
+  )
+}
+
 combine_stage_results <- function(warm_up_results, main_results) {
   list(
-    final_state = main_results$state,
+    final_state = main_results$final_state,
     traces = main_results$traces,
     statistics = main_results$statistics,
     warm_up_traces = warm_up_results$traces,
