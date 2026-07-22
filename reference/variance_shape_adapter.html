@@ -48,7 +48,7 @@ which is itself a restatement of method proposed in Haario et al. (2001).</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">variance_shape_adapter</span><span class="op">(</span>kappa <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">variance_shape_adapter</span><span class="op">(</span>kappa <span class="op">=</span> <span class="fl">1</span>, initial_shape <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -58,6 +58,16 @@ which is itself a restatement of method proposed in Haario et al. (2001).</p>
 <dl><dt id="arg-kappa">kappa<a class="anchor" aria-label="anchor" href="#arg-kappa"></a></dt>
 <dd><p>Decay rate exponent in <code>[0.5, 1]</code> for adaptation learning rate.
 Value of 1 (default) corresponds to computing empirical variances.</p></dd>
+
+
+<dt id="arg-initial-shape">initial_shape<a class="anchor" aria-label="anchor" href="#arg-initial-shape"></a></dt>
+<dd><p>Optional numeric vector of length equal to the target
+distribution dimension, specifying the per-dimension proposal scales to
+use as the initial variance estimate. When supplied, takes precedence over
+both any current proposal shape and the default unit initialisation. When
+<code>NULL</code> (default), the adapter reads the current proposal shape at
+initialisation time (to carry over state from a previous warm-up stage)
+and falls back to unit variances if no current shape is available.</p></dd>
 
 </dl></div>
     <div class="section level2">

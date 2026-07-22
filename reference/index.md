@@ -36,6 +36,12 @@
 - [`langevin_proposal()`](http://github-pages.ucl.ac.uk/rmcmc/reference/langevin_proposal.md)
   : Create a new Langevin proposal object.
 
+- [`progressive_adaptation_schedule()`](http://github-pages.ucl.ac.uk/rmcmc/reference/progressive_adaptation_schedule.md)
+  :
+
+  Create a progressive adaptation schedule for use with
+  [`sample_chain()`](http://github-pages.ucl.ac.uk/rmcmc/reference/sample_chain.md).
+
 - [`random_walk_proposal()`](http://github-pages.ucl.ac.uk/rmcmc/reference/random_walk_proposal.md)
   : Create a new (Gaussian) random walk proposal object.
 

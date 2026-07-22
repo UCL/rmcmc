@@ -92,15 +92,31 @@ sample_chain(
 
 - adapters:
 
-  List of adapters to tune proposal parameters during warm-up. Defaults
-  to using list with instances of
-  [`scale_adapter()`](http://github-pages.ucl.ac.uk/rmcmc/reference/scale_adapter.md)
-  and
-  [`shape_adapter()`](http://github-pages.ucl.ac.uk/rmcmc/reference/shape_adapter.md),
-  corresponding to respectively, adapting the scale to coerce the
-  average acceptance rate to a target value using a dual-averaging
-  algorithm, and adapting the shape to an estimate of the covariance of
-  the target distribution.
+  Specifies adapters to tune proposal parameters during warm-up. One of:
+
+  - A flat list of adapter objects (e.g.
+    `list(scale_adapter(), shape_adapter())`), in which case all
+    adapters are active for the full warm-up period.
+
+  - A list of stage specifications, where each stage is itself a list
+    containing adapter objects and optionally a final integer element
+    giving the number of iterations for that stage. The last stage may
+    omit the iteration count, in which case it runs for the remaining
+    warm-up iterations. For example:
+
+        list(
+          list(scale_adapter(), 50),
+          list(scale_adapter(), shape_adapter("variance"), 50),
+          list(scale_adapter(), shape_adapter("covariance"))
+        )
+
+  - A function that accepts `n_warm_up_iteration` as its sole argument
+    and returns a staged list as above. This is useful for convenience
+    schedule constructors such as
+    [`progressive_adaptation_schedule()`](http://github-pages.ucl.ac.uk/rmcmc/reference/progressive_adaptation_schedule.md).
+
+  Defaults to `list(scale_adapter(), shape_adapter())`, which adapts
+  both scale and covariance shape for the full warm-up period.
 
 - show_progress_bar:
 

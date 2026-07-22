@@ -7,7 +7,7 @@ al. (2001).
 ## Usage
 
 ``` r
-variance_shape_adapter(kappa = 1)
+variance_shape_adapter(kappa = 1, initial_shape = NULL)
 ```
 
 ## Arguments
@@ -16,6 +16,17 @@ variance_shape_adapter(kappa = 1)
 
   Decay rate exponent in `[0.5, 1]` for adaptation learning rate. Value
   of 1 (default) corresponds to computing empirical variances.
+
+- initial_shape:
+
+  Optional numeric vector of length equal to the target distribution
+  dimension, specifying the per-dimension proposal scales to use as the
+  initial variance estimate. When supplied, takes precedence over both
+  any current proposal shape and the default unit initialisation. When
+  `NULL` (default), the adapter reads the current proposal shape at
+  initialisation time (to carry over state from a previous warm-up
+  stage) and falls back to unit variances if no current shape is
+  available.
 
 ## Value
 

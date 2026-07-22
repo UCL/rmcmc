@@ -6,7 +6,7 @@ a restatement of method proposed in Haario et al. (2001).
 ## Usage
 
 ``` r
-covariance_shape_adapter(kappa = 1)
+covariance_shape_adapter(kappa = 1, initial_shape = NULL)
 ```
 
 ## Arguments
@@ -15,6 +15,17 @@ covariance_shape_adapter(kappa = 1)
 
   Decay rate exponent in `[0.5, 1]` for adaptation learning rate. Value
   of 1 (default) corresponds to computing empirical covariance matrix.
+
+- initial_shape:
+
+  Optional lower-triangular matrix with the same dimensions as the
+  target distribution, specifying the Cholesky factor of the proposal
+  covariance to use as the initial estimate. When supplied, takes
+  precedence over both any current proposal shape and the default
+  identity initialisation. When `NULL` (default), the adapter reads the
+  current proposal shape at initialisation time (to carry over state
+  from a previous warm-up stage) and falls back to the identity matrix
+  if no current shape is available.
 
 ## Value
 

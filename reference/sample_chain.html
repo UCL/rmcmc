@@ -129,12 +129,24 @@ dependent default initial value for scale parameter.</p></dd>
 
 
 <dt id="arg-adapters">adapters<a class="anchor" aria-label="anchor" href="#arg-adapters"></a></dt>
-<dd><p>List of adapters to tune proposal parameters during warm-up.
-Defaults to using list with instances of <code><a href="scale_adapter.html">scale_adapter()</a></code> and
-<code><a href="shape_adapter.html">shape_adapter()</a></code>, corresponding to respectively, adapting the scale to
-coerce the average acceptance rate to a target value using a dual-averaging
-algorithm, and adapting the shape to an estimate of the covariance of the
-target distribution.</p></dd>
+<dd><p>Specifies adapters to tune proposal parameters during
+warm-up. One of:</p><ul><li><p>A flat list of adapter objects (e.g. <code>list(scale_adapter(), shape_adapter())</code>), in which case all adapters are active for the full
+warm-up period.</p></li>
+<li><p>A list of stage specifications, where each stage is itself a list
+containing adapter objects and optionally a final integer element giving
+the number of iterations for that stage. The last stage may omit the
+iteration count, in which case it runs for the remaining warm-up
+iterations. For example:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="fu">list</span>(<span class="fu">scale_adapter</span>(), <span class="dv">50</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="fu">list</span>(<span class="fu">scale_adapter</span>(), <span class="fu">shape_adapter</span>(<span class="st">"variance"</span>), <span class="dv">50</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="fu">list</span>(<span class="fu">scale_adapter</span>(), <span class="fu">shape_adapter</span>(<span class="st">"covariance"</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>)</span></code></pre><p></p></div></li>
+<li><p>A function that accepts <code>n_warm_up_iteration</code> as its sole argument and
+returns a staged list as above. This is useful for convenience schedule
+constructors such as <code><a href="progressive_adaptation_schedule.html">progressive_adaptation_schedule()</a></code>.</p></li>
+</ul><p>Defaults to <code>list(scale_adapter(), shape_adapter())</code>, which adapts both
+scale and covariance shape for the full warm-up period.</p></dd>
 
 
 <dt id="arg-show-progress-bar">show_progress_bar<a class="anchor" aria-label="anchor" href="#arg-show-progress-bar"></a></dt>
