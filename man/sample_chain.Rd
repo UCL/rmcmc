@@ -5,6 +5,7 @@
 \title{Sample a Markov chain}
 \usage{
 sample_chain(
+  chain_index = NULL,
   target_distribution,
   initial_state,
   n_warm_up_iteration,
@@ -16,6 +17,14 @@ sample_chain(
 )
 }
 \arguments{
+\item{chain_index}{Optional integer index identifying the chain. When
+supplied it is prefixed to progress bar labels / fallback progress
+messages, which is helpful when running multiple chains in parallel. It
+is also the first positional argument so that
+\code{future.apply::future_lapply(1:n_chain, sample_chain, ...)} works out of
+the box: \code{future_lapply} passes each element of \code{1:n_chain} as the first
+positional argument to \code{FUN}, which lands here.}
+
 \item{target_distribution}{Target stationary distribution for chain. One of:
 \itemize{
 \item A one-sided formula specifying expression for log density of target
@@ -41,12 +50,24 @@ correspond to a function which given current chain state outputs a named
 vector or list of variables to trace on each main (non-adaptive) chain
 iteration. If a \code{trace_function} entry is not specified, then the default
 behaviour is to trace the position component of the chain state along
-with the log density of the target distribution.
+with the log density of the target distribution. If \code{initial_state} is
+supplied as a generator function (e.g. \link[stats:rnorm]{stats::rnorm}), the list must
+also contain a named entry \code{dimension} giving the dimension of the
+target's parameter space; the \verb{target_distribution_from_*} helpers
+populate this automatically.
 }}
 
-\item{initial_state}{Initial chain state. Either a vector specifying just
-the position component of the chain state or a list output by \code{chain_state}
-specifying the full chain state.}
+\item{initial_state}{Initial chain state. One of:
+\itemize{
+\item A vector specifying just the position component of the chain state.
+\item A list output by \code{\link[=chain_state]{chain_state()}} specifying the full chain state.
+\item A function taking a single integer argument and returning a numeric
+vector of that length (for example \link[stats:rnorm]{stats::rnorm} or \link[stats:runif]{stats::runif}).
+The function is called with \code{target_distribution$dimension} to produce
+the initial position vector, which allows the same generator to be
+shared across multiple chains while giving each a different random
+starting point.
+}}
 
 \item{n_warm_up_iteration}{Number of warm-up (adaptive) chain iterations to
 run.}
@@ -94,9 +115,14 @@ constructors such as \code{\link[=progressive_adaptation_schedule]{progressive_a
 Defaults to \code{list(scale_adapter(), shape_adapter())}, which adapts both
 scale and covariance shape for the full warm-up period.}
 
-\item{show_progress_bar}{Whether to show progress bars during sampling. If the
-\code{progress} package is installed, displays a progress bar; otherwise prints
-periodic progress messages to the console.}
+\item{show_progress_bar}{Whether to show progress bars during sampling. If
+the \code{progressr} package is installed and the call is nested inside a
+\code{progressr::with_progress()} block, progress updates are routed through
+\code{progressr}, which is safe under parallel execution. Otherwise if the
+\code{progress} package is installed a local progress bar is displayed;
+otherwise periodic messages are printed. Set to \code{FALSE} to suppress
+progress reporting entirely (recommended when running many parallel chains
+without \code{progressr}).}
 
 \item{trace_warm_up}{Whether to record chain traces and adaptation /
 transition statistics during (adaptive) warm-up iterations in addition to
@@ -126,17 +152,44 @@ Sample a Markov chain using Metropolis-Hastings kernel with a user-specified
 target distribution and proposal (defaulting to Barker proposal), optionally
 adapting proposal parameters in a warm-up stage.
 }
+\details{
+\code{sample_chain()} runs a single chain. To run multiple chains (for example
+to compute convergence diagnostics such as R-hat, or to parallelise over
+multiple CPU cores), map \code{sample_chain()} over a vector of chain indices
+using \code{future.apply::future_lapply()} (or an equivalent function from the
+\href{https://www.futureverse.org/}{futureverse} ecosystem) and combine the
+per-chain results with \code{\link[=combine_chain_results]{combine_chain_results()}}. See the examples below.
+}
 \examples{
 target_distribution <- list(
   log_density = function(x) -sum(x^2) / 2,
-  gradient_log_density = function(x) -x
+  gradient_log_density = function(x) -x,
+  dimension = 2
 )
 withr::with_seed(876287L, {
   results <- sample_chain(
-    target_distribution,
+    target_distribution = target_distribution,
     initial_state = stats::rnorm(2),
     n_warm_up_iteration = 1000,
     n_main_iteration = 1000
   )
 })
+\dontrun{
+# Parallel sampling of four chains using future.apply
+library(future.apply)
+plan(multisession)
+results <- future_lapply(
+  1:4,
+  sample_chain,
+  target_distribution = target_distribution,
+  initial_state = stats::rnorm,
+  n_warm_up_iteration = 1000,
+  n_main_iteration = 1000,
+  future.seed = 876287L
+) |> combine_chain_results()
+}
+}
+\seealso{
+\code{\link[=combine_chain_results]{combine_chain_results()}} for reshaping the output of multiple
+parallel calls to \code{sample_chain()} into a single collated list.
 }

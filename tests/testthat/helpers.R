@@ -1,4 +1,6 @@
-standard_normal_target_distribution <- function(value_and_gradient = FALSE) {
+standard_normal_target_distribution <- function(
+  value_and_gradient = FALSE, dimension = NULL
+) {
   target_distribution <- list(
     log_density = function(x) -sum(x^2) / 2,
     gradient_log_density = function(x) -x
@@ -9,6 +11,9 @@ standard_normal_target_distribution <- function(value_and_gradient = FALSE) {
         value = -sum(x^2) / 2, gradient = -x
       )
     }
+  }
+  if (!is.null(dimension)) {
+    target_distribution[["dimension"]] <- dimension
   }
   target_distribution
 }
@@ -115,11 +120,19 @@ check_target_distribution <- function(target_distribution) {
   expect_type(target_distribution, "list")
   expect_named(
     target_distribution,
-    c("log_density", "value_and_gradient_log_density", "trace_function")
+    c(
+      "log_density",
+      "value_and_gradient_log_density",
+      "trace_function",
+      "dimension"
+    ),
+    ignore.order = TRUE
   )
   expect_type(target_distribution$log_density, "closure")
   expect_type(target_distribution$value_and_gradient_log_density, "closure")
   expect_type(target_distribution$trace_function, "closure")
+  expect_true(is.numeric(target_distribution$dimension))
+  expect_true(target_distribution$dimension >= 1)
 }
 
 check_log_density_and_gradient <- function(
