@@ -39,6 +39,9 @@ vector, returning as a list with entries \code{value} and \code{gradient}.
 \item \code{trace_function}: A function which given a \code{chain_state()} object returns a
 named vector of values to trace during sampling. The constrained parameter
 values of model will always be included.
+\item \code{dimension}: The dimension of the (unconstrained) parameter space, as
+reported by \code{model$param_unc_num()}. This is used by \code{sample_chain()} when
+\code{initial_state} is supplied as a generator function such as \code{stats::rnorm}.
 }
 }
 \description{
