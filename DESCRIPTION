@@ -7,7 +7,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-9104-7960")),
     person("Samuel", "Livingstone", role = "aut",
            comment = c(ORCID = "0000-0002-7277-086X")),
-    person(c("Jenna", "Jia"), "Li", , role = "aut",
+    person(c("Jenna", "Jia"), "Li", role = "aut",
            comment = c(ORCID = "0009-0007-7364-6389")),
     person("University College London", role = "cph"),
     person("Engineering and Physical Sciences Research Council", role = "fnd")
