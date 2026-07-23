@@ -506,14 +506,14 @@ format_stage_label <- function(stage_name, chain_index) {
 }
 
 print_fallback_progress <- function(
-  stage_name, chain_iteration, n_iteration, start_time
+  stage_name, chain_iteration, n_iteration, start_time, chain_index
 ) {
   elapsed <- proc.time()[["elapsed"]] - start_time
   pct <- round(100 * chain_iteration / n_iteration)
   label <- format_stage_label(stage_name, chain_index)
   message(sprintf(
     "%s: %d%% done (%d/%d iterations) | elapsed: %.1fs",
-    label, stage_name, pct, chain_iteration, n_iteration, elapsed
+    label, pct, chain_iteration, n_iteration, elapsed
   ))
 }
 
