@@ -12,5 +12,7 @@
 ^doc$
 ^docs$
 ^pkgdown$
+^renv$
+^renv\.lock$
 ^rmcmc\.Rproj$
 ^vignettes/articles$
