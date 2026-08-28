@@ -37,3 +37,13 @@ test_that("Using sample_chains with formula as target_distribution works", {
   expect_nrow(results$statistics, n_main_iteration)
   expect_ncol(results$statistics, 1)
 })
+
+test_that("Constructing target distribution from posteriordb posterior works", {
+  eight_schools_posterior <- posteriordb::posterior(
+    "eight_schools-eight_schools_centered"
+  )
+  target_distribution <- target_distribution_from_posteriordb(
+    eight_schools_posterior
+  )
+  check_target_distribution(target_distribution)
+})
