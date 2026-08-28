@@ -181,7 +181,7 @@ target_distribution_from_log_density_formula <- function(log_density_formula) {
 #' @export
 #'
 #' @examples
-target_distribution_from_posteriordb <- function(posterior, seed=NULL) {
+target_distribution_from_posteriordb <- function(posterior, seed = NULL) {
   rlang::check_installed("bridgestan", reason = "to use this function")
   rlang::check_installed("posteriordb", reason = "to use this function")
   stan_path <- posteriordb::stan_code_file_path(posterior)
