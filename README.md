@@ -14,26 +14,27 @@
 [![JOSS-status](https://joss.theoj.org/papers/b3d646dcf01299076e8a724ec8d909dc/status.svg)](https://joss.theoj.org/papers/b3d646dcf01299076e8a724ec8d909dc)
 <!-- badges: end -->
 
-`rmcmc` is an R package for simulating Markov chains using random-walk,
-Langevin, Hamiltonian or Barker proposals, to compute *Markov chain
-Monte Carlo* (MCMC) estimates of expectations with respect to a target
-distribution on a real-valued vector space. The Barker proposal,
-described in [Livingstone and Zanella
-(2022)](https://doi.org/10.1111/rssb.12482), is a gradient-based MCMC
-algorithm inspired by the Barker accept-reject rule. It combines the
-robustness of simpler MCMC schemes, such as random-walk Metropolis, with
-the efficiency of gradient-based methods, such as the Metropolis
-adjusted Langevin algorithm.
+`rmcmc` is an R package for simulating Markov chains to compute *Markov
+chain Monte Carlo* (MCMC) estimates of expectations with respect to a
+target distribution on a real-valued vector space. The package has
+built-in support for using Metropolis-Hastings transitions with
+random-walk, Langevin, Hamiltonian or Barker proposals, and is designed
+to be easy to extend with additional algorithms.
+
+By default chains are sampled using the Barker proposal, described in
+[Livingstone and Zanella (2022)](https://doi.org/10.1111/rssb.12482),
+which is a gradient-based MCMC algorithm inspired by the Barker
+accept-reject rule. It combines the robustness of simpler MCMC schemes,
+such as random-walk Metropolis, with the efficiency of gradient-based
+methods, such as the Metropolis adjusted Langevin algorithm.
 
 The key function provided by the package is `sample_chain()`, which
 allows sampling a Markov chain with a specified target distribution as
 its stationary distribution. The chain is sampled by generating
 proposals and accepting or rejecting them using a Metropolis-Hasting
 acceptance rule. During an initial warm-up stage, the parameters of the
-proposal distribution can be adapted, with adapters available to both:
-tune the scale of the proposals by coercing the average acceptance rate
-to a target value; tune the shape of the proposals to match covariance
-estimates under the target distribution.
+proposal distribution can be adapted, with adapters available to both
+tune the scale and shape of proposals.
 
 The package has a modular design allowing different algorithmic
 components such as proposals and adapters to be mixed and matched and to

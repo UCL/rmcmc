@@ -12,10 +12,12 @@ Authors@R: c(
     person("University College London", role = "cph"),
     person("Engineering and Physical Sciences Research Council", role = "fnd")
   )
-Description: Functions for simulating Markov chains using random-walk, Langevin,
-    Hamiltonian or Barker proposals, to compute Markov chain Monte Carlo (MCMC)
-    estimates of expectations with respect to a target distribution on a
-    real-valued vector space. Proposal shape and scale parameters can be
+Description: Functions for simulating Markov chains to compute Markov chain
+    Monte Carlo (MCMC) estimates of expectations with respect to a target
+    distribution on a real-valued vector space. The package has built-in support
+    for using Metropolis-Hastings transitions with random-walk, Langevin,
+    Hamiltonian or Barker proposals, and is designed to be easy to extend with
+    additional algorithms. Proposal shape and scale parameters can be
     automatically adapted in an initial warm-up stage. The package has a modular
     design allowing different algorithmic components such as proposals and
     adapters to be mixed and matched. If 'BridgeStan's R interface 
