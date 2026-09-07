@@ -319,8 +319,10 @@ check_and_process_initial_state <- function(initial_state, target_distribution) 
       )
     }
     position <- initial_state(dimension)
-    if (!(is.vector(position) && is.atomic(position)) ||
-      length(position) != dimension) {
+    is_valid_position <- (
+      is.vector(position) && is.atomic(position) && length(position) == dimension
+    )
+    if (!is_valid_position) {
       stop(
         "initial_state function must return an atomic vector of length ",
         "target_distribution$dimension."
