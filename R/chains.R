@@ -175,7 +175,7 @@ sample_chain <- function(
   # them so the legacy positional call still works.
   if (!is.null(chain_index) && is_target_distribution_like(chain_index)) {
     if (!missing(target_distribution) && is.numeric(target_distribution) &&
-        length(target_distribution) == 1) {
+      length(target_distribution) == 1) {
       # Legacy call: sample_chain(target, initial_state, ...) where
       # target_distribution slot contains what would be initial_state or an
       # index. Fall through and treat chain_index as the target.
@@ -318,7 +318,8 @@ combine_chain_results <- function(per_chain_results) {
   )
   for (chain_index in seq_along(per_chain_results)) {
     for (name in result_names) {
-      combined_results[[name]][[chain_index]] <- per_chain_results[[chain_index]][[name]]
+      combined_results[[name]][[chain_index]] <-
+        per_chain_results[[chain_index]][[name]]
     }
   }
   combined_results
@@ -328,7 +329,7 @@ is_target_distribution_like <- function(obj) {
   is.list(obj) &&
     !is.null(names(obj)) &&
     ("log_density" %in% names(obj) || inherits(obj, "formula") ||
-       inherits(obj, "StanModel"))
+      inherits(obj, "StanModel"))
 }
 
 check_and_process_initial_state <- function(initial_state, target_distribution) {
@@ -345,7 +346,7 @@ check_and_process_initial_state <- function(initial_state, target_distribution) 
     }
     position <- initial_state(dimension)
     if (!(is.vector(position) && is.atomic(position)) ||
-        length(position) != dimension) {
+      length(position) != dimension) {
       stop(
         "initial_state function must return an atomic vector of length ",
         "target_distribution$dimension."

@@ -35,7 +35,7 @@ test_that("initial_state as a function uses target_distribution$dimension", {
 })
 
 test_that("initial_state as a function errors when dimension is missing", {
-  target_distribution <- standard_normal_target_distribution()  # no dimension
+  target_distribution <- standard_normal_target_distribution() # no dimension
   expect_error(
     sample_chain(
       target_distribution = target_distribution,
@@ -50,7 +50,7 @@ test_that("initial_state as a function errors when dimension is missing", {
 
 test_that("initial_state function returning wrong length is rejected", {
   target_distribution <- standard_normal_target_distribution(dimension = 3)
-  bad_generator <- function(n) rep(0, n + 1)  # returns wrong length
+  bad_generator <- function(n) rep(0, n + 1) # returns wrong length
   expect_error(
     sample_chain(
       target_distribution = target_distribution,
@@ -156,7 +156,8 @@ test_that("chain_index doubles as future_lapply iteration variable", {
   expect_length(results, 3)
   for (r in results) {
     expect_named(
-      r, c("final_state", "traces", "statistics"), ignore.order = TRUE
+      r, c("final_state", "traces", "statistics"),
+      ignore.order = TRUE
     )
     expect_nrow(r$traces, 5)
   }
@@ -236,7 +237,7 @@ test_that("combine_chain_results rejects inconsistent per-chain field names", {
 })
 
 test_that("combine_chain_results rejects unnamed inner lists", {
-  a <- list(1, 2)  # no names
+  a <- list(1, 2) # no names
   expect_error(combine_chain_results(list(a)), "named lists")
 })
 
@@ -293,10 +294,13 @@ test_that("progressr progressor is invoked when progressr is available", {
         orig_progressor <- progressr::progressor
         unlockBinding("progressor", asNamespace("progressr"))
         assign("progressor", fake_progressor_factory, envir = asNamespace("progressr"))
-        on.exit({
-          assign("progressor", orig_progressor, envir = asNamespace("progressr"))
-          lockBinding("progressor", asNamespace("progressr"))
-        }, add = TRUE)
+        on.exit(
+          {
+            assign("progressor", orig_progressor, envir = asNamespace("progressr"))
+            lockBinding("progressor", asNamespace("progressr"))
+          },
+          add = TRUE
+        )
         sample_chain(
           target_distribution = target_distribution,
           initial_state = stats::rnorm,
@@ -324,10 +328,13 @@ test_that("show_progress_bar = FALSE suppresses progressr calls", {
     orig_progressor <- progressr::progressor
     unlockBinding("progressor", asNamespace("progressr"))
     assign("progressor", fake_progressor_factory, envir = asNamespace("progressr"))
-    on.exit({
-      assign("progressor", orig_progressor, envir = asNamespace("progressr"))
-      lockBinding("progressor", asNamespace("progressr"))
-    }, add = TRUE)
+    on.exit(
+      {
+        assign("progressor", orig_progressor, envir = asNamespace("progressr"))
+        lockBinding("progressor", asNamespace("progressr"))
+      },
+      add = TRUE
+    )
     sample_chain(
       target_distribution = target_distribution,
       initial_state = stats::rnorm,
