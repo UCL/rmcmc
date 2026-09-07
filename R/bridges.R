@@ -20,6 +20,9 @@
 #' * `trace_function`: A function which given a `chain_state()` object returns a
 #'   named vector of values to trace during sampling. The constrained parameter
 #'   values of model will always be included.
+#' * `dimension`: The dimension of the (unconstrained) parameter space, as
+#'   reported by `model$param_unc_num()`. This is used by `sample_chain()` when
+#'   `initial_state` is supplied as a generator function such as `stats::rnorm`.
 #'
 #' @export
 #'
@@ -63,7 +66,8 @@ target_distribution_from_stan_model <- function(
       names(value_and_gradient) <- c("value", "gradient")
       value_and_gradient
     },
-    trace_function = trace_function
+    trace_function = trace_function,
+    dimension = model$param_unc_num()
   )
 }
 
@@ -132,6 +136,11 @@ example_gaussian_stan_model <- function(n_data = 50, seed = 1234L) {
 #' * `value_and_gradient_log_density`: A function to evaluate value and gradient
 #'   of log density function for target distribution given current position
 #'   vector, returning as a list with entries `value` and `gradient`.
+#' * `trace_function`: A function which given a `chain_state()` object returns a
+#'   named vector of values to trace during sampling.
+#' * `dimension`: The number of free variables in the formula, used by
+#'   `sample_chain()` when `initial_state` is supplied as a generator function
+#'   such as `stats::rnorm`.
 #'
 #' @export
 #'
@@ -162,6 +171,7 @@ target_distribution_from_log_density_formula <- function(log_density_formula) {
   list(
     log_density = log_density,
     value_and_gradient_log_density = value_and_gradient_log_density,
-    trace_function = trace_function
+    trace_function = trace_function,
+    dimension = length(variables)
   )
 }

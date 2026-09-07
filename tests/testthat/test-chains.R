@@ -494,9 +494,11 @@ test_that("Manual progress fallback prints messages when progress unavailable", 
   n_warm_up_iteration <- 10
   # use non-multiple of 10 to test finalisation of progress updates
   n_main_iteration <- 21
-  # Simulate progress package being unavailable by mocking
+  # Simulate both progress and progressr packages being unavailable so that
+  # the message()-based fallback is exercised.
   with_mocked_bindings(
     is_progress_package_available = function() FALSE,
+    is_progressr_package_available = function() FALSE,
     .package = "rmcmc",
     {
       msgs <- capture_messages(
@@ -530,6 +532,7 @@ test_that("No manual progress output when show_progress_bar is FALSE", {
   inputs <- make_fallback_test_inputs()
   with_mocked_bindings(
     is_progress_package_available = function() FALSE,
+    is_progressr_package_available = function() FALSE,
     .package = "rmcmc",
     {
       expect_no_message(

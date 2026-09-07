@@ -18,6 +18,11 @@ distribution given current position vector.
 \item \code{value_and_gradient_log_density}: A function to evaluate value and gradient
 of log density function for target distribution given current position
 vector, returning as a list with entries \code{value} and \code{gradient}.
+\item \code{trace_function}: A function which given a \code{chain_state()} object returns a
+named vector of values to trace during sampling.
+\item \code{dimension}: The number of free variables in the formula, used by
+\code{sample_chain()} when \code{initial_state} is supplied as a generator function
+such as \code{stats::rnorm}.
 }
 }
 \description{
