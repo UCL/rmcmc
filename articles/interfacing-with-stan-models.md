@@ -532,7 +532,7 @@ As well as being able to compute diagnostics and statistics using the
 ``` r
 
 library(bayesplot)
-#> This is bayesplot version 1.15.0
+#> This is bayesplot version 1.16.0
 #> - Online documentation and vignettes at mc-stan.org/bayesplot
 #> - bayesplot theme set to bayesplot::theme_default()
 #>    * Does _not_ affect other ggplot2 plots
