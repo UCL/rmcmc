@@ -11,13 +11,6 @@
 #' [futureverse](https://www.futureverse.org/) ecosystem) and combine the
 #' per-chain results with [combine_chain_results()]. See the examples below.
 #'
-#' @param chain_index Optional integer index identifying the chain. When
-#'   supplied it is prefixed to progress bar labels / fallback progress
-#'   messages, which is helpful when running multiple chains in parallel. It
-#'   is also the first positional argument so that
-#'   `future.apply::future_lapply(1:n_chain, sample_chain, ...)` works out of
-#'   the box: `future_lapply` passes each element of `1:n_chain` as the first
-#'   positional argument to `FUN`, which lands here.
 #' @param target_distribution Target stationary distribution for chain. One of:
 #'   * A one-sided formula specifying expression for log density of target
 #'     distribution which will be passed to
@@ -60,6 +53,9 @@
 #'   run.
 #' @param n_main_iteration Number of main (non-adaptive) chain iterations to
 #'   run.
+#' @param chain_index Optional integer index identifying the chain. When
+#'   supplied it is prefixed to progress bar labels / fallback progress
+#'   messages, which is helpful when running multiple chains in parallel.
 #' @param proposal Proposal distribution object. Defaults to Barker proposal,
 #'   that is the output of [barker_proposal()]. Proposal objects are lists which
 #'   must minimally define entries `sample`, a function to generate sample from
@@ -159,31 +155,16 @@
 #' ) |> combine_chain_results()
 #' }
 sample_chain <- function(
-  chain_index = NULL,
   target_distribution,
   initial_state,
   n_warm_up_iteration,
   n_main_iteration,
+  chain_index = NULL,
   proposal = barker_proposal(),
   adapters = list(scale_adapter(), shape_adapter()),
   show_progress_bar = TRUE,
   trace_warm_up = FALSE
 ) {
-  # Backward-compatibility shim: earlier versions of sample_chain took
-  # target_distribution as the first positional argument. If a caller has
-  # passed a target_distribution-shaped object as chain_index, silently swap
-  # them so the legacy positional call still works.
-  if (!is.null(chain_index) && is_target_distribution_like(chain_index)) {
-    if (!missing(target_distribution) && is.numeric(target_distribution) &&
-      length(target_distribution) == 1) {
-      # Legacy call: sample_chain(target, initial_state, ...) where
-      # target_distribution slot contains what would be initial_state or an
-      # index. Fall through and treat chain_index as the target.
-    }
-    swapped_target <- chain_index
-    chain_index <- NULL
-    target_distribution <- swapped_target
-  }
   progressr_available <- is_progressr_package_available()
   progress_available <- is_progress_package_available()
   # Establish which progress channel to use, in decreasing preference:

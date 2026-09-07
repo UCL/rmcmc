@@ -5,11 +5,11 @@
 \title{Sample a Markov chain}
 \usage{
 sample_chain(
-  chain_index = NULL,
   target_distribution,
   initial_state,
   n_warm_up_iteration,
   n_main_iteration,
+  chain_index = NULL,
   proposal = barker_proposal(),
   adapters = list(scale_adapter(), shape_adapter()),
   show_progress_bar = TRUE,
@@ -17,14 +17,6 @@ sample_chain(
 )
 }
 \arguments{
-\item{chain_index}{Optional integer index identifying the chain. When
-supplied it is prefixed to progress bar labels / fallback progress
-messages, which is helpful when running multiple chains in parallel. It
-is also the first positional argument so that
-\code{future.apply::future_lapply(1:n_chain, sample_chain, ...)} works out of
-the box: \code{future_lapply} passes each element of \code{1:n_chain} as the first
-positional argument to \code{FUN}, which lands here.}
-
 \item{target_distribution}{Target stationary distribution for chain. One of:
 \itemize{
 \item A one-sided formula specifying expression for log density of target
@@ -74,6 +66,10 @@ run.}
 
 \item{n_main_iteration}{Number of main (non-adaptive) chain iterations to
 run.}
+
+\item{chain_index}{Optional integer index identifying the chain. When
+supplied it is prefixed to progress bar labels / fallback progress
+messages, which is helpful when running multiple chains in parallel.}
 
 \item{proposal}{Proposal distribution object. Defaults to Barker proposal,
 that is the output of \code{\link[=barker_proposal]{barker_proposal()}}. Proposal objects are lists which
