@@ -306,13 +306,6 @@ combine_chain_results <- function(per_chain_results) {
   combined_results
 }
 
-is_target_distribution_like <- function(obj) {
-  is.list(obj) &&
-    !is.null(names(obj)) &&
-    ("log_density" %in% names(obj) || inherits(obj, "formula") ||
-      inherits(obj, "StanModel"))
-}
-
 check_and_process_initial_state <- function(initial_state, target_distribution) {
   if (is.function(initial_state)) {
     dimension <- target_distribution$dimension
