@@ -165,3 +165,27 @@ target_distribution_from_log_density_formula <- function(log_density_formula) {
     trace_function = trace_function
   )
 }
+
+#' Construct a target distribution from a posteriordb pdb_posterior object.
+#'
+#' @param posterior A `pdb_posterior` object created using `posterior` function
+#'    in `posteriordb` package and corresponding to one of the posteriors
+#'    defined in the posteriordb database.
+#'
+#' @returns A list with entries
+#' * `log_density`: A function to evaluate log density function for target
+#'   distribution given current position vector.
+#' * `value_and_gradient_log_density`: A function to evaluate value and gradient
+#'   of log density function for target distribution given current position
+#'   vector, returning as a list with entries `value` and `gradient`.
+#' @export
+#'
+#' @examples
+target_distribution_from_posteriordb <- function(posterior, seed = NULL) {
+  rlang::check_installed("bridgestan", reason = "to use this function")
+  rlang::check_installed("posteriordb", reason = "to use this function")
+  stan_path <- posteriordb::stan_code_file_path(posterior)
+  data_path <- posteriordb::data_file_path(posterior)
+  stan_model <- bridgestan::StanModel$new(stan_path, data_path, seed)
+  target_distribution_from_stan_model(stan_model)
+}

@@ -187,6 +187,8 @@ check_and_process_target_distribution <- function(target_distribution) {
     target_distribution_from_log_density_formula(target_distribution)
   } else if (inherits(target_distribution, "StanModel")) {
     target_distribution_from_stan_model(target_distribution)
+  } else if (inherits(target_distribution, "pdb_posterior")) {
+    target_distribution_from_posteriordb(target_distribution)
   } else if (
     !is.list(target_distribution) ||
       !("log_density" %in% names(target_distribution))
